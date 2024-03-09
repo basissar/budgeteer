@@ -1,6 +1,7 @@
 ### Deno ###
 /.idea/
 /.vscode/
+/node_modules/
 
 # User-specific stuff
 .idea/**/workspace.xml
