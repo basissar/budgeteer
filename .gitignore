@@ -2,6 +2,7 @@
 /.idea/
 /backend/.vscode/
 /backend/node_modules/
+/backend/info
 
 # User-specific stuff
 .idea/**/workspace.xml
