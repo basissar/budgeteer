@@ -1,9 +1,11 @@
 import {RouterContext} from "https://deno.land/x/oak@v12.6.1/router.ts";
 import {Category} from "../model/Category.ts";
 import {categoryRepo} from "../repository/categoryRepo.ts";
-import {BAD_REQUEST, CREATED, INTERNAL_ERROR, OK} from "../macros.ts";
-import {categoryService} from "../service/categoryService.ts";
+import {BAD_REQUEST, CREATED, INTERNAL_ERROR, OK} from "../config/macros.ts";
 
+// import {categoryService} from "../service/categoryService.ts";
+
+/*
 export async function createCategory(ctx: RouterContext<string>){
     try {
         const requestBody = await ctx.request.body().value;
@@ -57,7 +59,7 @@ export async function getAllCategories(ctx: RouterContext<string>){
 
 export async function getAllCategoriesForUser(ctx: RouterContext<string>){
     try{
-        const { id } = ctx.params;
+        const id  = Number(ctx.params);
 
         if (!id){
             ctx.response.status = BAD_REQUEST;
@@ -74,9 +76,9 @@ export async function getAllCategoriesForUser(ctx: RouterContext<string>){
             categories: categories
         }
 
-
     } catch (error){
         ctx.response.status = INTERNAL_ERROR;
         ctx.response.body = { message: error };
     }
 }
+*/

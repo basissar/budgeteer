@@ -1,4 +1,4 @@
-import {DataTypes, Model} from "../deps.ts";
+import {DataTypes, Model} from "../config/deps.ts";
 
 /*
 export class ExperienceManager extends Model{
