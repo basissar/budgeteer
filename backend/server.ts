@@ -29,7 +29,7 @@ const walletController = new WalletController();
 
 const oauth2Client = new OAuth2Client({
     clientId: "464adeab29b6617d357a",
-    clientSecret: "f920495d40ccab94cb4b19debd017a9e73267eac",
+    clientSecret: "***",
     authorizationEndpointUri: "https://github.com/login/oauth/authorize",
     tokenUri: "https://github.com/login/oauth/access_token",
     resourceEndpointHost: "https://api.github.com",
