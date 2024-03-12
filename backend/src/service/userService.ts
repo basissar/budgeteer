@@ -1,6 +1,12 @@
 import { container } from "../container.ts";
+import { DuplicateError } from "../errors/DuplicateError.ts";
+import { NotFoundError } from "../errors/NotFoundError.ts";
+import { ServiceError } from "../errors/ServiceError.ts";
 import {User} from "../model/User.ts";
 import {UserRepository} from "../repository/userRepo.ts"
+import { compare, hash} from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+import { create, getNumericDate } from "https://deno.land/x/djwt@v2.4/mod.ts";
+import { key } from "../utils/apiKey.ts";
 
 // import { Injectable } from "https://deno.land/x/inject@v0.1.2/mod.ts";
 
@@ -41,9 +47,51 @@ export class UserService {
         } catch (error) {
             console.error(error.stack);
             throw new Error(error.message);
+        }   
+    }
+
+    async register(user: User) {
+        try{
+            const exists = await this.exists(user.username);
+
+            if(exists) {
+                throw new DuplicateError(`User with username ${user.username} already exists`);
+            }
+
+            const hashedPassword = await hash(user.password);
+
+            user.password = hashedPassword;
+
+            return await this.repository.save(user);
+        } catch (error) {
+            throw new ServiceError("User service error: " + error.stack);
+        }
+    }
+
+    async login(username: string, password: string): Promise<string | null> {
+        const user = await this.repository.findByUsername(username);
+
+        if(!user) {
+            throw new NotFoundError(`User with ${username} not found`);
         }
 
-        
+        const passwordMatch = await compare(password, user.password);
+
+        if(!passwordMatch) {
+            return null;
+        }
+
+        const payload = {
+            id: user.id,
+            username: user.username,
+            exp: getNumericDate(new Date().getTime() + 3600 * 1000),
+        }
+
+        const jwt = await await create({ alg: "HS512", typ: "JWT" }, { payload }, key);
+
+        console.log(jwt);
+
+        return jwt;
     }
 
     async getAllUsers(): Promise<User[] | null> {

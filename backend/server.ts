@@ -5,8 +5,6 @@ import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { OAuth2Client } from "https://deno.land/x/oauth2@v0.2.6/mod.ts";
 import { UserController } from "./src/controller/userController.ts";
 import { UserRepository } from "./src/repository/userRepo.ts";
-import { UserService } from "./src/service/userService.ts";
-import { WalletService } from "./src/service/walletService.ts";
 import { WalletRepository } from "./src/repository/walletRepo.ts";
 import { WalletController } from "./src/controller/walletController.ts";
 
@@ -51,6 +49,36 @@ router.get("/budgeteer/login", (ctx) => {
         oauth2Client.code.getAuthorizationUri(),
     );
 });
+
+/*
+router.get("/oauth2/callback", async (ctx) => {
+    try {
+      // Exchange the authorization code for an access token
+      const tokens = await oauth2Client.code.getToken(ctx.request.url);
+  
+      // Use the access token to make an authenticated API request to GitHub
+      const userResponse = await fetch("https://api.github.com/user", {
+        headers: {
+          Authorization: `token ${tokens.accessToken}`,
+        },
+      });
+  
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        ctx.response.body = `Hello, ${userData.name}!`;
+      } else {
+        ctx.response.body = "Failed to fetch user data from GitHub.";
+      }
+    } catch (error) {
+      ctx.response.body = "Error occurred during OAuth2 callback.";
+      console.error(error);
+    }
+  });
+*/
+
+router.post("/budgeteer/user/login", userController.login.bind(userController));
+
+router.post("/budgeteer/user/register", userController.register.bind(userController));
 
 router.post("/budgeteer/user", userController.createUser.bind(userController));
 
