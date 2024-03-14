@@ -1,13 +1,4 @@
-
-// export interface Goal {
-//     id: bigint;
-//     targetAmount: number;
-//     currentAmount: number;
-//     deadline: Date;
-//     userId: bigint
-// }
-
-import { Table, Model, Column, ForeignKey } from "npm:sequelize-typescript";
+import { Table, Model, Column, ForeignKey } from "../config/deps.ts";
 import { Wallet } from './Wallet.ts'
 
 @Table({tableName: "goals"})

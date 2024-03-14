@@ -1,9 +1,10 @@
 import {RouterContext} from 'https://deno.land/x/oak@v12.6.1/router.ts';
 import { UserService } from "../service/userService.ts";
 import { User } from "../model/User.ts";
-import { BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED } from "../config/macros.ts";
-import { NOT_FOUND } from "../config/macros.ts";
+import { BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, NOT_FOUND } from "../config/macros.ts";
 import { container } from "../container.ts";
+import { verify } from 'https://deno.land/x/djwt@v2.4/mod.ts';
+import { key } from "../utils/apiKey.ts";
 
 export class UserController {
 
@@ -71,6 +72,7 @@ export class UserController {
             ctx.response.body = {
                 token: token,
             }
+            ctx.cookies.set("token", token);
         } catch (error){
             ctx.response.status = INTERNAL_ERROR,
             ctx.response.body = {message: error.message}
@@ -157,6 +159,30 @@ export class UserController {
                 ctx.response.body = { message: "Username is required" };
                 return;
             }
+
+            const token = ctx.request.headers.get('Authorization');
+
+            if(!token) {
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: "Unauthorized: Token missing"};
+                return;
+            }
+
+            const isValid = await this.userService.verifyToken(token.split(" ")[1]);
+
+            if(!isValid){
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: "Unauthorized: Invalid token"};
+                return;
+            }
+
+            const payload = await verify(token.split(" ")[1],key)
+
+            if(payload.username != username){
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: "Unauthorized: Attempt to delete account that doesn't belong to user."}
+            }
+
     
             const deletedUser = await this.userService.deleteUser(username);
     

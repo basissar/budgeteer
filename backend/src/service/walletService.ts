@@ -2,6 +2,7 @@ import {Wallet} from "../model/Wallet.ts";
 import {WalletRepository} from "../repository/walletRepo.ts";
 import {UserRepository} from "../repository/userRepo.ts";
 import {NotFoundError} from "../errors/NotFoundError.ts";
+import { ServiceError } from "../errors/ServiceError.ts";
 
 export class WalletService {
 
@@ -43,6 +44,24 @@ export class WalletService {
         }
 
         return foundWallet;
+    }
+
+    async belongsToUser(userId: number, walletId: number): Promise<boolean> {
+        try {
+            const foundWallet = await this.getWallet(walletId);
+
+            if(foundWallet == null){
+                throw new NotFoundError(`Wallet with ${walletId} does not exist`);
+            }
+
+            if (foundWallet.userId !== userId){
+                return false;
+            } 
+
+            return true;
+        } catch (error) {
+            throw new ServiceError("Wallet Service error: " + error.message);
+        }
     }
 
     async deleteWalletForUser(userId: number, walletId: number): Promise<boolean>{

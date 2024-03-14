@@ -5,7 +5,7 @@ import { ServiceError } from "../errors/ServiceError.ts";
 import {User} from "../model/User.ts";
 import {UserRepository} from "../repository/userRepo.ts"
 import { compare, hash} from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
-import { create, getNumericDate } from "https://deno.land/x/djwt@v2.4/mod.ts";
+import { create, getNumericDate, verify } from "https://deno.land/x/djwt@v2.4/mod.ts";
 import { key } from "../utils/apiKey.ts";
 
 // import { Injectable } from "https://deno.land/x/inject@v0.1.2/mod.ts";
@@ -87,7 +87,7 @@ export class UserService {
             exp: getNumericDate(new Date().getTime() + 3600 * 1000),
         }
 
-        const jwt = await await create({ alg: "HS512", typ: "JWT" }, { payload }, key);
+        const jwt = await create({ alg: "HS512", typ: "JWT" }, { payload }, key);
 
         console.log(jwt);
 
@@ -135,6 +135,15 @@ export class UserService {
             }
         } catch (error) {
             throw new Error('Error checking user existence: ' + error);
+        }
+    }
+
+    async verifyToken(token: string): Promise<boolean> {
+        try {
+            await verify(token, key);
+            return true;
+        } catch {
+            return false;
         }
     }
 }

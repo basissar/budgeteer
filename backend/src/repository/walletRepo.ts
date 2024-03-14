@@ -6,19 +6,7 @@ export class WalletRepository implements BaseRepository<Wallet> {
     
     async save(wallet: Wallet): Promise<Wallet | null> {
         try {
-            const newWallet = new Wallet(
-                {
-                    id: wallet.id,
-                    userId: wallet.userId,
-                    name: wallet.name
-                }
-            );
-
-            console.log(newWallet);
-
-            const result = await newWallet.save();
-
-            console.log(result);
+            const result = await wallet.save();
 
             return result;
         } catch (error){
