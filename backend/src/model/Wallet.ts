@@ -13,10 +13,10 @@ export class Wallet extends Model{
 
     @ForeignKey(() => User)
     @Column({allowNull: false})
-    public userId!: number;
+    declare public userId: number;
 
     @Column({allowNull: false})
-    public name!: string;
+    declare public name: string;
 
     @HasMany(() => Budget)
     public budgets?: Budget[];

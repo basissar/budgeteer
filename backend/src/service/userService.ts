@@ -146,4 +146,17 @@ export class UserService {
             return false;
         }
     }
+
+    async getCurrentUserId(token: string): Promise<number | null> {
+        try {
+            const result = await verify(token, key);
+
+            const id = (result as { payload: { id: number } }).payload.id;
+
+            return id;
+        } catch (error) {
+            console.error('Error verifying token: ' + error);
+            return null;
+        }
+    }
 }

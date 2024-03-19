@@ -94,11 +94,11 @@ router.delete("/budgeteer/users/:username", userController.deleteUserByUsername)
 
 // router.get("/budgeteer/categories/:id", getAllCategoriesForUser);
 
-router.post("/budgeteer/wallets/", walletController.createWallet);
+router.post("/budgeteer/:userId/wallets", walletController.createWallet.bind(walletController));
 
-router.get("/budgeteer/wallets/:userId", walletController.getAllWalletsForUser)
+router.get("/budgeteer/:userId/wallets/", walletController.getAllWalletsForUser.bind(walletController));
 
-router.get("/budgeteer/wallets/:userId/:walletId", walletController.getWalletForUser)
+router.get("/budgeteer/:userId/wallets/:walletId", walletController.getWalletForUser.bind(walletController))
 
 // router.delete("/budgeteer/wallets/:id", deleteWalletForUser)
 

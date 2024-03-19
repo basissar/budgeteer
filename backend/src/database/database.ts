@@ -29,7 +29,8 @@ export async function initializeDatabase() {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
         await sequelize.addModels([User, Wallet, Category, Budget, Goal]);
-        await sequelize.sync({force: true});
+        // await sequelize.sync({force: true});
+        await sequelize.sync();
         console.log('Models synchronized successfully.');
     } catch (error) {
         console.error('Unable to connect to the database:', error.stack);
