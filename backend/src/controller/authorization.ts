@@ -21,14 +21,8 @@ const authorization = async (ctx: RouterContext<string>, next: () => Promise<any
         }
     
         const tokenId = (result as { payload: { id: number } }).payload.id;
-
-        console.log("--- TOKEN ID ---");
-        console.log(tokenId);
     
         const paramsId = ctx.params.userId;
-
-        console.log("--- PARAMS ID ---");
-        console.log(paramsId);
     
         if(tokenId != Number(paramsId)) {
             ctx.response.status = 403;
