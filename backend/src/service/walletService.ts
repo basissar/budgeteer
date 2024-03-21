@@ -53,7 +53,7 @@ export class WalletService {
     }
 
     async getWalletForUser(walletId: number, userId: number) {
-        const userExists = this.userRepository.exists(userId);
+        const userExists = await this.userRepository.exists(userId);
         
         if(!userExists){
             throw new NotFoundError("User with identifier: " + userId + " does not exist.");
@@ -69,6 +69,14 @@ export class WalletService {
         }
 
         return foundWallet;
+    }
+
+    async exists(walletId: number): Promise<boolean> {
+        try {
+            return await this.walletRepository.exists(walletId);
+        } catch (err) {
+            throw new ServiceError("Wallet service error: " + err.message);
+        }
     }
 
     async belongsToUser(userId: number, walletId: number): Promise<boolean> {
@@ -90,7 +98,7 @@ export class WalletService {
     }
 
     async deleteWalletForUser(userId: number, walletId: number): Promise<boolean>{
-        const userExists = this.userRepository.existsById(userId);
+        const userExists = await this.userRepository.existsById(userId);
 
         if(!userExists){
             throw new Error("User with identifier: " + userId + " does not exist.");

@@ -1,6 +1,6 @@
 import {WalletService} from "../service/walletService.ts";
 import {RouterContext} from "https://deno.land/x/oak@v12.6.1/router.ts";
-import {BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED} from "../config/macros.ts";
+import {BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE} from "../config/macros.ts";
 import {Wallet} from "../model/Wallet.ts";
 import { UserService } from "../service/userService.ts";
 import { container } from "../container.ts";
@@ -12,12 +12,12 @@ export class WalletController {
     public walletService: WalletService;
 
     constructor(){
-        const userSer = container.resolve("UserService");
-        const walletSer = container.resolve("WalletService");
+        const userSer = container.resolve(USER_SERVICE);
+        const walletSer = container.resolve(WALLET_SERVICE);
 
         if (userSer == null) {
             const newUserSer = new UserService();
-            container.register("UserService", newUserSer);
+            container.register(USER_SERVICE, newUserSer);
             this.userService = newUserSer;
         } else {
             this.userService = userSer;
@@ -25,7 +25,7 @@ export class WalletController {
 
         if (walletSer == null) {
             const newWalletSer = new WalletService();
-            container.register("WalletService", newWalletSer);
+            container.register(WALLET_SERVICE, newWalletSer);
             this.walletService = newWalletSer;
         } else {
             this.walletService = walletSer;
@@ -41,28 +41,6 @@ export class WalletController {
             if (!userExists) {
                 ctx.response.status = BAD_REQUEST;
                 ctx.response.body = { message: "Cannot create wallet for nonexisting user"};
-                return;
-            }
-
-            const token = ctx.request.headers.get('Authorization')?.split(' ')[1];
-
-            if (!token) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: 'Authorization token missing' };
-                return;
-            }
-
-            const tokenId = await this.userService.getCurrentUserId(token);
-
-            if (!tokenId) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: 'Invalid token or expired' };
-                return;
-            }
-
-            if (tokenId != Number(receivedUserId)){
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: 'Token does not match user ID' };
                 return;
             }
 

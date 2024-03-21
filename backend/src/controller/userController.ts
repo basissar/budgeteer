@@ -5,16 +5,19 @@ import { BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, NOT_FOUND } fro
 import { container } from "../container.ts";
 import { verify } from 'https://deno.land/x/djwt@v2.4/mod.ts';
 import { key } from "../utils/apiKey.ts";
+import { USER_SERVICE } from '../config/macros.ts';
 
 export class UserController {
 
     public userService: UserService;
 
     constructor() {
-        const contResult = container.resolve("UserService");
+        const contResult = container.resolve(USER_SERVICE);
 
         if(contResult == null) {
-            this.userService = new UserService();
+            const newUserSer = new UserService();
+            container.register(USER_SERVICE, newUserSer);
+            this.userService = newUserSer;
         } else {
             this.userService = contResult;
         }

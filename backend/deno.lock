@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:sequelize": "npm:sequelize@6.37.1",
       "npm:sequelize-typescript": "npm:sequelize-typescript@2.1.6_@types+node@18.16.19_@types+validator@13.11.9_reflect-metadata@0.2.1_sequelize@6.37.1"
     },
     "npm": {

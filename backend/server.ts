@@ -12,9 +12,15 @@ import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/container.ts";
 
 import { config } from 'https://deno.land/x/dotenv/mod.ts';
+import { USER_REPOSITORY } from "./src/config/macros.ts";
+import { WALLET_REPOSITORY } from "./src/config/macros.ts";
+import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
+import { ExpenseRepository } from "./src/repository/expenseRepo.ts";
+import authorization from "./src/controller/authorization.ts";
 
-container.register("UserRepository", new UserRepository());
-container.register("WalletRepository", new WalletRepository());
+container.register(USER_REPOSITORY, new UserRepository());
+container.register(WALLET_REPOSITORY, new WalletRepository());
+container.register(EXPENSE_REPOSITORY, new ExpenseRepository());
 
 const server = new Application();
 const router = new Router();
@@ -94,11 +100,13 @@ router.delete("/budgeteer/users/:username", userController.deleteUserByUsername)
 
 // router.get("/budgeteer/categories/:id", getAllCategoriesForUser);
 
-router.post("/budgeteer/:userId/wallets", walletController.createWallet.bind(walletController));
+router.post("/budgeteer/:userId/wallets", authorization, walletController.createWallet.bind(walletController));
 
-router.get("/budgeteer/:userId/wallets/", walletController.getAllWalletsForUser.bind(walletController));
+router.get("/budgeteer/:userId/wallets", authorization, walletController.getAllWalletsForUser.bind(walletController));
 
-router.get("/budgeteer/:userId/wallets/:walletId", walletController.getWalletForUser.bind(walletController))
+router.get("/budgeteer/:userId/wallets/:walletId", authorization, walletController.getWalletForUser.bind(walletController));
+
+// router.post("/budgeteer/:userId/wallets/:walletId/expenses",)
 
 // router.delete("/budgeteer/wallets/:id", deleteWalletForUser)
 

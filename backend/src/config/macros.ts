@@ -24,3 +24,12 @@ export const DEV_DB = "mgmawvxf";
 export const DEV_HOSTNAME = "cornelius.db.elephantsql.com";
 export const DEV_USER = "mgmawvxf";
 export const DEV_PASSWORD = "**";
+
+//other
+export const EXPENSE_REPOSITORY = "ExpenseRepository";
+export const USER_REPOSITORY = "UserRepository";
+export const WALLET_REPOSITORY = "WalletRepository";
+
+export const USER_SERVICE = "UserService";
+export const WALLET_SERVICE = "WalletService";
+export const EXPENSE_SERVICE = "ExpenseService";
