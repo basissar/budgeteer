@@ -36,7 +36,7 @@ export class WalletController {
         try {
             const { userId: receivedUserId } = ctx.params;
 
-            const userExists = await this.userService.exists(Number(receivedUserId));
+            const userExists = await this.userService.exists(receivedUserId);
 
             if (!userExists) {
                 ctx.response.status = BAD_REQUEST;
@@ -82,7 +82,7 @@ export class WalletController {
                 return;
             }
 
-            const wallets = await this.walletService.getAllWalletsForUser(Number(userId));
+            const wallets = await this.walletService.getAllWalletsForUser(userId);
 
             ctx.response.status = OK;
 
@@ -106,7 +106,7 @@ export class WalletController {
                 return;
             }
 
-            const wallet = await this.walletService.getWalletForUser(Number(walletId), Number(userId));
+            const wallet = await this.walletService.getWalletForUser(walletId, userId);
 
             ctx.response.status = OK;
 

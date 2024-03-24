@@ -1,4 +1,4 @@
-import {Table, Column, Model, ForeignKey, BelongsTo} from 'npm:sequelize-typescript';
+import {Table, Column, Model, ForeignKey, BelongsTo, DataType} from 'npm:sequelize-typescript';
 import { User } from "./User.ts";
 import { Wallet } from "./Wallet.ts";
 
@@ -9,11 +9,15 @@ export class Category extends Model {
     public name!: string;
 
     @ForeignKey(() => User)
-    @Column({ allowNull: true })
-    public userId?: number;
+    @Column({
+        allowNull: true,
+        type: DataType.UUID
+    })
+    declare public userId: string;
 
     @ForeignKey(() => Wallet)
-    @Column({ allowNull: true })
-    public walletId?: number;
+    @Column({ allowNull: true,
+        type: DataType.UUID})
+    public walletId?: string;
 
 }

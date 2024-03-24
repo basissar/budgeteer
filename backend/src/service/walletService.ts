@@ -38,8 +38,8 @@ export class WalletService {
         return await this.walletRepository.save(wallet);
     }
 
-    async getAllWalletsForUser(id: number): Promise<Wallet[] | null> {
-        const userExists = this.userRepository.existsById(id);
+    async getAllWalletsForUser(id: string): Promise<Wallet[] | null> {
+        const userExists = await this.userRepository.exists(id);
 
         if(!userExists){
             throw new NotFoundError("User with identifier: " + id + " does not exist.");
@@ -48,11 +48,11 @@ export class WalletService {
         return await this.walletRepository.getAllForUser(id);
     }
 
-    async getWallet(walletId: number): Promise<Wallet | null>{
+    async getWallet(walletId: string): Promise<Wallet | null>{
         return await this.walletRepository.findById(walletId);
     }
 
-    async getWalletForUser(walletId: number, userId: number) {
+    async getWalletForUser(walletId: string, userId: string) {
         const userExists = await this.userRepository.exists(userId);
         
         if(!userExists){
@@ -71,7 +71,7 @@ export class WalletService {
         return foundWallet;
     }
 
-    async exists(walletId: number): Promise<boolean> {
+    async exists(walletId: string): Promise<boolean> {
         try {
             return await this.walletRepository.exists(walletId);
         } catch (err) {
@@ -79,7 +79,7 @@ export class WalletService {
         }
     }
 
-    async belongsToUser(userId: number, walletId: number): Promise<boolean> {
+    async belongsToUser(userId: string, walletId: string): Promise<boolean> {
         try {
             const foundWallet = await this.getWallet(walletId);
 
@@ -97,7 +97,7 @@ export class WalletService {
         }
     }
 
-    async deleteWalletForUser(userId: number, walletId: number): Promise<boolean>{
+    async deleteWalletForUser(userId: string, walletId: string): Promise<boolean>{
         const userExists = await this.userRepository.existsById(userId);
 
         if(!userExists){

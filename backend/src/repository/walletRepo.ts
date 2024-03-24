@@ -2,7 +2,7 @@
 import {Wallet} from "../model/Wallet.ts";
 import { BaseRepository } from "./baseRepository.ts";
 
-export class WalletRepository implements BaseRepository<Wallet> {
+export class WalletRepository implements BaseRepository<Wallet, string> {
     
     async save(wallet: Wallet): Promise<Wallet | null> {
         try {
@@ -19,11 +19,11 @@ export class WalletRepository implements BaseRepository<Wallet> {
         return await Wallet.findAll();
     }
 
-    async findById(id: number): Promise<Wallet | null> {
+    async findById(id: string): Promise<Wallet | null> {
         return await Wallet.findByPk(id);
     }
     
-    async deleteById(id: number): Promise<number> {
+    async deleteById(id: string): Promise<number> {
         return await Wallet.destroy(
             {
                 where: {
@@ -32,12 +32,12 @@ export class WalletRepository implements BaseRepository<Wallet> {
             });
     }
 
-    async exists(id: number): Promise<boolean> {
+    async exists(id: string): Promise<boolean> {
         const result = await Wallet.findOne({where: {id: id}});
         return !!result;
     }
 
-    public async getAllForUser(userId: number): Promise<Wallet[] | null>{
+    public async getAllForUser(userId: string): Promise<Wallet[] | null>{
         try {
             const wallets = await Wallet.findAll({where: {userId: userId}});
 

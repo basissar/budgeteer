@@ -1,4 +1,4 @@
-import { Table, Column, Model, ForeignKey } from 'npm:sequelize-typescript';
+import { Table, Column, Model, ForeignKey, DataType } from 'npm:sequelize-typescript';
 import { Category } from './Category.ts';
 import { Wallet } from './Wallet.ts';
 
@@ -20,6 +20,9 @@ export class Expense extends Model{
     public targetCategoryId!: number;
 
     @ForeignKey(() => Wallet)
-    @Column({ allowNull: false })
-    public walletId!: number;
+    @Column({
+        allowNull: false,
+        type: DataType.UUID
+    })
+    public walletId!: string;
 }

@@ -2,12 +2,21 @@ import {
     Table,
     Column,
     Model,
-    HasMany
+    HasMany,
+    PrimaryKey,
+    DataType
 } from 'npm:sequelize-typescript'
 import { Wallet } from "./Wallet.ts";
 
 @Table({tableName: "users"})
 export class User extends Model{
+
+    @PrimaryKey
+    @Column({
+        type: DataType.UUID,
+        defaultValue: DataType.UUIDV4
+    })
+    declare id;
 
     @Column({allowNull: false, unique: true})
     declare username: string;

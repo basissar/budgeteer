@@ -3,7 +3,7 @@ import { BaseRepository } from "./baseRepository.ts";
 import { Op } from 'npm:sequelize';
 
 
-export class CategoryRepository implements BaseRepository<Category> {
+export class CategoryRepository implements BaseRepository<Category, number> {
     
     
     /**
@@ -71,7 +71,7 @@ export class CategoryRepository implements BaseRepository<Category> {
      * user created categories.
      * @param id identificator by which we query the categories
      */
-    async getAllForUser(id: number): Promise<Category[] | null> {
+    async getAllForUser(id: string): Promise<Category[] | null> {
         try {
             const categories = await Category.findAll({
                 where: { 

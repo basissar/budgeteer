@@ -19,8 +19,8 @@ export class CategoryService {
         }
     }
 
-    async getAllForUser(userId: number): Promise<Category[] | null> {
-        const userExists = this.userRepo.existsById(userId);
+    async getAllForUser(userId: string): Promise<Category[] | null> {
+        const userExists = await this.userRepo.existsById(userId);
 
         if (!userExists){
             throw new Error("User with id " + userId + " does not exist.");
@@ -29,7 +29,7 @@ export class CategoryService {
         return await this.categoryRepo.getAllForUser(userId);
     }
 
-    async deleteCategoryForUser(categoryId: number, userId: number): Promise<boolean> {
+    async deleteCategoryForUser(categoryId: number, userId: string): Promise<boolean> {
         try {
             const userExists = await this.userRepo.exists(userId);
 

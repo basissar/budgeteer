@@ -3,7 +3,7 @@ import {Expense} from "../model/Expense.ts";
 import { BaseRepository } from "./baseRepository.ts";
 import { Op } from 'npm:sequelize';
 
-export class ExpenseRepository implements BaseRepository<Expense> {
+export class ExpenseRepository implements BaseRepository<Expense, number> {
 
     async save(expense: Expense): Promise<Expense | null> {
         try{
@@ -40,7 +40,7 @@ export class ExpenseRepository implements BaseRepository<Expense> {
         return !!result;
     }
 
-    async findByWallet(id: number): Promise<Expense[] | null> {
+    async findByWallet(id: string): Promise<Expense[] | null> {
         return await Expense.findAll({ 
             where: {
                 walletId: id
@@ -48,7 +48,7 @@ export class ExpenseRepository implements BaseRepository<Expense> {
         })
     }
 
-    async findBySource(walletId: number, source: number): Promise<Expense[] | null> {
+    async findBySource(walletId: string, source: number): Promise<Expense[] | null> {
         return await Expense.findAll({
             where: {
                 walletId: walletId,

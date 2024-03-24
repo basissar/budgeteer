@@ -1,7 +1,7 @@
 import { User } from '../model/User.ts';
 import { BaseRepository } from "./baseRepository.ts";
 
-export class UserRepository implements BaseRepository<User> {
+export class UserRepository implements BaseRepository<User, string> {
     
     async save(user: User): Promise<User | null> {
         try {
@@ -24,11 +24,11 @@ export class UserRepository implements BaseRepository<User> {
         }
     }
 
-    async findById(id: number): Promise<User | null> {
+    async findById(id: string): Promise<User | null> {
         return await User.findByPk(id);
     }
 
-    async exists(id: number): Promise<boolean> {
+    async exists(id: string): Promise<boolean> {
         const result = await User.findOne({where: {id}});
         return !!result;
     }
@@ -37,22 +37,22 @@ export class UserRepository implements BaseRepository<User> {
     async findByUsername(username: string){
         return await User.findOne({
             where: {
-                username
+                username: username
             }
         });
     }
 
-    async existsById(id: number) {
+    async existsById(id: string) {
         const result = await User.findOne({where: {id}});
         return !!result;
     }
 
     async existsByUsername(username: string){
-        const result = await User.findOne({where: {username}});
+        const result = await User.findOne({where: {username: username}});
         return !!result;
     }
 
-    async deleteById(id: number) {
+    async deleteById(id: string) {
         return await User.destroy({
             where: {id}
         });
@@ -60,7 +60,7 @@ export class UserRepository implements BaseRepository<User> {
 
     async deleteByUsername(username: string) {
         return await User.destroy({
-            where: {username}
+            where: {username: username}
         });
     }
 

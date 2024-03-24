@@ -64,12 +64,12 @@ export class ExpenseService {
         }
     }
 
-    async findByWallet(id: number, userId: number){
+    async findByWallet(walletId: string, userId: string){
         try {
-            const wallet = await this.walletRepository.findById(id);
+            const wallet = await this.walletRepository.findById(walletId);
 
             if (!wallet) {
-                throw new NotFoundError(`Wallet with identifier ${id} does not exist`);
+                throw new NotFoundError(`Wallet with identifier ${walletId} does not exist`);
             }
 
             //optional ownership check
@@ -77,7 +77,7 @@ export class ExpenseService {
                 throw new UnauthorizedError(`User does not have permission to access expenses for this wallet`);
             }
 
-            const foundExpenses = await this.expenseRepository.findByWallet(id);
+            const foundExpenses = await this.expenseRepository.findByWallet(walletId);
             return foundExpenses;
         } catch (error) {
             throw new ServiceError("Expense service error: " + error.stack);

@@ -37,7 +37,7 @@ export class UserService {
 
     async createUser(user: User): Promise<User | null> {
         try {
-            const exists = await this.exists(user.username);
+            const exists = await this.existsByUsername(user.username);
 
             if(exists){
                 throw new Error(`User ${user.username} already exists`);
@@ -124,17 +124,19 @@ export class UserService {
 
     }
 
-    async exists(identifier: string | number): Promise<boolean>{
+    async exists(identifier: string): Promise<boolean>{
         try {
-            if (typeof identifier === 'string') {
-                return await this.repository.existsByUsername(identifier);
-            } else if (typeof identifier === 'number') {
-                return await this.repository.existsById(identifier);
-            } else {
-                throw new Error('Invalid identifier type. Please provide a username (string) or ID (number).');
-            }
+            return await this.repository.exists(identifier);
         } catch (error) {
             throw new Error('Error checking user existence: ' + error);
+        }
+    }
+
+    async existsByUsername(username: string): Promise<boolean>{
+        try{
+            return await this.repository.existsByUsername(username);
+        } catch (error) {
+            throw new ServiceError('User service error: ' + error.message);
         }
     }
 
@@ -147,11 +149,11 @@ export class UserService {
         }
     }
 
-    async getCurrentUserId(token: string): Promise<number | null> {
+    async getCurrentUserId(token: string): Promise<string | null> {
         try {
             const result = await verify(token, key);
 
-            const id = (result as { payload: { id: number } }).payload.id;
+            const id = (result as { payload: { id: string } }).payload.id;
 
             return id;
         } catch (error) {
