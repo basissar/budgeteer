@@ -29,7 +29,25 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
 
     async deleteById(id: number): Promise<number> {
         return await Expense.destroy({
-            where: { id }
+            where: { id: id }
+        });
+    }
+
+    async deleteBySource(catId: number): Promise<number> {
+        return await Expense.destroy({ 
+            where: { sourceCategoryId: catId}
+        })
+    }   
+
+    async deleteByTarget(catId: number): Promise<number> {
+        return await Expense.destroy({
+            where: { targetCategoryId: catId}
+        });
+    }
+
+    async deleteByWallet(walletId: string): Promise<number>{
+        return await Expense.destroy({
+            where: { walletId: walletId}
         });
     }
 
@@ -57,7 +75,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         })
     }
 
-    async findByTarget(walletId: number, target: number): Promise<Expense[] | null> {
+    async findByTarget(walletId: string, target: number): Promise<Expense[] | null> {
         return await Expense.findAll({
             where: {
                 walletId: walletId,
@@ -66,7 +84,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         })
     }
 
-    async findByMaxAmount(walletId: number, max: number): Promise<Expense[] | null> {
+    async findByMaxAmount(walletId: string, max: number): Promise<Expense[] | null> {
         try {
             return await Expense.findAll({
                 where: {
@@ -81,7 +99,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         }
     }
 
-    async findByMinAmount(walletId: number, min: number): Promise<Expense[] | null> {
+    async findByMinAmount(walletId: string, min: number): Promise<Expense[] | null> {
         try {
             return await Expense.findAll({
                 where: {
@@ -97,61 +115,3 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
     }
     
 }
-
-/*
-export class expenseRepo {
-
-    static async save(expense: Expense): Promise<Expense> {
-        const query = "INSERT INTO expenses (name, amount, \"sourceCategoryId\", \"targetCategoryId\", \"walletId\") VALUES ($1, $2, $3, $4, $5) RETURNING id, name, walletId";
-        const params = [expense.name, expense.amount, expense.sourceCategoryId
-            , expense.targetCategoryId, expense.walletId]
-
-        try {
-
-            // return await executeQuery<{id, name, walletId}>(query, params);
-            await executeQuery(query,params);
-            return expense;
-        } catch (error){
-            console.error(error);
-            throw new Error("Expense repository error: " + error);
-        }
-    }
-
-    static async delete(userId: number, expenseId: number):Promise<boolean>{
-        const query = "DELETE FROM expenses WHERE "
-
-        //todo there isn't any userId so there is no need to pass it
-        //maybe check
-    }
-
-    static async update(expense: Expense): Promise<Expense> {
-        const query = "UPDATE expenses SET name = $2, amount = $3, \"sourceCategoryId\" = $4," +
-            "\"targetCategoryId\" = $5 WHERE id = $1";
-        const params = [expense.id, expense.name, expense.amount,
-            expense.sourceCategoryId, expense.targetCategoryId]
-
-        try {
-            await executeQuery(query, params);
-            return expense;
-        } catch (error){
-            console.error(error);
-            throw new Error("Expense repository error: " + error);
-        }
-    }
-
-    static async existsById(expenseId: number): Promise<boolean>{
-        const query = "SELECT EXISTS (SELECT 1 FROM expenses WHERE id = $1)";
-        const params = [expenseId];
-
-        try {
-            const result = await executeQuery(query, params);
-
-            const existsValue = (result.rows[0] as { exists?: boolean})?.exists;
-            return existsValue === true;
-        } catch (error){
-            throw new Error("Expense repository error: " + error);
-        }
-    }
-
-}
-*/

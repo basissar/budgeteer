@@ -29,7 +29,9 @@ export const DEV_PASSWORD = "**";
 export const EXPENSE_REPOSITORY = "ExpenseRepository";
 export const USER_REPOSITORY = "UserRepository";
 export const WALLET_REPOSITORY = "WalletRepository";
+export const CATEGORY_REPOSITORY = "CategoryRepository";
 
 export const USER_SERVICE = "UserService";
 export const WALLET_SERVICE = "WalletService";
 export const EXPENSE_SERVICE = "ExpenseService";
+export const CATEGORY_SERVICE = "CategoryService";

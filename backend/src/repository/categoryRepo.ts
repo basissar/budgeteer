@@ -1,3 +1,4 @@
+import { RepositoryError } from "../errors/RepositoryError.ts";
 import {Category} from "../model/Category.ts";
 import { BaseRepository } from "./baseRepository.ts";
 import { Op } from 'npm:sequelize';
@@ -13,14 +14,7 @@ export class CategoryRepository implements BaseRepository<Category, number> {
      */
     async save(category: Category) {
         try {
-            const newCategory = new Category(
-                {
-                    name: category.name,
-                    userId: category.userId
-                }
-            );
-
-            const result = await newCategory.save();
+            const result = await category.save();
 
             return result;
         } catch (err) {
@@ -84,7 +78,7 @@ export class CategoryRepository implements BaseRepository<Category, number> {
 
             return categories;
         } catch (err) {
-            throw new Error("Category repository error: " + err);
+            throw new RepositoryError("Category repository error: " + err);
         }
     }
 
@@ -98,7 +92,27 @@ export class CategoryRepository implements BaseRepository<Category, number> {
 
             return categories;
         } catch (err) {
-            throw new Error("Category repository error: " + err);
+            throw new RepositoryError("Category repository error: " + err);
+        }
+    }
+
+    async getAllforUserInWallet(userId: string, walletId: string){
+        try {
+            const categories = await Category.findAll({
+                where: {
+                    [Op.and] : [
+                        { walletId: walletId},
+                        { [Op.or] : [
+                            {userId: null},
+                            {userId: userId}
+                        ]}
+                    ]
+                }
+            });
+
+            return categories;
+        } catch (err) {
+            throw new RepositoryError("Category repository error: " + err.message);
         }
     }
 

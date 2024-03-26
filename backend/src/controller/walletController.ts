@@ -74,7 +74,7 @@ export class WalletController {
 
     async getAllWalletsForUser(ctx: RouterContext<string>){
         try {
-            const userId = ctx.params;
+            const {userId} = ctx.params;
 
             if (!userId){
                 ctx.response.status = BAD_REQUEST;
@@ -121,5 +121,20 @@ export class WalletController {
         }
     }
 
+    async deleteWalletForUser(ctx: RouterContext<string>) {
+        try {
+            const {userId, walletId} = ctx.params;
+
+            if(!userId || !walletId){
+                ctx.response.status = BAD_REQUEST;
+                ctx.response.body = {message: "User ID and Wallet ID are required"};
+                return;
+            }
+
+            return await this.walletService.deleteWalletForUser(userId, walletId);
+        } catch (err) {
+            throw new Error("Wallet controller error: " + err.message);
+        }
+    }
 
 }

@@ -52,7 +52,7 @@ export class UserService {
 
     async register(user: User) {
         try{
-            const exists = await this.exists(user.username);
+            const exists = await this.existsByUsername(user.username);
 
             if(exists) {
                 throw new DuplicateError(`User with username ${user.username} already exists`);

@@ -6,6 +6,7 @@ import {
 import { User } from "./User.ts";
 import { Budget } from './Budget.ts';
 import { Goal } from './Goal.ts';
+import { Expense } from "./Expense.ts";
 
 
 @Table({tableName:"wallets"})
@@ -27,6 +28,10 @@ export class Wallet extends Model{
 
     @Column({allowNull: false})
     declare public name: string;
+
+    @HasMany(() => Expense,
+    {onDelete: 'CASCADE'})
+    public expenses?: Expense[];
 
     @HasMany(() => Budget)
     public budgets?: Budget[];

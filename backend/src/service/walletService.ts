@@ -84,7 +84,10 @@ export class WalletService {
             const foundWallet = await this.getWallet(walletId);
 
             if(foundWallet == null){
-                throw new NotFoundError(`Wallet with ${walletId} does not exist`);
+                //probably better to log it and return false
+                // throw new NotFoundError(`Wallet with ${walletId} does not exist`);
+                console.error(`Wallet with ${walletId} does not exist`);
+                return false;
             }
 
             if (foundWallet.userId !== userId){
@@ -101,7 +104,9 @@ export class WalletService {
         const userExists = await this.userRepository.existsById(userId);
 
         if(!userExists){
-            throw new Error("User with identifier: " + userId + " does not exist.");
+            // throw new Error("User with identifier: " + userId + " does not exist.");
+            console.error(`User with identifier: ${userId} does not exist`);
+            return false;
         }
 
         const foundWallet = await this.walletRepository.findById(walletId);

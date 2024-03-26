@@ -8,6 +8,9 @@ export class Category extends Model {
     @Column({ allowNull: false })
     public name!: string;
 
+    @Column({ allowNull: false })
+    public color!: string;
+
     @ForeignKey(() => User)
     @Column({
         allowNull: true,

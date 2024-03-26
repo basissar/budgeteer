@@ -22,7 +22,8 @@ export class Expense extends Model{
     @ForeignKey(() => Wallet)
     @Column({
         allowNull: false,
-        type: DataType.UUID
+        type: DataType.UUID,
+        onDelete: 'CASCADE'
     })
     public walletId!: string;
 }

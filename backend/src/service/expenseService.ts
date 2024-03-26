@@ -1,3 +1,4 @@
+import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
 import { container } from "../container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
@@ -6,31 +7,49 @@ import { UnauthorizedError } from "../errors/UnauthorizedError.ts";
 import { Expense } from "../model/Expense.ts";
 import { ExpenseRepository } from "../repository/expenseRepo.ts";
 import { WalletRepository } from "../repository/walletRepo.ts";
+import { CategoryService } from "./categoryService.ts";
+import { WalletService } from "./walletService.ts";
 
 export class ExpenseService {
     
     public expenseRepository: ExpenseRepository;
 
-    public walletRepository: WalletRepository;
+    // public walletRepository: WalletRepository;
+
+    private walletService: WalletService;
+
+    private categoryService: CategoryService;
 
     constructor() {
-        const expRepo = container.resolve('ExpenseRepository');
-        const walletRepo = container.resolve('WalletRepository');
+        const expRepo = container.resolve(EXPENSE_REPOSITORY);
+        // const walletRepo = container.resolve('WalletRepository');
 
-        if (expRepo === null) {
+        const wallSer = container.resolve(WALLET_SERVICE)
+
+        const catSer = container.resolve(CATEGORY_SERVICE);
+
+        if (expRepo == null) {
             const newExpRepo = new ExpenseRepository();
-            container.register('ExpenseRepository', newExpRepo);
+            container.register(EXPENSE_REPOSITORY, newExpRepo);
             this.expenseRepository = newExpRepo;
         } else {
             this.expenseRepository = expRepo;
         }
 
-        if (walletRepo === null) {
-            const newWalletRepo = new WalletRepository();
-            container.register('WalletRepository', newWalletRepo);
-            this.walletRepository = newWalletRepo;
+        if(wallSer == null) {
+            const newWallSer = new WalletService();
+            container.register(WALLET_SERVICE, newWallSer);
+            this.walletService = newWallSer;
         } else {
-            this.walletRepository = walletRepo;
+            this.walletService = wallSer;
+        }
+
+        if(catSer == null) {
+            const newCatSer = new CategoryService();
+            container.register(CATEGORY_SERVICE, newCatSer);
+            this.categoryService = newCatSer;
+        } else {
+            this.categoryService = catSer;
         }
     }
 
@@ -66,7 +85,8 @@ export class ExpenseService {
 
     async findByWallet(walletId: string, userId: string){
         try {
-            const wallet = await this.walletRepository.findById(walletId);
+            /*
+            const wallet = await this.walletService.getWallet(walletId);
 
             if (!wallet) {
                 throw new NotFoundError(`Wallet with identifier ${walletId} does not exist`);
@@ -76,6 +96,17 @@ export class ExpenseService {
             if (wallet.userId !== userId) {
                 throw new UnauthorizedError(`User does not have permission to access expenses for this wallet`);
             }
+            */
+
+            const foundWallet = await this.walletService.getWalletForUser(walletId,userId);
+
+            if (!foundWallet) {
+                return null;
+            }
+
+            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
+                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+            }
 
             const foundExpenses = await this.expenseRepository.findByWallet(walletId);
             return foundExpenses;
@@ -83,5 +114,110 @@ export class ExpenseService {
             throw new ServiceError("Expense service error: " + error.stack);
         }
     }
+
+    async findBySource(walletId: string, userId: string, sourceCatId: number){
+        try {
+            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+
+            if (!foundWallet) {
+                return null;
+            }
+
+            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
+                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+            }
+
+            /*
+                no need to check if category is in the wallet -> we are getting category id from categories 
+                that we get from getAllForUserInWallet method in categoryServie
+            */
+            const foundExpenses = await this.expenseRepository.findBySource(walletId, sourceCatId);
+
+            return foundExpenses;
+        } catch (err) {
+            throw new ServiceError(`Expense service error: ${err.message}`);
+        }
+    }
+
+    async findByTarget(walletId: string, userId: string, targetCat: number){
+        try {
+            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+
+            if (!foundWallet){
+                return null;
+            }
+
+            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
+                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+            }
+
+            const foundExpenses = await this.expenseRepository.findByTarget(walletId, targetCat);
+
+            return foundExpenses;
+        } catch (error) {
+            throw new ServiceError(`Expense service error: ${error.message}`);
+        }
+    }
+
+    async findByMaxAmount(walletId: string, userId: string, maxAmount: number){
+        try {
+            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+
+            if(!foundWallet){
+                return null;
+            }
+
+            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
+                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+            }
+
+            const foundExpenses = await this.expenseRepository.findByMaxAmount(walletId, maxAmount);
+
+            return foundExpenses;
+        } catch (error) {
+            throw new ServiceError(`Expense service error: ${error.message}`);
+        }
+    }
+
+    async findByMinAmount(walletId: string, userId: string, minAmount: number){
+        try {
+            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+
+            if(!foundWallet){
+                return null;
+            }
+
+            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
+                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+            }
+
+            const foundExpenses = await this.expenseRepository.findByMinAmount(walletId, minAmount);
+
+            return foundExpenses;
+        } catch (error) {
+            throw new ServiceError(`Expense service error: ${error.message}`);
+        }
+    }
+
+
+
+    async deleteExpense(id: number){
+        try {
+            const exists = await this.expenseRepository.exists(id);
+
+            if(!exists) {
+                throw new NotFoundError(`Expense with id ${id} not found`);
+            }
+
+            const deletedRows = await this.expenseRepository.deleteById(id);
+
+            return deletedRows != 0;
+        } catch (error) {
+            throw new ServiceError("Expense service error: " + error.message);
+        }
+    }
+
+    //TODO delete all in category
+    //TODO delete all in wallet
 
 }
