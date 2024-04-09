@@ -52,10 +52,12 @@ export class UserService {
 
     async register(user: User) {
         try{
-            const exists = await this.existsByUsername(user.username);
+            const existsByUsername = await this.existsByUsername(user.username);
 
-            if(exists) {
-                throw new DuplicateError(`User with username ${user.username} already exists`);
+            const existsByEmail = await this.existsByEmail(user.email);
+
+            if(existsByUsername || existsByEmail) {
+                throw new DuplicateError(`User with provided credentials already exists`);
             }
 
             const hashedPassword = await hash(user.password);
@@ -68,11 +70,13 @@ export class UserService {
         }
     }
 
-    async login(username: string, password: string): Promise<string | null> {
+    async login(username: string, password: string) {
         const user = await this.repository.findByUsername(username);
 
         if(!user) {
-            throw new NotFoundError(`User with ${username} not found`);
+            // throw new NotFoundError(`User with ${username} not found`);
+            console.warn(`User ${username} not found`);
+            return null;
         }
 
         const passwordMatch = await compare(password, user.password);
@@ -89,27 +93,33 @@ export class UserService {
 
         const jwt = await create({ alg: "HS512", typ: "JWT" }, { payload }, key);
 
-        console.log(jwt);
+        // console.log(jwt);
 
-        return jwt;
+        return {token: jwt, id: user.id};
     }
 
     async getAllUsers(): Promise<User[] | null> {
        try {
            return await this.repository.findAll();
        } catch (e) {
-           throw new Error(e.stack);
+           throw new ServiceError(`User service error: ${e.message}`);
        }
     }
 
     async getUserByUsername(username: string): Promise<User | null> {
-        const userExists = await this.exists(username);
+        const userExists = await this.existsByUsername(username);
 
         if (!userExists){
-            throw new Error("User with username " + username + " does not exist.");
+            // throw new NotFoundError("User with username " + username + " does not exist.");
+            console.warn(`User with username: ${username} not found`);
+            return null;
         }
 
         return this.repository.findByUsername(username);
+    }
+
+    async getUserInfo(id: string){
+        return await this.repository.findById(id);
     }
 
     async deleteUser(username: string): Promise<boolean> {
@@ -117,7 +127,9 @@ export class UserService {
         const userExists = await this.repository.existsByUsername(username);
 
         if (!userExists){
-            throw new Error("User with username " + username + " does not exist.");
+            // throw new Error("User with username " + username + " does not exist.");
+            console.warn(`User with username ${username} not found`);
+            return false;
         }
 
         return  await this.repository.deleteByUsername(username) != 0;
@@ -135,6 +147,14 @@ export class UserService {
     async existsByUsername(username: string): Promise<boolean>{
         try{
             return await this.repository.existsByUsername(username);
+        } catch (error) {
+            throw new ServiceError('User service error: ' + error.message);
+        }
+    }
+
+    async existsByEmail(email: string): Promise<boolean> {
+        try{
+            return await this.repository.existsByEmail(email);
         } catch (error) {
             throw new ServiceError('User service error: ' + error.message);
         }

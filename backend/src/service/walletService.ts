@@ -4,6 +4,10 @@ import {UserRepository} from "../repository/userRepo.ts";
 import {NotFoundError} from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { container } from "../container.ts";
+import { USER_REPOSITORY, WALLET_REPOSITORY, EXPENSE_SERVICE, EXPENSE_REPOSITORY } from "../config/macros.ts";
+import { ExpenseService } from "../service/expenseService.ts";
+import {Expense} from "../model/Expense.ts";
+import { ExpenseRepository } from "../repository/expenseRepo.ts";
 
 export class WalletService {
 
@@ -11,13 +15,16 @@ export class WalletService {
 
     public userRepository: UserRepository;
 
+    public expenseRepository: ExpenseRepository;;
+
     constructor(){
-        const userRepo = container.resolve("UserRepository");
-        const walletRepo = container.resolve("WalletRepository");
+        const userRepo = container.resolve(USER_REPOSITORY);
+        const walletRepo = container.resolve(WALLET_REPOSITORY);
+        const expRepo = container.resolve(EXPENSE_REPOSITORY);
 
         if(userRepo == null){
             const newUserRepo = new UserRepository();
-            container.register("UserRepository", newUserRepo);
+            container.register(USER_REPOSITORY, newUserRepo);
             this.userRepository = newUserRepo;
         } else {
             this.userRepository = userRepo;
@@ -25,17 +32,47 @@ export class WalletService {
 
         if (walletRepo == null){
             const newWalletRepo = new WalletRepository();
-            container.register("WalletRepository", newWalletRepo);
+            container.register(WALLET_REPOSITORY, newWalletRepo);
             this.walletRepository = newWalletRepo;
         } else {
             this.walletRepository = walletRepo;
         }
 
+        if (expRepo == null){
+            const newExpRepo = new ExpenseRepository();
+            container.register(EXPENSE_REPOSITORY, newExpRepo);
+            this.expenseRepository = newExpRepo;
+        } else {
+            this.expenseRepository = expRepo;
+        }
+
     }
 
-    async createWallet(wallet: Wallet): Promise<Wallet | null> {
-        //todo add check for existing userId
-        return await this.walletRepository.save(wallet);
+    async createWallet(wallet: Wallet, initialAmount: number): Promise<Wallet| null> {
+        try {
+            const createdWallet = await this.walletRepository.save(wallet);
+
+            if(!createdWallet) {
+                throw new ServiceError(`Wallet service error: failed to create a wallet`);
+            }
+
+            const initialExpense = new Expense({
+                name:"Initial Expense",
+                amount: initialAmount,
+                targetCategoryId: 1,
+                walletId: createdWallet.id,
+            });
+
+            const createdExpense = await this.expenseRepository.save(initialExpense);
+
+            if (!createdExpense) {
+                throw new Error("Failed to create initial expense");
+            }
+
+            return createdWallet;
+        } catch (error) {
+            throw new ServiceError(`Wallet service error: error creating wallet: ${error.message}`);
+        }
     }
 
     async getAllWalletsForUser(id: string): Promise<Wallet[] | null> {

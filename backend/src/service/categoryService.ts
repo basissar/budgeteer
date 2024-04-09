@@ -45,6 +45,8 @@ export class CategoryService {
         } else {
             this.walletService = wallSer;
         }
+
+        console.log("Category service initialized.")
     }
 
     async createCategory(category: Category): Promise<Category | null> {
