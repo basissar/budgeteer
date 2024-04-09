@@ -12,7 +12,7 @@ export class CategoryRepository implements BaseRepository<Category, number> {
      * Returns created category
      * @param category
      */
-    async save(category: Category) {
+    async save(category: Category):Promise<Category | null> {
         try {
             const result = await category.save();
 

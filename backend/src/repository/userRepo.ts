@@ -1,3 +1,4 @@
+import { RepositoryError } from '../errors/RepositoryError.ts';
 import { User } from '../model/User.ts';
 import { BaseRepository } from "./baseRepository.ts";
 
@@ -9,8 +10,7 @@ export class UserRepository implements BaseRepository<User, string> {
 
             return result;
         } catch (err) {
-            console.log(err);
-            return null;
+            throw new RepositoryError(`User Repository error: ${err.message}`);
         }
     }
 
@@ -20,7 +20,7 @@ export class UserRepository implements BaseRepository<User, string> {
                 attributes: ['id', 'username'] // Specify only required attributes
             });
         } catch (err) {
-            throw new Error(err.stack);
+            throw new RepositoryError(err.message);
         }
     }
 
@@ -49,6 +49,11 @@ export class UserRepository implements BaseRepository<User, string> {
 
     async existsByUsername(username: string){
         const result = await User.findOne({where: {username: username}});
+        return !!result;
+    }
+
+    async existsByEmail(email: string) {
+        const result = await User.findOne({where: {email: email}});
         return !!result;
     }
 

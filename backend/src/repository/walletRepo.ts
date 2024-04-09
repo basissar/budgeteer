@@ -1,4 +1,6 @@
 // import Wallet from "../database/exDatabase.ts";
+import { RepositoryError } from "../errors/RepositoryError.ts";
+import { Expense } from "../model/Expense.ts";
 import {Wallet} from "../model/Wallet.ts";
 import { BaseRepository } from "./baseRepository.ts";
 
@@ -16,7 +18,11 @@ export class WalletRepository implements BaseRepository<Wallet, string> {
     }
 
     async findAll(): Promise<Wallet[] | null> {
-        return await Wallet.findAll();
+        try{
+            return await Wallet.findAll();
+        } catch (err) {
+            throw new RepositoryError(`Wallet repository error: ${err.message}`);
+        }
     }
 
     async findById(id: string): Promise<Wallet | null> {
@@ -39,7 +45,10 @@ export class WalletRepository implements BaseRepository<Wallet, string> {
 
     public async getAllForUser(userId: string): Promise<Wallet[] | null>{
         try {
-            const wallets = await Wallet.findAll({where: {userId: userId}});
+            const wallets = await Wallet.findAll({
+                where: { userId: userId },
+                include: Expense // Include the associated expenses
+            });
 
             return wallets;
         } catch (err) {
