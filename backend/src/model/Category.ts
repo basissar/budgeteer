@@ -6,21 +6,21 @@ import { Wallet } from "./Wallet.ts";
 export class Category extends Model {
     
     @Column({ allowNull: false })
-    public name!: string;
+    declare name: string;
 
     @Column({ allowNull: false })
-    public color!: string;
+    declare color: string;
 
     @ForeignKey(() => User)
     @Column({
         allowNull: true,
         type: DataType.UUID
     })
-    declare public userId: string;
+    declare userId: string;
 
     @ForeignKey(() => Wallet)
     @Column({ allowNull: true,
         type: DataType.UUID})
-    public walletId?: string;
+    declare walletId: string;
 
 }
