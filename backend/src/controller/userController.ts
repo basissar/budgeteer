@@ -31,11 +31,20 @@ export class UserController {
 
             const createdUser = await this.userService.register(user);
 
-            //todo change this part to properly return needed information
-            ctx.response.status = CREATED;
-            ctx.response.body = {
-                message: "User registered", user: createdUser
+            if (createdUser) {
+                //todo change this part to properly return needed information
+                ctx.response.status = CREATED;
+                ctx.response.body = {
+                    message: "User registered", 
+                    user: {
+                        id: createdUser.id,
+                        username: createdUser.username,
+                        email: createdUser.email
+                    }
+                }
             }
+
+            
         } catch (error) {
             console.error(error.stack);
             ctx.response.status = INTERNAL_ERROR;
@@ -61,23 +70,22 @@ export class UserController {
                 return;
             };
 
-            const token = await this.userService.login(username, password);
+            const result = await this.userService.login(username, password);
 
-            if(!token){
+            if(!result){
                 ctx.response.status = UNAUTHORIZED;
                 ctx.response.body = {
                     message: "Invalid username or password"
                 }
                 return;
-            }
+            }            
 
             ctx.response.status = OK;
-            ctx.response.body = {
-                token: token,
-            }
-            ctx.cookies.set("token", token);
+            // ctx.response.headers.set("Authorization", `Bearer ${result.token}`);
+            ctx.cookies.set("token", result.token);
+            ctx.response.body = { message: "Login successful", username: username, id:result.id, token: result.token};
         } catch (error){
-            ctx.response.status = INTERNAL_ERROR,
+            ctx.response.status = INTERNAL_ERROR;
             ctx.response.body = {message: error.message}
         }
     }
@@ -199,6 +207,41 @@ export class UserController {
         } catch (error) {
             ctx.response.status = INTERNAL_ERROR;
             ctx.response.body = { message: error };
+        }
+    }
+
+    async getUserInfo(ctx: RouterContext<string>) {
+        try {
+            const token = ctx.request.headers.get('Authorization');
+
+            if (!token) {
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: "Unauthorized: Token Missing"};
+                return;
+            }
+
+            const isValid = await this.userService.verifyToken(token.split(" ")[1]);
+
+            if(!isValid) {
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: "Unauthorized: Invalid Token"};
+                return;
+            }
+
+            const payload = await verify(token.split(" ")[1], key);
+
+            const userId = (payload as { payload: { id: string } }).payload.id;
+            const username = (payload as { payload: { username: string } }).payload.username;
+
+
+            ctx.response.status = OK;
+            ctx.response.body = {user: {
+                id: userId,
+                username: username
+            }}
+        } catch (err) {
+            ctx.response.status = INTERNAL_ERROR;
+            ctx.response.body = {message: err.message}
         }
     }
 }

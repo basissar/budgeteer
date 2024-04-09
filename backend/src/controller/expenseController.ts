@@ -67,6 +67,8 @@ export class ExpenseController {
         }
     }
 
+    //TODO when returning expenses for wallet that does not exist i should not check for wallet existence here
+    //instead do it in service or data layer and return null instead 
     async getExpensesForWallet(ctx: RouterContext<string>){
         try {
             const { userId, walletId } = ctx.params;
@@ -114,6 +116,8 @@ export class ExpenseController {
 
             //todo
 
+        } catch (error) {
+            console.error(error.message);
         }
     }
 }

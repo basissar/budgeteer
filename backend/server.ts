@@ -100,6 +100,8 @@ router.get("/budgeteer/users/:username", userController.getUserByUsername.bind(u
 
 router.delete("/budgeteer/users/:username", userController.deleteUserByUsername.bind(userController));
 
+router.get("/userinfo", userController.getUserInfo.bind(userController));
+
 // router.post("/budgeteer/categories", createCategory);
 
 // router.get("/budgeteer/categories", getAllCategories);
@@ -146,12 +148,16 @@ server.listen({port});
 // initializeDatabase();
 
 // Initialize database and save default categories
-initializeDatabase().then(() => {
-  saveDefaultCategories().then(() => {
-      console.log("Default categories saved successfully.");
-  }).catch((error) => {
-      console.error("Failed to save default categories:", error);
-  });
-}).catch((error) => {
-  console.error("Database initialization failed:", error);
-});
+// initializeDatabase().then(() => {
+//   saveDefaultCategories().then(() => {
+//       console.log("Default categories saved successfully.");
+//   }).catch((error) => {
+//       console.error("Failed to save default categories:", error);
+//   });
+// }).catch((error) => {
+//   console.error("Database initialization failed:", error);
+// });
+
+initializeDatabase().catch(error => {
+  console.error("Failed to initialize database:", error);
+})

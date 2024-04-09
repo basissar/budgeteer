@@ -5,7 +5,11 @@ import { FORBIDDEN, UNAUTHORIZED } from '../config/macros.ts';
 
 const authorization = async (ctx: RouterContext<string>, next: () => Promise<any>) => {
     try {
+
+        //todo redo it with httponly cookie
         const token = ctx.request.headers.get('Authorization')?.split(' ')[1];
+
+        // const token = await ctx.cookies.get('token');
 
         if (!token) {
             ctx.response.status = UNAUTHORIZED;

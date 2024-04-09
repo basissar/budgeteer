@@ -56,10 +56,11 @@ export class WalletController {
 
             const newWallet = new Wallet({
                 userId: passedWallet.userId,
-                name: passedWallet.name
+                name: passedWallet.name,
+                currency: passedWallet.currency
             });
 
-            const createdWallet = await this.walletService.createWallet(newWallet);
+            const createdWallet = await this.walletService.createWallet(newWallet, passedWallet.initialAmount);
 
             ctx.response.status = CREATED;
             ctx.response.body = {

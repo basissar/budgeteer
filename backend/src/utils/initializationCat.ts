@@ -4,9 +4,9 @@ import { Category } from "../model/Category.ts";
 import { CategoryRepository } from "../repository/categoryRepo.ts";
 
 const categoriesData = [
+    { name: "Unclassified", color: "#8A817C" },
     { name: "Entertainment", color: "#D81159" },
     { name: "Food", color: "#9D0208" },
-    { name: "Unclassified", color: "#8A817C" },
     { name: "School", color: "#FFD300" },
     { name: "Transport", color: "#4CC9F0" },
     { name: "Shopping", color: "#147DF5" },
