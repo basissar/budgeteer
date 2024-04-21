@@ -34,8 +34,12 @@ This is a repository for a Budgeteer Finance Tracker web application being devel
 -  Deno:
    -  Secure JavaScript/TypeScript runtime
 
--  DenoDB:
-    -  Lightweight database library
+-  ~~DenoDB~~:
+    -  removed due to problems with data model and compatibility
+
+- Sequelize-Typescript:
+    - Typescript-friendly ORM library 
+    - used instead of DenoDB
 
 -  PostgreSQL database:
    -  Specific database provider is still TBD
