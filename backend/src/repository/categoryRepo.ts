@@ -100,15 +100,23 @@ export class CategoryRepository implements BaseRepository<Category, number> {
         try {
             const categories = await Category.findAll({
                 where: {
-                    [Op.and] : [
-                        { walletId: walletId},
-                        { [Op.or] : [
-                            {userId: null},
-                            {userId: userId}
-                        ]}
+                    [Op.and]: [
+                        {
+                            [Op.or]: [
+                                { userId: userId },
+                                { userId: null }
+                            ]
+                        },
+                        {
+                            [Op.or]: [
+                                { walletId: walletId },
+                                { walletId: null }
+                            ]
+                        }
                     ]
                 }
             });
+                        
 
             return categories;
         } catch (err) {

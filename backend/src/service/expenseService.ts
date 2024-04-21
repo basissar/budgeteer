@@ -115,6 +115,16 @@ export class ExpenseService {
         }
     }
 
+    async findByUser(userId: string){
+        try {
+            const foundExpenses = await this.expenseRepository.findByUser(userId);
+
+            return foundExpenses;
+        } catch (error) {
+            throw new ServiceError("Expense service error: " + error.stack)
+        }
+    }
+
     async findBySource(walletId: string, userId: string, sourceCatId: number){
         try {
             const foundWallet = await this.walletService.getWalletForUser(walletId, userId);

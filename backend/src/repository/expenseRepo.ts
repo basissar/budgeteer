@@ -1,5 +1,7 @@
 import { RepositoryError } from "../errors/RepositoryError.ts";
+import { Category } from "../model/Category.ts";
 import {Expense} from "../model/Expense.ts";
+import { Wallet } from "../model/Wallet.ts";
 import { BaseRepository } from "./baseRepository.ts";
 import { Op } from 'npm:sequelize';
 
@@ -62,8 +64,36 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         return await Expense.findAll({ 
             where: {
                 walletId: id
-            }
+            },
+            include : [
+                { model : Category, as: 'sourceCategory', attributes:['name', 'color']},
+                { model : Category, as: 'targetCategory', attributes:['name', 'color']}
+            ]
         })
+    }
+
+    async findByUser(userId: string): Promise<Expense[] | null>{
+        try {
+            const userWallets = await Wallet.findAll({
+                where: {userId: userId}
+            });
+
+            const walletIds = userWallets.map(wallet => wallet.id);
+
+            return await Expense.findAll({
+                where: {
+                    walletId: {
+                        [Op.in]: walletIds // Using the "in" operator to match walletIds
+                    }
+                },
+                include: [
+                    { model: Category, as: 'sourceCategory', attributes: ['name', 'color'] },
+                    { model: Category, as: 'targetCategory', attributes: ['name', 'color'] }
+                ]
+            });
+        } catch (error) {
+            throw new RepositoryError(error.stack);
+        }
     }
 
     async findBySource(walletId: string, source: number): Promise<Expense[] | null> {

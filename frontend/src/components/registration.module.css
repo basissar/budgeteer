@@ -39,7 +39,7 @@ body {
     font-weight: bold;
 }
 
-form label {
+.registration-form label {
     font-weight: 500;
     margin-bottom: 3%;
     color: #26692A;
@@ -65,14 +65,14 @@ button[type="submit"]:hover {
     background-color: #245501;
 }
 
-input {
+.registration-form input {
     border: 2px solid #26692A;
     border-radius: 5px;
     width: 100%;
-    height: 20px;
+    height: 25px;
 }
 
-form > div {
+.registration-form > div {
     width: 100%;
     margin-top: 5%;
     margin-bottom: 5%;

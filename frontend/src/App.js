@@ -6,6 +6,7 @@ import './App.css';
 import Register from './components/registration.js';
 import UserProfile from './UserProfile.js';
 import Wallets from './components/wallets.js';
+import Expenses from './components/expenses.js';
 
 
 import Header from './components/header.js';
@@ -25,6 +26,8 @@ function App() {
 					<Route path="/profile/:username" element={<UserProfile />}>
 					</Route>
 					<Route path="/wallets" element={<Wallets />}>
+					</Route>
+					<Route path="/expenses" element={<Expenses />}>
 					</Route>
 				</Routes>
 			</Router>

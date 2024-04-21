@@ -1,0 +1,132 @@
+* {
+    box-sizing: border-box;
+}
+
+.expense-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.input-container {
+    grid-column: span 1;
+}
+
+.input-container input {
+    border: 2px solid #26692A;
+    border-radius: 5px;
+    width: 100%;
+    height: 25px;
+}
+
+.input-container select {
+    border: 2px solid #26692A;
+    border-radius: 5px;
+    width: 100%;
+    height: 25px;
+}
+
+.button-container {
+    grid-column: span 2;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border-radius:6px;
+}
+
+th,
+td {
+    padding: 8px;
+}
+
+th{
+    border: 1px solid black;
+}
+
+td {
+    border-bottom: 1px solid darkgray;
+}
+
+th:first-of-type {
+    border-top-left-radius: 10px;
+  }
+  th:last-of-type {
+    border-top-right-radius: 10px;
+  }
+
+thead {
+    border-radius: 10px; 
+    overflow: hidden; 
+}
+
+.category-div {
+    border-radius: 5px;
+    padding: 5px;
+    width: 120px;
+    text-align: center;
+    font-weight: 500;
+    color: white;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.select-wallet {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.select-wallet:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px #007bff;
+}
+
+.select-wallet option {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.expenses-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-left: 10%;
+    margin-right: 15%;
+}
+
+.expense-table {
+    margin-right: 20px;
+}
+
+.positive-amount {
+    color: #38B000;
+    font-weight: bold;
+    text-align: right;
+}
+
+.negative-amount {
+    color: #D00000;
+    font-weight: bold;
+    text-align: right;
+}
+
+.category-with-icon {
+    display: flex;
+    align-items: center;
+}
+
+.category-icon {
+    margin-right: 10px; 
+}

@@ -1,6 +1,6 @@
 import {WalletService} from "../service/walletService.ts";
 import {RouterContext} from "https://deno.land/x/oak@v12.6.1/router.ts";
-import {BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE} from "../config/macros.ts";
+import {BAD_REQUEST, CREATED, INTERNAL_ERROR, NOT_FOUND, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE} from "../config/macros.ts";
 import {Wallet} from "../model/Wallet.ts";
 import { UserService } from "../service/userService.ts";
 import { container } from "../container.ts";
@@ -132,9 +132,38 @@ export class WalletController {
                 return;
             }
 
-            return await this.walletService.deleteWalletForUser(userId, walletId);
-        } catch (err) {
-            throw new Error("Wallet controller error: " + err.message);
+            const userExists = await this.userService.exists(userId);
+
+            if (!userExists) {
+                ctx.response.status = BAD_REQUEST;
+                ctx.response.body = { message: `User with id: ${userId} does not exist` };
+                return;
+            }
+
+            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
+
+            if (!belongsToUser) {
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
+                return;
+            }
+
+            const deleted = await this.walletService.deleteWalletForUser(userId, walletId);
+
+            if (deleted) {
+                ctx.response.status = OK;
+                ctx.response.body = {
+                    message: `Wallet deleted successfully.`
+                }
+            } else {
+                ctx.response.status = NOT_FOUND;
+                ctx.response.body = {
+                    message: `Wallet has not been found.`
+                }
+            }
+        } catch (error) {
+            ctx.response.status = INTERNAL_ERROR;
+            ctx.response.body = { message: error.message };
         }
     }
 

@@ -35,7 +35,7 @@ export default function Wallets() {
         };
 
         fetchData();
-    }, [navigate]);
+    });
 
     const handleCreateWallet = async (e) => {
         e.preventDefault();
@@ -54,18 +54,17 @@ export default function Wallets() {
             const createdWallet = response.data.wallet;
 
             setNewWalletName('');
-            setWallets([...wallets, createdWallet]); // Update wallets state with the newly created wallet
+            setWallets([...wallets, createdWallet]); 
         } catch (err) {
             alert(err.message);
         }
     }
 
-    // Function to calculate current amount for each wallet
     const calculateCurrentAmount = (wallet) => {
         if (wallet && wallet.expenses) {
             return wallet.expenses.reduce((total, expense) => total + expense.amount, 0);
         } else {
-            return 0; // If expenses are undefined or empty, return 0
+            return 0; 
         }
     }
 

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 function UserProfile() {
     const [userData, setUserData] = useState(null);
     const { username } = useParams();
 
     useEffect(() => {
-        // Fetch user data based on the username from the URL
         fetchUserData();
     }, [username]);
 
@@ -14,11 +14,10 @@ function UserProfile() {
 
         if(!userData){
             try {
-                // Assuming you have an endpoint to fetch user data by username, adjust the URL accordingly
                 const response = await fetch(`http://localhost:8000/budgeteer/users/${username}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the token in localStorage
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 const data = await response.json();
@@ -38,7 +37,6 @@ function UserProfile() {
             <h1>User Profile</h1>
             <p>Username: {userData.user.username}</p>
             <p>Email: {userData.user.email}</p>
-            {/* Other user details */}
         </div>
     );
 }

@@ -8,6 +8,7 @@ import { UserRepository } from "./src/repository/userRepo.ts";
 import { WalletRepository } from "./src/repository/walletRepo.ts";
 import { WalletController } from "./src/controller/walletController.ts";
 import { ExpenseController } from "./src/controller/expenseController.ts";
+import { CategoryController } from "./src/controller/categoryController.ts";
 
 import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/container.ts";
@@ -36,6 +37,8 @@ const userController = new UserController();
 const walletController = new WalletController();
 
 const expenseController = new ExpenseController();
+
+const categoryController = new CategoryController();
 
 const oauth2Client = new OAuth2Client({
     clientId: "464adeab29b6617d357a",
@@ -120,6 +123,10 @@ router.post("/budgeteer/:userId/wallets/:walletId/expenses", authorization, expe
 
 router.get("/budgeteer/:userId/wallets/:walletId/expenses", authorization, expenseController.getExpensesForWallet.bind(expenseController));
 
+router.get("/budgeteer/:userId/expenses", authorization, expenseController.getAllForUser.bind(expenseController));
+
+router.get("/budgeteer/:userId/categories/:walletId", authorization, categoryController.getAllByWallet.bind(categoryController));
+
 // router.delete("/budgeteer/wallets/:id", deleteWalletForUser)
 
 server.use(router.routes());
@@ -147,7 +154,7 @@ server.listen({port});
 
 // initializeDatabase();
 
-// Initialize database and save default categories
+//Initialize database and save default categories
 // initializeDatabase().then(() => {
 //   saveDefaultCategories().then(() => {
 //       console.log("Default categories saved successfully.");

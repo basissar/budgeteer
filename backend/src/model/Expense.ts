@@ -1,4 +1,4 @@
-import { Table, Column, Model, ForeignKey, DataType } from 'npm:sequelize-typescript';
+import { Table, Column, Model, ForeignKey, DataType, BelongsTo } from 'npm:sequelize-typescript';
 import { Category } from './Category.ts';
 import { Wallet } from './Wallet.ts';
 
@@ -10,6 +10,9 @@ export class Expense extends Model{
 
     @Column({ allowNull: false })
     declare amount!: number;
+
+    @Column({ allowNull: false })
+    declare date!: Date;
 
     @ForeignKey(() => Category)
     @Column({ allowNull: true })
@@ -26,4 +29,10 @@ export class Expense extends Model{
         onDelete: 'CASCADE'
     })
     declare walletId!: string;
+
+    @BelongsTo(() => Category, { foreignKey: 'sourceCategoryId', as: 'sourceCategory' })
+    declare sourceCategory: Category;
+
+    @BelongsTo(() => Category, { foreignKey: 'targetCategoryId', as: 'targetCategory' })
+    declare targetCategory: Category;
 }

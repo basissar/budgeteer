@@ -61,6 +61,7 @@ export class WalletService {
                 amount: initialAmount,
                 targetCategoryId: 1,
                 walletId: createdWallet.id,
+                date: new Date(),
             });
 
             const createdExpense = await this.expenseRepository.save(initialExpense);

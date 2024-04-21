@@ -46,7 +46,7 @@ export default function Register() {
 
 			<h2>Create an account!</h2>
 
-			<form onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
+			<form className="registration-form" onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
 				<div>
 					<label htmlFor="username">Username:</label>
 					<input
