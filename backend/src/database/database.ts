@@ -4,14 +4,14 @@ import { Category } from '../model/Category.ts';
 import { Goal } from '../model/Goal.ts';
 import { User } from '../model/User.ts';
 import { Wallet } from '../model/Wallet.ts';
-import { load } from "https://deno.land/std@0.219.0/dotenv/mod.ts";
+import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 import { Expense } from '../model/Expense.ts';
 
 
 export const sequelize = new Sequelize({
     database: 'gukshyaq',
     username: 'gukshyaq',
-    password: '**',
+    password: config()['PASSWORD'],
     host: 'cornelius.db.elephantsql.com',
     dialect: 'postgres',
     dialectOptions: {
@@ -30,8 +30,8 @@ export async function initializeDatabase() {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
         await sequelize.addModels([User, Wallet, Category, Budget, Goal, Expense]);
-        await sequelize.sync({force: true});
-        // await sequelize.sync();
+        // await sequelize.sync({force: true});
+        await sequelize.sync();
         console.log('Models synchronized successfully.');
     } catch (error) {
         console.error('Unable to connect to the database:', error.stack);
