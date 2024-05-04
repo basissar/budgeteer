@@ -1,13 +1,13 @@
-import {Wallet} from "../model/Wallet.ts";
-import {WalletRepository} from "../repository/walletRepo.ts";
-import {UserRepository} from "../repository/userRepo.ts";
-import {NotFoundError} from "../errors/NotFoundError.ts";
+import { Wallet } from "../model/Wallet.ts";
+import { WalletRepository } from "../repository/walletRepository.ts";
+import { UserRepository } from "../repository/userRepository.ts";
+import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { container } from "../container.ts";
 import { USER_REPOSITORY, WALLET_REPOSITORY, EXPENSE_SERVICE, EXPENSE_REPOSITORY } from "../config/macros.ts";
 import { ExpenseService } from "../service/expenseService.ts";
-import {Expense} from "../model/Expense.ts";
-import { ExpenseRepository } from "../repository/expenseRepo.ts";
+import { Expense } from "../model/Expense.ts";
+import { ExpenseRepository } from "../repository/expenseRepository.ts";
 
 export class WalletService {
 
@@ -17,12 +17,12 @@ export class WalletService {
 
     public expenseRepository: ExpenseRepository;;
 
-    constructor(){
+    constructor() {
         const userRepo = container.resolve(USER_REPOSITORY);
         const walletRepo = container.resolve(WALLET_REPOSITORY);
         const expRepo = container.resolve(EXPENSE_REPOSITORY);
 
-        if(userRepo == null){
+        if (userRepo == null) {
             const newUserRepo = new UserRepository();
             container.register(USER_REPOSITORY, newUserRepo);
             this.userRepository = newUserRepo;
@@ -30,7 +30,7 @@ export class WalletService {
             this.userRepository = userRepo;
         }
 
-        if (walletRepo == null){
+        if (walletRepo == null) {
             const newWalletRepo = new WalletRepository();
             container.register(WALLET_REPOSITORY, newWalletRepo);
             this.walletRepository = newWalletRepo;
@@ -38,7 +38,7 @@ export class WalletService {
             this.walletRepository = walletRepo;
         }
 
-        if (expRepo == null){
+        if (expRepo == null) {
             const newExpRepo = new ExpenseRepository();
             container.register(EXPENSE_REPOSITORY, newExpRepo);
             this.expenseRepository = newExpRepo;
@@ -48,16 +48,16 @@ export class WalletService {
 
     }
 
-    async createWallet(wallet: Wallet, initialAmount: number): Promise<Wallet| null> {
+    async createWallet(wallet: Wallet, initialAmount: number): Promise<Wallet | null> {
         try {
             const createdWallet = await this.walletRepository.save(wallet);
 
-            if(!createdWallet) {
+            if (!createdWallet) {
                 throw new ServiceError(`Wallet service error: failed to create a wallet`);
             }
 
             const initialExpense = new Expense({
-                name:"Initial Expense",
+                name: "Initial Expense",
                 amount: initialAmount,
                 targetCategoryId: 1,
                 walletId: createdWallet.id,
@@ -79,30 +79,30 @@ export class WalletService {
     async getAllWalletsForUser(id: string): Promise<Wallet[] | null> {
         const userExists = await this.userRepository.exists(id);
 
-        if(!userExists){
+        if (!userExists) {
             throw new NotFoundError("User with identifier: " + id + " does not exist.");
         }
 
         return await this.walletRepository.getAllForUser(id);
     }
 
-    async getWallet(walletId: string): Promise<Wallet | null>{
+    async getWallet(walletId: string): Promise<Wallet | null> {
         return await this.walletRepository.findById(walletId);
     }
 
     async getWalletForUser(walletId: string, userId: string) {
         const userExists = await this.userRepository.exists(userId);
-        
-        if(!userExists){
+
+        if (!userExists) {
             throw new NotFoundError("User with identifier: " + userId + " does not exist.");
         }
 
         const foundWallet = await this.walletRepository.findById(walletId);
-        if(!foundWallet){
+        if (!foundWallet) {
             return null;
         }
 
-        if(foundWallet.userId !== userId){
+        if (foundWallet.userId !== userId) {
             throw new Error('Wallet does not belong to the user.');
         }
 
@@ -121,16 +121,16 @@ export class WalletService {
         try {
             const foundWallet = await this.getWallet(walletId);
 
-            if(foundWallet == null){
+            if (foundWallet == null) {
                 //probably better to log it and return false
                 // throw new NotFoundError(`Wallet with ${walletId} does not exist`);
                 console.error(`Wallet with ${walletId} does not exist`);
                 return false;
             }
 
-            if (foundWallet.userId !== userId){
+            if (foundWallet.userId !== userId) {
                 return false;
-            } 
+            }
 
             return true;
         } catch (error) {
@@ -138,26 +138,51 @@ export class WalletService {
         }
     }
 
-    async deleteWalletForUser(userId: string, walletId: string): Promise<boolean>{
+    async deleteWalletForUser(userId: string, walletId: string): Promise<boolean> {
         const userExists = await this.userRepository.existsById(userId);
 
-        if(!userExists){
+        if (!userExists) {
             // throw new Error("User with identifier: " + userId + " does not exist.");
             console.error(`User with identifier: ${userId} does not exist`);
             return false;
         }
 
         const foundWallet = await this.walletRepository.findById(walletId);
-        
-        if(!foundWallet){
+
+        if (!foundWallet) {
             throw new NotFoundError("Wallet with identifier: " + walletId + " does not exist");
         }
 
-        if(foundWallet.userId != userId && foundWallet.userId !== null){
+        if (foundWallet.userId != userId && foundWallet.userId !== null) {
             throw new Error("Wallet")
         }
 
         return await this.walletRepository.deleteById(walletId) != 0;
+    }
+
+    async getCurrentAmount(walletId: string) {
+        try {
+            const foundWallet = await this.walletRepository.findById(walletId);
+
+            if (!foundWallet) {
+                throw new NotFoundError("Wallet with identifier: " + walletId + " does not exist");
+            }
+
+            const foundExpenses = await this.expenseRepository.findByWallet(walletId);
+
+            if (foundExpenses == null || foundExpenses.length == 0) {
+                return 0;
+            } else {
+                const currentAmount = foundExpenses
+                    .filter(exp => exp.sourceCategoryId === null)
+                    .reduce((total, exp) => total + exp.amount, 0);
+
+                return currentAmount;
+            }
+
+        } catch (err) {
+            throw new ServiceError(`Wallet service error: ${err.message}`);
+        }
     }
 
 

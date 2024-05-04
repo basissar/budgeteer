@@ -1,3 +1,4 @@
+import { DataType } from "npm:sequelize-typescript";
 import { Table, Model, Column, ForeignKey } from "../config/deps.ts";
 import { Wallet } from './Wallet.ts'
 
@@ -5,15 +6,20 @@ import { Wallet } from './Wallet.ts'
 export class Goal extends Model{
 
     @Column({allowNull: false})
-    public targetAmount!: number;
+    declare targetAmount!: number;
 
     @Column({allowNull: false})
-    public currentAmount!: number;
+    declare currentAmount!: number;
 
     @Column({allowNull: false})
-    public deadline!: Date;
+    declare deadline!: Date;
 
     @ForeignKey(() => Wallet)
-    public walletId!: number;
+    @Column({
+        allowNull: false,
+        type: DataType.UUID,
+        onDelete: 'CASCADE'
+    })
+    declare walletId!: string;
 
 }

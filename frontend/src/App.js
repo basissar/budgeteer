@@ -7,6 +7,7 @@ import Register from './components/registration.js';
 import UserProfile from './UserProfile.js';
 import Wallets from './components/wallets.js';
 import Expenses from './components/expenses.js';
+import Budgets from './components/budgets.js';
 
 
 import Header from './components/header.js';
@@ -28,6 +29,8 @@ function App() {
 					<Route path="/wallets" element={<Wallets />}>
 					</Route>
 					<Route path="/expenses" element={<Expenses />}>
+					</Route>
+					<Route path="/budgets" element={<Budgets />}>
 					</Route>
 				</Routes>
 			</Router>

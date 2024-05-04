@@ -62,7 +62,9 @@ export default function Wallets() {
 
     const calculateCurrentAmount = (wallet) => {
         if (wallet && wallet.expenses) {
-            return wallet.expenses.reduce((total, expense) => total + expense.amount, 0);
+            return wallet.expenses
+            .filter(expense => expense.sourceCategoryId === null)
+            .reduce((total, expense) => total + expense.amount, 0);
         } else {
             return 0; 
         }

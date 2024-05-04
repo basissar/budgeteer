@@ -6,6 +6,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    margin-top: 10px;
 }
 
 .input-container {
@@ -33,38 +34,36 @@
 table {
     border-collapse: collapse;
     width: 100%;
-    border-radius:6px;
+
 }
 
 th,
 td {
-    padding: 8px;
+    padding: 10px 20px;
 }
 
-th{
-    border: 1px solid black;
+th {
+    border-bottom: 2px solid black;
 }
 
 td {
-    border-bottom: 1px solid darkgray;
+    border-bottom: 2px solid darkgray;
 }
 
-th:first-of-type {
-    border-top-left-radius: 10px;
+/* 
+table th:first-child{
+    border-top-left-radius:10px;
   }
-  th:last-of-type {
-    border-top-right-radius: 10px;
-  }
+  
+  table th:last-child{
+    border-top-right-radius:10px;
+  } */
 
-thead {
-    border-radius: 10px; 
-    overflow: hidden; 
-}
 
 .category-div {
     border-radius: 5px;
     padding: 5px;
-    width: 120px;
+    width: 150px;
     text-align: center;
     font-weight: 500;
     color: white;
@@ -72,42 +71,99 @@ thead {
 
 .container {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
 }
 
-.select-wallet {
-    padding: 10px;
-    font-size: 16px;
+/* .custom-select-container {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center; 
+}
+
+.custom-select-container label {
+    margin-right: 10px; 
+    color: #26692A;
+    font-weight: bold;    
+}
+
+.custom-select {
+    border: 1px solid black;
+} */
+
+/* Custom select container */
+.custom-select-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Label styling */
+.custom-select-container label {
+    margin-right: 10px;
+}
+
+/* Custom select dropdown */
+.custom-select {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Selected option display */
+.selected-option {
+    padding: 8px 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #f9f9f9;
+}
+
+/* Options container */
+.options {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    display: none;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Option */
+.option {
+    padding: 8px 16px;
     cursor: pointer;
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
 }
 
-.select-wallet:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 5px #007bff;
+/* Option hover */
+.option:hover {
+    background-color: #f0f0f0;
 }
 
-.select-wallet option {
-    padding: 10px;
-    font-size: 16px;
+/* Show options when custom select is open */
+.custom-select-container.open .options {
+    display: block;
 }
+
+
 
 .expenses-container {
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-left: 10%;
-    margin-right: 15%;
+    /* margin-left: 10px;
+    margin-right: 5%; */
 }
 
 .expense-table {
-    margin-right: 20px;
+    margin-left: 5%;
+}
+
+.expense-form-container {
+    margin-right: 10%;  
 }
 
 .positive-amount {
@@ -128,5 +184,55 @@ thead {
 }
 
 .category-icon {
-    margin-right: 10px; 
+    margin-right: 10px;
+}
+
+/* CSS for the dialog overlay */
+.dialog-overlay {
+    position: fixed;
+    z-index: 999;
+    /* Ensure the dialog appears on top of other content */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CSS for the dialog content */
+.dialog-content {
+    background-color: #fefefe;
+    /* White background */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    /* Drop shadow for depth */
+    max-width: 80%;
+    /* Limit width of dialog */
+    max-height: 80%;
+    /* Limit height of dialog */
+    overflow: auto;
+    /* Enable scrolling if content exceeds dialog size */
+}
+
+/* CSS for the close button */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+td:last-child {
+    border-bottom: none;
+}
+
+td img {
+    padding-right: 10px;
+    padding-left: 10px;
+    cursor: pointer;
 }

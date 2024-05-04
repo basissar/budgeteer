@@ -1,7 +1,7 @@
 import { CATEGORY_REPOSITORY } from "../config/macros.ts";
 import { container } from "../container.ts";
 import { Category } from "../model/Category.ts";
-import { CategoryRepository } from "../repository/categoryRepo.ts";
+import { CategoryRepository } from "../repository/categoryRepository.ts";
 
 const categoriesData = [
     { name: "Unclassified", color: "#8A817C" },

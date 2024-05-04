@@ -9,6 +9,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
     const [newExpenseDate, setNewExpenseDate] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [categories, setCategories] = useState([]);
+    const [showDialog, setShowDialog] = useState(false);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -51,7 +52,10 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-            alert("Expense created successfully!");
+            // alert("Expense created successfully!");
+
+            // Show the dialog
+            setShowDialog(true);
 
             setExpenses([...expenses, response.data.expense]);
 
@@ -112,6 +116,16 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
 
                 {errorMessage && <p>${errorMessage}</p>}
             </form>
+
+            {/* Custom dialog window */}
+            {showDialog && (
+                <div className="dialog-overlay">
+                    <div className="dialog-content">
+                        <span className="close" onClick={() => setShowDialog(false)}>&times;</span>
+                        <p>Expense created successfully!</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

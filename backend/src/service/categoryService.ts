@@ -3,8 +3,8 @@ import { container } from "../container.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { Category } from "../model/Category.ts";
-import { CategoryRepository } from "../repository/categoryRepo.ts";
-import { UserRepository } from "../repository/userRepo.ts";
+import { CategoryRepository } from "../repository/categoryRepository.ts";
+import { UserRepository } from "../repository/userRepository.ts";
 import { WalletService } from "./walletService.ts";
 
 export class CategoryService {

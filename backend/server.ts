@@ -4,28 +4,31 @@ import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 
 import { OAuth2Client } from "https://deno.land/x/oauth2@v0.2.6/mod.ts";
 import { UserController } from "./src/controller/userController.ts";
-import { UserRepository } from "./src/repository/userRepo.ts";
-import { WalletRepository } from "./src/repository/walletRepo.ts";
+import { UserRepository } from "./src/repository/userRepository.ts";
+import { WalletRepository } from "./src/repository/walletRepository.ts";
 import { WalletController } from "./src/controller/walletController.ts";
 import { ExpenseController } from "./src/controller/expenseController.ts";
 import { CategoryController } from "./src/controller/categoryController.ts";
+import { BudgetController } from "./src/controller/budgetsController.ts";
 
 import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/container.ts";
 
 // import { config } from 'https://deno.land/x/dotenv/mod.ts';
-import { CATEGORY_REPOSITORY, USER_REPOSITORY } from "./src/config/macros.ts";
+import { BUDGET_REPOSITORY, CATEGORY_REPOSITORY, USER_REPOSITORY } from "./src/config/macros.ts";
 import { WALLET_REPOSITORY } from "./src/config/macros.ts";
 import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
-import { ExpenseRepository } from "./src/repository/expenseRepo.ts";
+import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
 import authorization from "./src/controller/authorization.ts";
-import { CategoryRepository } from "./src/repository/categoryRepo.ts";
+import { CategoryRepository } from "./src/repository/categoryRepository.ts";
+import { BudgetRepository } from "./src/repository/budgetRepository.ts";
 import { saveDefaultCategories } from "./src/utils/initializationCat.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
 container.register(EXPENSE_REPOSITORY, new ExpenseRepository());
 container.register(CATEGORY_REPOSITORY, new CategoryRepository());
+container.register(BUDGET_REPOSITORY, new BudgetRepository())
 
 const server = new Application();
 const router = new Router();
@@ -39,6 +42,8 @@ const walletController = new WalletController();
 const expenseController = new ExpenseController();
 
 const categoryController = new CategoryController();
+
+const budgetController = new BudgetController();
 
 const oauth2Client = new OAuth2Client({
     clientId: "464adeab29b6617d357a",
@@ -91,6 +96,8 @@ router.get("/oauth2/callback", async (ctx) => {
   });
 */
 
+//USER
+
 router.post("/budgeteer/user/login", userController.login.bind(userController));
 
 router.post("/budgeteer/user/register", userController.register.bind(userController));
@@ -111,6 +118,7 @@ router.get("/userinfo", userController.getUserInfo.bind(userController));
 
 // router.get("/budgeteer/categories/:id", getAllCategoriesForUser);
 
+//WALETS
 router.post("/budgeteer/:userId/wallets", authorization, walletController.createWallet.bind(walletController));
 
 router.get("/budgeteer/:userId/wallets", authorization, walletController.getAllWalletsForUser.bind(walletController));
@@ -119,13 +127,24 @@ router.get("/budgeteer/:userId/wallets/:walletId", authorization, walletControll
 
 router.delete("/budgeteer/:userId/wallets/:walletId", authorization, walletController.deleteWalletForUser.bind(walletController));
 
+//EXPENSES
 router.post("/budgeteer/:userId/wallets/:walletId/expenses", authorization, expenseController.createExpense.bind(expenseController));
 
 router.get("/budgeteer/:userId/wallets/:walletId/expenses", authorization, expenseController.getExpensesForWallet.bind(expenseController));
 
 router.get("/budgeteer/:userId/expenses", authorization, expenseController.getAllForUser.bind(expenseController));
 
+router.delete("/budgeteer/:userId/expenses/:expenseId", authorization, expenseController.deleteExpense.bind(expenseController));
+
 router.get("/budgeteer/:userId/categories/:walletId", authorization, categoryController.getAllByWallet.bind(categoryController));
+
+
+//BUDGETS
+router.post("/budgeteer/:userId/budgets/:walletId/", authorization, budgetController.createBudget.bind(budgetController));
+
+router.get("/budgeteer/:userId/budgets/:walletId", authorization, budgetController.getBudgetsForWallet.bind(budgetController));
+
+router.delete("/budgeteer/:userId/budgets/:budgetId", authorization, budgetController.deleteBudget.bind(budgetController));
 
 // router.delete("/budgeteer/wallets/:id", deleteWalletForUser)
 

@@ -8,17 +8,17 @@ import { Wallet } from "./Wallet.ts";
 export class Budget extends Model {
     
     @Column({allowNull: false})
-    public limit!: number;
+    declare limit!: number;
 
     @Column({allowNull: false})
-    public currentAmount!: number;
+    declare currentAmount!: number;
 
     @Column({ allowNull: false })
-    public recurrence!: string;
+    declare recurrence!: string;
 
     @ForeignKey(() => Category)
     @Column({allowNull: false})
-    public categoryId!: number;
+    declare categoryId!: number;
 
     @ForeignKey(() => Wallet)
     @Column({
@@ -29,6 +29,9 @@ export class Budget extends Model {
     // public wallet?: Wallet;
 
     @Column({allowNull: false})
-    public name!: string;
+    declare name!: string;
+
+    @BelongsTo(() => Category, { foreignKey: 'categoryId', as: 'category' })
+    declare category: Category;
 
 }

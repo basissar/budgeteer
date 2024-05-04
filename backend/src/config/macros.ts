@@ -30,8 +30,16 @@ export const EXPENSE_REPOSITORY = "ExpenseRepository";
 export const USER_REPOSITORY = "UserRepository";
 export const WALLET_REPOSITORY = "WalletRepository";
 export const CATEGORY_REPOSITORY = "CategoryRepository";
+export const BUDGET_REPOSITORY = "BudgetRepository";
+export const SAVINGS_REPOSITORY = "SavingsRepository";
+export const ITEM_REPOSITORY = "ItemRepository";
+export const TRANSACTION_REPOSITORY = "TransactionRepository"
 
 export const USER_SERVICE = "UserService";
 export const WALLET_SERVICE = "WalletService";
 export const EXPENSE_SERVICE = "ExpenseService";
 export const CATEGORY_SERVICE = "CategoryService";
+export const BUDGET_SERVICE = "BudgetService";
+export const SAVINGS_SERVICE = "SavingsService";
+export const ITEM_SERVICE = "ItemService";
+export const TRANSACTION_SERVICE = "TransactionService";

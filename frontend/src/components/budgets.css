@@ -1,0 +1,57 @@
+.budget-table {
+ margin-right: 10%;
+}
+
+.budgets-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.budget-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.budget-form-container {
+    margin-left: 10%;
+}
+
+.input-container {
+    grid-column: span 1;
+}
+
+.input-container input {
+    border: 2px solid #26692A;
+    border-radius: 5px;
+    width: 100%;
+    height: 25px;
+}
+
+.input-container select {
+    border: 2px solid #26692A;
+    border-radius: 5px;
+    width: 100%;
+    height: 25px;
+}
+
+.category-div {
+    border-radius: 5px;
+    padding: 5px;
+    width: 150px;
+    text-align: center;
+    font-weight: 500;
+    color: white;
+}
+
+.category-with-icon {
+    display: flex;
+    align-items: center;
+}
+
+.category-icon {
+    margin-right: 10px;
+}

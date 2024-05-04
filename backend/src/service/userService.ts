@@ -3,7 +3,7 @@ import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import {User} from "../model/User.ts";
-import {UserRepository} from "../repository/userRepo.ts"
+import {UserRepository} from "../repository/userRepository.ts"
 import { compare, hash} from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { create, getNumericDate, verify } from "https://deno.land/x/djwt@v2.4/mod.ts";
 import { key } from "../utils/apiKey.ts";

@@ -1,12 +1,14 @@
-import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
+import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE} from "../config/macros.ts";
 import { container } from "../container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { UnauthorizedError } from "../errors/UnauthorizedError.ts";
 import { Expense } from "../model/Expense.ts";
-import { ExpenseRepository } from "../repository/expenseRepo.ts";
-import { WalletRepository } from "../repository/walletRepo.ts";
+// import { BudgetRepository } from "../repository/budgetRepository.ts";
+import { ExpenseRepository } from "../repository/expenseRepository.ts";
+import { WalletRepository } from "../repository/walletRepository.ts";
+import { BudgetService } from "./budgetService.ts";
 import { CategoryService } from "./categoryService.ts";
 import { WalletService } from "./walletService.ts";
 
@@ -20,6 +22,8 @@ export class ExpenseService {
 
     private categoryService: CategoryService;
 
+    private budgetService: BudgetService;
+
     constructor() {
         const expRepo = container.resolve(EXPENSE_REPOSITORY);
         // const walletRepo = container.resolve('WalletRepository');
@@ -27,6 +31,8 @@ export class ExpenseService {
         const wallSer = container.resolve(WALLET_SERVICE)
 
         const catSer = container.resolve(CATEGORY_SERVICE);
+
+        const budgetSer = container.resolve(BUDGET_SERVICE);
 
         if (expRepo == null) {
             const newExpRepo = new ExpenseRepository();
@@ -51,6 +57,14 @@ export class ExpenseService {
         } else {
             this.categoryService = catSer;
         }
+
+        if ( budgetSer == null ) {
+            const newBudgetRepo = new BudgetService();
+            container.register(BUDGET_SERVICE, newBudgetRepo);
+            this.budgetService = newBudgetRepo;
+        } else {
+            this.budgetService = budgetSer;
+        }
     }
 
     async createExpense(expense: Expense) {
@@ -61,7 +75,21 @@ export class ExpenseService {
                 throw new DuplicateError(`Expense with id ${expense.id} already exists`);
             }
 
-            return await this.expenseRepository.save(expense);
+            const createdExpense = await this.expenseRepository.save(expense);
+
+            if (createdExpense != null){
+                const budgets = await this.budgetService.findByWalletAndCategory(createdExpense?.walletId, createdExpense?.targetCategoryId);
+
+                if (budgets != null){
+                    for (const budget of budgets){
+                        this.budgetService.updateMoney(budget, createdExpense.amount);
+                    }
+                }
+                
+            }
+
+
+            return createdExpense;
         } catch (error) {
             throw new ServiceError("Expense service error: " + error.stack);
         }

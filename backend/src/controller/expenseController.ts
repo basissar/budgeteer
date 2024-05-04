@@ -63,7 +63,7 @@ export class ExpenseController {
 
         } catch (error) {
             ctx.response.status = INTERNAL_ERROR,
-                ctx.response.body = { message: error.message };
+            ctx.response.body = { message: error.message };
         }
     }
 
@@ -121,7 +121,7 @@ export class ExpenseController {
                 ctx.response.body = { message: `User with id: ${userId} does not exist` };
                 return;
             }
-            
+
             const expenses = await this.expenseService.findByUser(userId);
 
             ctx.response.status = OK;
@@ -131,7 +131,7 @@ export class ExpenseController {
             }
         } catch (err) {
             ctx.response.status = INTERNAL_ERROR,
-            ctx.response.body = {message: err.message}
+                ctx.response.body = { message: err.message }
         }
     }
 
@@ -149,13 +149,13 @@ export class ExpenseController {
 
             //we don't neccessarily need to check for wallet and expense existence since we are passing it from frontend directly
 
-            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
+            // const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
 
-            if (!belongsToUser) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-                return;
-            }
+            // if (!belongsToUser) {
+            //     ctx.response.status = UNAUTHORIZED;
+            //     ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
+            //     return;
+            // }
 
             const deleted = await this.expenseService.deleteExpense(Number(expenseId));
 
