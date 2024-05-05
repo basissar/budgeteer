@@ -31,7 +31,10 @@ export class User extends Model{
     declare oauthId: string;
 
     @Column({ allowNull: true }) // Allow null if registered via OAuth2
-    declare password: string;   
+    declare password: string;  
+    
+    @Column({allowNull: false})
+    declare timezone: string;
 
     @HasMany(() => Wallet)
     public wallets!: Wallet[];
