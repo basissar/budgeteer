@@ -69,4 +69,11 @@ export class UserRepository implements BaseRepository<User, string> {
         });
     }
 
+    async getForCron(timezone: string){
+        return await User.findAll({
+            attributes:['id'],
+            where: {timezone: timezone}
+        })
+    }
+
 }

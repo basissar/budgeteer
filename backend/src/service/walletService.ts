@@ -3,7 +3,7 @@ import { WalletRepository } from "../repository/walletRepository.ts";
 import { UserRepository } from "../repository/userRepository.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { USER_REPOSITORY, WALLET_REPOSITORY, EXPENSE_SERVICE, EXPENSE_REPOSITORY } from "../config/macros.ts";
 import { ExpenseService } from "../service/expenseService.ts";
 import { Expense } from "../model/Expense.ts";

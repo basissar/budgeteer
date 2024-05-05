@@ -1,5 +1,5 @@
 import { CATEGORY_REPOSITORY } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "./container.ts";
 import { Category } from "../model/Category.ts";
 import { CategoryRepository } from "../repository/categoryRepository.ts";
 

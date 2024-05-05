@@ -1,4 +1,4 @@
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
@@ -178,6 +178,15 @@ export class UserService {
             return id;
         } catch (error) {
             console.error('Error verifying token: ' + error);
+            return null;
+        }
+    }
+
+    async getUsersForCron(timezone: string){
+        try {
+            return await this.repository.getForCron(timezone);
+        } catch (error) {
+            console.error('Error getting users: ' + error);
             return null;
         }
     }

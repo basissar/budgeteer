@@ -1,6 +1,6 @@
 import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
 import { BUDGET_SERVICE, CREATED, EXPENSE_SERVICE, NO_CONTENT, INTERNAL_ERROR, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { BudgetService } from "../service/budgetService.ts";
 import { ExpenseService } from "../service/expenseService.ts";
 import { UserService } from "../service/userService.ts";

@@ -1,5 +1,5 @@
 import { BUDGET_REPOSITORY, WALLET_REPOSITORY } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { BudgetRepository } from "../repository/budgetRepository.ts";
 import { Budget } from "../model/Budget.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";

@@ -3,7 +3,7 @@ import {RouterContext} from "https://deno.land/x/oak@v12.6.1/router.ts";
 import {BAD_REQUEST, CREATED, INTERNAL_ERROR, NOT_FOUND, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE} from "../config/macros.ts";
 import {Wallet} from "../model/Wallet.ts";
 import { UserService } from "../service/userService.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 
 export class WalletController {
 

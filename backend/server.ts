@@ -12,7 +12,7 @@ import { CategoryController } from "./src/controller/categoryController.ts";
 import { BudgetController } from "./src/controller/budgetsController.ts";
 
 import { initializeDatabase } from "./src/database/database.ts";
-import { container } from "./src/container.ts";
+import { container } from "./src/utils/container.ts";
 
 // import { config } from 'https://deno.land/x/dotenv/mod.ts';
 import { BUDGET_REPOSITORY, CATEGORY_REPOSITORY, USER_REPOSITORY } from "./src/config/macros.ts";
@@ -23,6 +23,8 @@ import authorization from "./src/controller/authorization.ts";
 import { CategoryRepository } from "./src/repository/categoryRepository.ts";
 import { BudgetRepository } from "./src/repository/budgetRepository.ts";
 import { saveDefaultCategories } from "./src/utils/initializationCat.ts";
+import { Scheduler } from "./src/utils/scheduler.ts";
+import { DateTime } from "https://cdn.skypack.dev/luxon";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
@@ -46,28 +48,28 @@ const categoryController = new CategoryController();
 const budgetController = new BudgetController();
 
 const oauth2Client = new OAuth2Client({
-    clientId: "464adeab29b6617d357a",
-    clientSecret: "***",
-    authorizationEndpointUri: "https://github.com/login/oauth/authorize",
-    tokenUri: "https://github.com/login/oauth/access_token",
-    resourceEndpointHost: "https://api.github.com",
-    redirectUri: "http://localhost:8000/auth/github/callback",
-    defaults: {
-        scope: "read:user",
-    },
+  clientId: "464adeab29b6617d357a",
+  clientSecret: "***",
+  authorizationEndpointUri: "https://github.com/login/oauth/authorize",
+  tokenUri: "https://github.com/login/oauth/access_token",
+  resourceEndpointHost: "https://api.github.com",
+  redirectUri: "http://localhost:8000/auth/github/callback",
+  defaults: {
+    scope: "read:user",
+  },
 });
 
 router.get<string>("/budgeteer", (ctx: RouterContext<string>) => {
-    ctx.response.body = {
-        status: "success",
-        message: "Budgeteer",
-    };
+  ctx.response.body = {
+    status: "success",
+    message: "Budgeteer",
+  };
 });
 
 router.get("/budgeteer/login", (ctx) => {
-    ctx.response.redirect(
-        oauth2Client.code.getAuthorizationUri(),
-    );
+  ctx.response.redirect(
+    oauth2Client.code.getAuthorizationUri(),
+  );
 });
 
 /*
@@ -151,25 +153,25 @@ router.delete("/budgeteer/:userId/budgets/:budgetId", authorization, budgetContr
 server.use(router.routes());
 server.use(router.allowedMethods());
 
-server.addEventListener("listen", ({port, secure}) => {
-    console.log(
-        `Server started on ${secure ? "https://" : "http://"}localhost:${port}`
-    );
+server.addEventListener("listen", ({ port, secure }) => {
+  console.log(
+    `Server started on ${secure ? "https://" : "http://"}localhost:${port}`
+  );
 });
 
 server.use(async (ctx, next) => {
-    try {
-        await next();
-    } catch (err) {
-        console.error(err);
-        ctx.response.body = "Internal Server Error";
-        ctx.response.status = 500;
-    }
+  try {
+    await next();
+  } catch (err) {
+    console.error(err);
+    ctx.response.body = "Internal Server Error";
+    ctx.response.status = 500;
+  }
 });
 
 const port = 8000;
 
-server.listen({port});
+server.listen({ port });
 
 // initializeDatabase();
 
@@ -184,6 +186,14 @@ server.listen({port});
 //   console.error("Database initialization failed:", error);
 // });
 
-initializeDatabase().catch(error => {
+await initializeDatabase().catch(error => {
   console.error("Failed to initialize database:", error);
+}).then(async () => {
+  // Start the scheduler...
+  const scheduler = new Scheduler();
+  // scheduler.start();
+  // console.log(await scheduler.getTimeZonesForMidnight());
 })
+
+// .then(() => {startScheduler();})
+
