@@ -6,14 +6,17 @@ import { User } from '../model/User.ts';
 import { Wallet } from '../model/Wallet.ts';
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 import { Expense } from '../model/Expense.ts';
+import pg from 'npm:pg';
 
+config({ export: true });
 
 export const sequelize = new Sequelize({
     database: 'gukshyaq',
     username: 'gukshyaq',
-    password: config()['PASSWORD'],
+    password: Deno.env.get('PASSWORD'),
     host: 'cornelius.db.elephantsql.com',
     dialect: 'postgres',
+    dialectModule: pg,
     dialectOptions: {
         connectTimeout: 60000,
     },
