@@ -15,7 +15,7 @@ import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/utils/container.ts";
 
 // import { config } from 'https://deno.land/x/dotenv/mod.ts';
-import { BUDGET_REPOSITORY, CATEGORY_REPOSITORY, USER_REPOSITORY } from "./src/config/macros.ts";
+import { BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
 import { WALLET_REPOSITORY } from "./src/config/macros.ts";
 import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
 import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
@@ -23,8 +23,8 @@ import authorization from "./src/controller/authorization.ts";
 import { CategoryRepository } from "./src/repository/categoryRepository.ts";
 import { BudgetRepository } from "./src/repository/budgetRepository.ts";
 import { saveDefaultCategories } from "./src/utils/initializationCat.ts";
-import { Scheduler } from "./src/utils/scheduler.ts";
 import { DateTime } from "https://cdn.skypack.dev/luxon";
+import { Scheduler } from "./src/utils/scheduler.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
@@ -190,9 +190,9 @@ await initializeDatabase().catch(error => {
   console.error("Failed to initialize database:", error);
 }).then(async () => {
   // Start the scheduler...
-  const scheduler = new Scheduler();
-  // scheduler.start();
-  // console.log(await scheduler.getTimeZonesForMidnight());
+  const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE));
+  scheduler.start();
+  console.log(await scheduler.getTimeZonesForMidnight());
 })
 
 // .then(() => {startScheduler();})

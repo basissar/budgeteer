@@ -1,5 +1,8 @@
+import { Op } from 'npm:sequelize';
 import { RepositoryError } from '../errors/RepositoryError.ts';
 import { User } from '../model/User.ts';
+import { Wallet } from '../model/Wallet.ts';
+import { Budget } from '../model/Budget.ts';
 import { BaseRepository } from "./baseRepository.ts";
 
 export class UserRepository implements BaseRepository<User, string> {
@@ -69,11 +72,41 @@ export class UserRepository implements BaseRepository<User, string> {
         });
     }
 
-    async getForCron(timezone: string){
-        return await User.findAll({
-            attributes:['id'],
-            where: {timezone: timezone}
-        })
+    // async getForCron(timezone: string){
+    //     return await User.findAll({
+    //         attributes:['id'],
+    //         where: {timezone: timezone}
+    //     })
+    // }
+
+    async getForCron(timezones: string[], recurrence: string){
+        try {
+            const users = await User.findAll({
+                include: [
+                    {
+                        model: Wallet,
+                        include: [
+                            {
+                                model: Budget,
+                                where: {
+                                    recurrence: recurrence
+                                }
+                            }
+                        ]
+                    }
+                ],
+                where: {
+                    timezone: {
+                        [Op.in]: timezones
+                    }
+                }
+            });
+
+            return users;
+        } catch (error) {
+            console.error('Error getting users with wallets and budgets for cron:', error);
+            throw error;
+        }
     }
 
 }

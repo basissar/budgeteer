@@ -182,9 +182,9 @@ export class UserService {
         }
     }
 
-    async getUsersForCron(timezone: string){
+    async getUsersForCron(timezones: string[], recurrence: string){
         try {
-            return await this.repository.getForCron(timezone);
+            return await this.repository.getForCron(timezones, recurrence);
         } catch (error) {
             console.error('Error getting users: ' + error);
             return null;

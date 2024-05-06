@@ -166,4 +166,20 @@ export class BudgetService {
             throw new ServiceError(`Budget service error: ${err.message}`);
         }
     }
+
+    async resetAllInWallet(walletId: string){
+        try {
+            const foundBudgets = await this.budgetRepository.findByWallet(walletId);
+
+            if (foundBudgets != null) {
+                for (const budget of foundBudgets) {
+                    this.resetBudget(budget.id);
+                }
+            }
+            
+        } catch (err) {
+            throw new ServiceError(`Budget service error: ${err.message}`);
+        }
+    }
+
 }

@@ -1,4 +1,4 @@
-import { Table, Column, Model, ForeignKey, BelongsTo, DataType } from 'npm:sequelize-typescript';
+import { Table, Column, Model, ForeignKey, DataType } from 'npm:sequelize-typescript';
 import { User } from "./User.ts";
 import { Wallet } from "./Wallet.ts";
 
@@ -24,5 +24,4 @@ export class Category extends Model {
         type: DataType.UUID
     })
     declare walletId?: string;
-
 }
