@@ -106,21 +106,21 @@ export class BudgetController {
         try {
             const { userId, walletId, budgetId} = ctx.params;
 
-            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
+            // const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
 
-            if (!belongsToUser) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-                return;
-            }
+            // if (!belongsToUser) {
+            //     ctx.response.status = UNAUTHORIZED;
+            //     ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
+            //     return;
+            // }
 
             const deleted = await this.budgetService.deleteBudget(Number(budgetId));
 
-            if (deleted) {
-                ctx.response.body = { message: `Budget deletec successfully`}
-            } else {
-                ctx.response.body = { message: `No budgets were deleted`}
-            }
+            // if (deleted) {
+            //     ctx.response.body = { message: `Budget deletec successfully`}
+            // } else {
+            //     ctx.response.body = { message: `No budgets were deleted`}
+            // }
 
             ctx.response.status = NO_CONTENT;
         } catch (err) {

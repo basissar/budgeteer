@@ -81,23 +81,33 @@ export default function Budgets() {
         }
     }
 
-    const handleEditBudget = async (budgetId) => { }
+    const handleBudgetAddition = (newBudget) => {
+        setBudgets([...budgets, newBudget]);
+    }
 
-    const handleDeleteBudget = async (budgetId) => { }
+    const handleEditBudget = async (budgetId) => {
+
+    }
+
+    const handleDeleteBudget = async (budgetId) => {
+        console.log("Calling budget delete on budget: ", budgetId);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.delete(`http://localhost:8000/budgeteer/${userId}/budgets/${budgetId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setBudgets(budgets.filter(budget => budget.id !== budgetId));
+
+        } catch (err) {
+            console.error(err.message);
+        }
+    }
 
     return (
         <div className="container">
             {errorMessage && <p>{errorMessage}</p>}
 
-            {/* Custom wallet select component */}
-            {/* <CustomWalletSelect
-                label="Select wallet"
-                options={wallets.map(wallet => wallet.name)}
-                onChange={(option) => {
-                    const selectedWallet = wallets.find(wallet => wallet.name === option);
-                    handleWalletChange(selectedWallet.id);
-                }}
-            /> */}
 
             <div>
                 <label htmlFor="walletSelect">Select wallet</label>
@@ -112,7 +122,7 @@ export default function Budgets() {
             <div className="budgets-container">
                 {/* Budget form */}
                 <div className="budget-form-container">
-                    {currentWalletId && <BudgetForm userId={userId} currentWalletId={currentWalletId} budgets={budgets} setBudgets={setBudgets} />}
+                    {currentWalletId && <BudgetForm userId={userId} currentWalletId={currentWalletId} budgets={budgets} setBudgets={setBudgets} onBudgetAddition={handleBudgetAddition} />}
                 </div>
 
 
@@ -132,7 +142,7 @@ export default function Budgets() {
                             </thead>
                             <tbody>
                                 {budgets.map(budget => (
-                                    
+
                                     <tr key={budget.id}>
                                         <td>{budget.name}</td>
                                         <td>{budget.limit} {currentWalletCurrency}</td>

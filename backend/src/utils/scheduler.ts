@@ -1,9 +1,10 @@
 import { Cron } from "https://deno.land/x/croner@5.1.0/src/croner.js";
-import { container } from "./container.ts";
-import { BUDGET_SERVICE, USER_SERVICE } from "../config/macros.ts";
 import { BudgetService } from "../service/budgetService.ts";
 import { UserService } from "../service/userService.ts";
 import { DateTime } from "https://cdn.skypack.dev/luxon";
+import { Budget } from "../model/Budget.ts";
+import timezonesJson from 'npm:timezones.json';
+import { Timezone } from "../model/Timezone.ts";
 
 export class Scheduler {
 
@@ -37,15 +38,15 @@ export class Scheduler {
         }
     }
 
-    getDailyCron(){
+    getDailyCron() {
         return this.dailyCronInstance;
     }
 
-    getWeeklyCron(){
+    getWeeklyCron() {
         return this.weeklyCronInstance;
     }
 
-    getMonthlyCron(){
+    getMonthlyCron() {
         return this.monthlyCronInstance;
     }
 
@@ -81,43 +82,50 @@ export class Scheduler {
         }
     }
 
-    async resetBudgets(recurrence: string){
+    async resetBudgets(recurrence: string) {
         const timezones = await this.getTimeZonesForMidnight();
 
-            const users = await this.userService.getUsersForCron(timezones, recurrence);
+        const users = await this.userService.getUsersForCron(timezones, recurrence);
 
-            if (users != null) {
-                for (const user of users) {
-                    for (const wallet of user.wallets) {
-                        await Promise.all(
-                            wallet.budgets?.map(async (budget) => {
-                                await this.budgetService.resetBudget(budget.id);
-                                console.log(`Reset budget ${budget.id} for user ${user.id}`);
-                            }) ?? []
-                        );
-                    }
+        if (users != null) {
+            for (const user of users) {
+                for (const wallet of user.getDataValue('wallets')) {
+                    await Promise.all(
+                        wallet.getDataValue('budgets').map(async (budget: Budget) => {
+                            await this.budgetService.resetBudget(budget.id);
+                            console.log(`Reset budget ${budget.id} for user ${user.id}`);
+                        }) ?? []
+                    );
                 }
             }
+        }
     }
 
-    async getTimeZonesForMidnight(){
-        const path = 'C:/Users/sbasi/Documents/CVUT/5th_semester/SemestralProject/GIT/budgeteer/backend/node_modules/timezones.json/timezones.json';
-        const fileContent = await Deno.readTextFile(path);
+    getTimeZonesForMidnight() {
+        const timezones: Timezone[] = Object.values(timezonesJson) as unknown as Timezone[];
+        const currentLondonTime = DateTime.now().setZone('Europe/London');
 
-        const timezones: { utc: string[], offset: number }[] = JSON.parse(fileContent);
-
-        const currentTimeUTC = DateTime.utc();
-
-        const matchingTimezonesSet = new Set<string>(); // Use a Set to automatically remove duplicates
+        const matchingTimezonesSet = new Set<string>();
 
         for (const timezone of timezones) {
-            const localTime = currentTimeUTC.setZone(timezone.utc[0]);
+            //we need to keep in mind that london has for some reason set offset for 1 so  we need to take 1 off
+
+            const offset = timezone.offset - 1;
+            let localTime: DateTime;
+
+            if (offset < 0) {
+                const corrOff = Math.abs(offset);
+                localTime = currentLondonTime.minus({ hours: corrOff });
+            } else {
+                localTime = currentLondonTime.plus({ hours: offset });
+            }
+
             if (localTime.hour === 0) {
-                timezone.utc.forEach(tz => matchingTimezonesSet.add(tz)); // Add each timezone to the set
+                timezone.utc.forEach(tz => matchingTimezonesSet.add(tz));
             }
         }
 
-        const matchingTimezones: string[] = Array.from(matchingTimezonesSet); // Convert set to array
+        const matchingTimezones: string[] = Array.from(matchingTimezonesSet);
         return matchingTimezones;
     }
 
@@ -126,25 +134,31 @@ export class Scheduler {
      * @param hour 
      * @returns 
      */
-    async getTimezonesForHour(hour: number){
-        const path = 'C:/Users/sbasi/Documents/CVUT/5th_semester/SemestralProject/GIT/budgeteer/backend/node_modules/timezones.json/timezones.json';
-        const fileContent = await Deno.readTextFile(path);
+    getTimezonesForHour(hour: number) {
+        const timezones: Timezone[] = Object.values(timezonesJson) as unknown as Timezone[];
+        const currentLondonTime = DateTime.now().setZone('Europe/London');
 
-        const timezones: { utc: string[], offset: number }[] = JSON.parse(fileContent);
-
-        const currentTimeUTC = DateTime.utc();
-
-        const matchingTimezonesSet = new Set<string>(); // Use a Set to automatically remove duplicates
+        const matchingTimezonesSet = new Set<string>();
 
         for (const timezone of timezones) {
-            const localTime = currentTimeUTC.setZone(timezone.utc[0]);
+            //we need to keep in mind that london has for some reason set offset for 1 so  we need to take 1 off
+
+            const offset = timezone.offset - 1;
+            let localTime: DateTime;
+
+            if (offset < 0) {
+                const corrOff = Math.abs(offset);
+                localTime = currentLondonTime.minus({ hours: corrOff });
+            } else {
+                localTime = currentLondonTime.plus({ hours: offset });
+            }
+
             if (localTime.hour === hour) {
-                timezone.utc.forEach(tz => matchingTimezonesSet.add(tz)); // Add each timezone to the set
+                timezone.utc.forEach(tz => matchingTimezonesSet.add(tz));
             }
         }
 
-        const matchingTimezones: string[] = Array.from(matchingTimezonesSet); // Convert set to array
+        const matchingTimezones: string[] = Array.from(matchingTimezonesSet);
         return matchingTimezones;
     }
-
 }

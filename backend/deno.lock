@@ -4,7 +4,8 @@
     "specifiers": {
       "npm:pg": "npm:pg@8.11.3",
       "npm:sequelize": "npm:sequelize@6.37.1",
-      "npm:sequelize-typescript": "npm:sequelize-typescript@2.1.6_@types+node@18.16.19_@types+validator@13.11.9_reflect-metadata@0.2.1_sequelize@6.37.1"
+      "npm:sequelize-typescript": "npm:sequelize-typescript@2.1.6_@types+node@18.16.19_@types+validator@13.11.9_reflect-metadata@0.2.1_sequelize@6.37.1",
+      "npm:timezones.json": "npm:timezones.json@1.7.1"
     },
     "npm": {
       "@types/debug@4.1.12": {
@@ -248,6 +249,10 @@
       },
       "split2@4.2.0": {
         "integrity": "sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==",
+        "dependencies": {}
+      },
+      "timezones.json@1.7.1": {
+        "integrity": "sha512-4dB58ulcrRWfiGufzlofLG45RIoalCTZiFUc7tnj0g8za0CpNTyIOVlspg1JD7OFyDeW5up3ntlkukizwB0IJA==",
         "dependencies": {}
       },
       "toposort-class@1.0.1": {

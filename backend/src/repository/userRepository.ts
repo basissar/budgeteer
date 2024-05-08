@@ -84,10 +84,11 @@ export class UserRepository implements BaseRepository<User, string> {
             const users = await User.findAll({
                 include: [
                     {
-                        model: Wallet,
+                        model: Wallet, as: 'wallets',
                         include: [
                             {
                                 model: Budget,
+                                as: 'budgets',
                                 where: {
                                     recurrence: recurrence
                                 }

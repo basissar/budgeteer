@@ -1,4 +1,4 @@
-import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE} from "../config/macros.ts";
+import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
@@ -13,7 +13,7 @@ import { CategoryService } from "./categoryService.ts";
 import { WalletService } from "./walletService.ts";
 
 export class ExpenseService {
-    
+
     public expenseRepository: ExpenseRepository;
 
     // public walletRepository: WalletRepository;
@@ -42,7 +42,7 @@ export class ExpenseService {
             this.expenseRepository = expRepo;
         }
 
-        if(wallSer == null) {
+        if (wallSer == null) {
             const newWallSer = new WalletService();
             container.register(WALLET_SERVICE, newWallSer);
             this.walletService = newWallSer;
@@ -50,7 +50,7 @@ export class ExpenseService {
             this.walletService = wallSer;
         }
 
-        if(catSer == null) {
+        if (catSer == null) {
             const newCatSer = new CategoryService();
             container.register(CATEGORY_SERVICE, newCatSer);
             this.categoryService = newCatSer;
@@ -58,7 +58,7 @@ export class ExpenseService {
             this.categoryService = catSer;
         }
 
-        if ( budgetSer == null ) {
+        if (budgetSer == null) {
             const newBudgetRepo = new BudgetService();
             container.register(BUDGET_SERVICE, newBudgetRepo);
             this.budgetService = newBudgetRepo;
@@ -71,21 +71,22 @@ export class ExpenseService {
         try {
             const exists = await this.exists(expense.id);
 
-            if (exists){
+            if (exists) {
                 throw new DuplicateError(`Expense with id ${expense.id} already exists`);
             }
 
             const createdExpense = await this.expenseRepository.save(expense);
 
-            if (createdExpense != null){
-                const budgets = await this.budgetService.findByWalletAndCategory(createdExpense?.walletId, createdExpense?.targetCategoryId);
+            if (createdExpense != null) {
+                if (createdExpense.amount < 0) {
+                    const budgets = await this.budgetService.findByWalletAndCategory(createdExpense?.walletId, createdExpense?.targetCategoryId);
 
-                if (budgets != null){
-                    for (const budget of budgets){
-                        this.budgetService.updateMoney(budget, createdExpense.amount);
+                    if (budgets != null) {
+                        for (const budget of budgets) {
+                            await this.budgetService.updateMoney(budget, -createdExpense.amount);
+                        }
                     }
                 }
-                
             }
 
 
@@ -95,7 +96,7 @@ export class ExpenseService {
         }
     }
 
-    async exists(id: number){
+    async exists(id: number) {
         try {
             return await this.expenseRepository.exists(id);
         } catch (error) {
@@ -103,7 +104,7 @@ export class ExpenseService {
         }
     }
 
-    async findById(id: number){
+    async findById(id: number) {
         try {
             return await this.expenseRepository.findById(id);
         } catch (error) {
@@ -111,7 +112,7 @@ export class ExpenseService {
         }
     }
 
-    async findByWallet(walletId: string, userId: string){
+    async findByWallet(walletId: string, userId: string) {
         try {
             /*
             const wallet = await this.walletService.getWallet(walletId);
@@ -126,7 +127,7 @@ export class ExpenseService {
             }
             */
 
-            const foundWallet = await this.walletService.getWalletForUser(walletId,userId);
+            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
 
             if (!foundWallet) {
                 return null;
@@ -143,7 +144,7 @@ export class ExpenseService {
         }
     }
 
-    async findByUser(userId: string){
+    async findByUser(userId: string) {
         try {
             const foundExpenses = await this.expenseRepository.findByUser(userId);
 
@@ -153,7 +154,7 @@ export class ExpenseService {
         }
     }
 
-    async findBySource(walletId: string, userId: string, sourceCatId: number){
+    async findBySource(walletId: string, userId: string, sourceCatId: number) {
         try {
             const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
 
@@ -177,11 +178,11 @@ export class ExpenseService {
         }
     }
 
-    async findByTarget(walletId: string, userId: string, targetCat: number){
+    async findByTarget(walletId: string, userId: string, targetCat: number) {
         try {
             const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
 
-            if (!foundWallet){
+            if (!foundWallet) {
                 return null;
             }
 
@@ -197,11 +198,11 @@ export class ExpenseService {
         }
     }
 
-    async findByMaxAmount(walletId: string, userId: string, maxAmount: number){
+    async findByMaxAmount(walletId: string, userId: string, maxAmount: number) {
         try {
             const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
 
-            if(!foundWallet){
+            if (!foundWallet) {
                 return null;
             }
 
@@ -217,11 +218,11 @@ export class ExpenseService {
         }
     }
 
-    async findByMinAmount(walletId: string, userId: string, minAmount: number){
+    async findByMinAmount(walletId: string, userId: string, minAmount: number) {
         try {
             const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
 
-            if(!foundWallet){
+            if (!foundWallet) {
                 return null;
             }
 
@@ -239,11 +240,11 @@ export class ExpenseService {
 
 
 
-    async deleteExpense(id: number){
+    async deleteExpense(id: number) {
         try {
             const exists = await this.expenseRepository.exists(id);
 
-            if(!exists) {
+            if (!exists) {
                 throw new NotFoundError(`Expense with id ${id} not found`);
             }
 

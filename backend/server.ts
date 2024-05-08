@@ -192,7 +192,6 @@ await initializeDatabase().catch(error => {
   // Start the scheduler...
   const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE));
   scheduler.start();
-  console.log(await scheduler.getTimeZonesForMidnight());
 })
 
 // .then(() => {startScheduler();})
