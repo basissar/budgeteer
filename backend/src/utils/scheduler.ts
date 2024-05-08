@@ -103,24 +103,13 @@ export class Scheduler {
 
     getTimeZonesForMidnight() {
         const timezones: Timezone[] = Object.values(timezonesJson) as unknown as Timezone[];
-        const currentLondonTime = DateTime.now().setZone('Europe/London');
 
         const matchingTimezonesSet = new Set<string>();
 
         for (const timezone of timezones) {
-            //we need to keep in mind that london has for some reason set offset for 1 so  we need to take 1 off
+            const date = DateTime.now().setZone(timezone.utc[0]);
 
-            const offset = timezone.offset - 1;
-            let localTime: DateTime;
-
-            if (offset < 0) {
-                const corrOff = Math.abs(offset);
-                localTime = currentLondonTime.minus({ hours: corrOff });
-            } else {
-                localTime = currentLondonTime.plus({ hours: offset });
-            }
-
-            if (localTime.hour === 0) {
+            if (date.hour === 0) {
                 timezone.utc.forEach(tz => matchingTimezonesSet.add(tz));
             }
         }
@@ -136,24 +125,13 @@ export class Scheduler {
      */
     getTimezonesForHour(hour: number) {
         const timezones: Timezone[] = Object.values(timezonesJson) as unknown as Timezone[];
-        const currentLondonTime = DateTime.now().setZone('Europe/London');
 
         const matchingTimezonesSet = new Set<string>();
 
         for (const timezone of timezones) {
-            //we need to keep in mind that london has for some reason set offset for 1 so  we need to take 1 off
+            const date = DateTime.now().setZone(timezone.utc[0]);
 
-            const offset = timezone.offset - 1;
-            let localTime: DateTime;
-
-            if (offset < 0) {
-                const corrOff = Math.abs(offset);
-                localTime = currentLondonTime.minus({ hours: corrOff });
-            } else {
-                localTime = currentLondonTime.plus({ hours: offset });
-            }
-
-            if (localTime.hour === hour) {
+            if (date.hour === hour) {
                 timezone.utc.forEach(tz => matchingTimezonesSet.add(tz));
             }
         }
