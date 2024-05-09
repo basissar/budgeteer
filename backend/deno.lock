@@ -491,5 +491,14 @@
     "https://deno.land/x/oauth2@v0.2.6/src/resource_grant.ts": "4906c233bfcb5459d6573308fb8c48c968a687f47fe67c09a045c18f8c93211c",
     "https://deno.land/x/oauth2@v0.2.6/src/types.ts": "0e82a14759580217092742a0cd57951a3ff9c2b2445b3e86226301357b247d23",
     "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "894060567837bae8fc9c5cbd4d0a05e9024672083d5883b525c031eea940e556"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:pg-hstore@^2.3.4",
+        "npm:pg@^8.11.3",
+        "npm:timezones.json@^1.7.1"
+      ]
+    }
   }
 }
