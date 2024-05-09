@@ -81,6 +81,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
             const walletIds = userWallets.map(wallet => wallet.id);
 
             return await Expense.findAll({
+                order: ['date','DESC'],
                 where: {
                     walletId: {
                         [Op.in]: walletIds // Using the "in" operator to match walletIds
@@ -143,5 +144,36 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
             throw new RepositoryError(error.stack);
         }
     }
+
+    async findByDate(walletId: string, date: Date, category: number){
+        try  {
+            return await Expense.findAll({
+                attributes: ['name','amount','targetCategoryId'],
+                where: {
+                    walletId: walletId,
+                    date: date,
+                    targetCategoryId: category
+                }
+            });
+        } catch (err) {
+            throw new RepositoryError(err.stack);
+        }
+    }
     
+    async findByDateRange(walletId: string, startDay: Date, endDay: Date, category: number){
+        try {
+            return await Expense.findAll({
+                attributes: ['name','amount', 'targetCategoryId'],
+                where: {
+                    walletId: walletId,
+                    date: {
+                        [Op.between]: [startDay, endDay]
+                    },
+                    targetCategoryId: category
+                }
+            });
+        } catch (err) {
+            throw new RepositoryError(err.stack);
+        }
+    }
 }

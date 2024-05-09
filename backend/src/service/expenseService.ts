@@ -75,6 +75,13 @@ export class ExpenseService {
                 throw new DuplicateError(`Expense with id ${expense.id} already exists`);
             }
 
+            // Set the time components of the expense date to the start of the day 
+            // when looking up the date sequelize compares hours as well so we set it to midnight
+            const expenseDate = new Date(expense.date);
+            expenseDate.setHours(0, 0, 0, 0);
+
+            expense.set('date', expenseDate);
+
             const createdExpense = await this.expenseRepository.save(expense);
 
             if (createdExpense != null) {
@@ -238,8 +245,6 @@ export class ExpenseService {
         }
     }
 
-
-
     async deleteExpense(id: number) {
         try {
             const exists = await this.expenseRepository.exists(id);
@@ -256,7 +261,26 @@ export class ExpenseService {
         }
     }
 
+    async findByDate(userId: string, walletId: string, date: Date, categoryId: number) {
+        try {
+            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+
+            if (!foundWallet) {
+                return null;
+            }
+
+            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
+                throw new UnauthorizedError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+            }
+
+            const foundExpenses = await this.expenseRepository.findByDate(walletId, date, categoryId);
+
+            return foundExpenses;
+        } catch (error) {
+            throw new ServiceError("Expense service error: " + error.message);
+        }
+    }
+
     //TODO delete all in category
     //TODO delete all in wallet
-
 }
