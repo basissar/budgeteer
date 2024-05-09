@@ -9,14 +9,14 @@ import {
 import { Wallet } from "./Wallet.ts";
 
 @Table({tableName: "users"})
-export class User extends Model{
+export class User extends Model {
 
     @PrimaryKey
     @Column({
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4
     })
-    declare id;
+    declare public id;
 
     @Column({allowNull: false, unique: true})
     declare username: string;
@@ -40,3 +40,4 @@ export class User extends Model{
     public wallets!: Wallet[];
 
 }
+  

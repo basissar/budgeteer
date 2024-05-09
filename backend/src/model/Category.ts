@@ -6,10 +6,10 @@ import { Wallet } from "./Wallet.ts";
 export class Category extends Model {
 
     @Column({ allowNull: false, type: DataType.STRING })
-    declare name!: string;
+    declare name: string;
 
     @Column({ allowNull: false })
-    declare color!: string;
+    declare color: string;
 
     @ForeignKey(() => User)
     @Column({
