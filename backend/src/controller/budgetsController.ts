@@ -60,11 +60,13 @@ export class BudgetController {
         try {
             const requestBody = await ctx.request.body().value;
 
+            const { userId } = ctx.params;
+
             const passedBudget = requestBody.valueOf();
 
             const newBudget = new Budget(passedBudget);
 
-            const createdBudget = await this.budgetService.createBudget(newBudget);
+            const createdBudget = await this.budgetService.createBudget(userId, newBudget);
 
             ctx.response.status = CREATED;
             ctx.response.body = {
