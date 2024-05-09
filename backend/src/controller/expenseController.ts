@@ -49,11 +49,13 @@ export class ExpenseController {
         try {
             const requestBody = await ctx.request.body().value;
 
+            const { userId } = ctx.params;
+
             const passedExpense = requestBody.valueOf();
 
             const newExpense = new Expense(passedExpense);
 
-            const createdExpense = await this.expenseService.createExpense(newExpense);
+            const createdExpense = await this.expenseService.createExpense(newExpense, userId);
 
             ctx.response.status = CREATED;
             ctx.response.body = {

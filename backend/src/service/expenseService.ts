@@ -1,4 +1,4 @@
-import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE } from "../config/macros.ts";
+import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE, USER_REPOSITORY } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
@@ -11,6 +11,8 @@ import { WalletRepository } from "../repository/walletRepository.ts";
 import { BudgetService } from "./budgetService.ts";
 import { CategoryService } from "./categoryService.ts";
 import { WalletService } from "./walletService.ts";
+import { UserRepository } from "../repository/userRepository.ts";
+import { DateTime } from "https://cdn.skypack.dev/luxon";
 
 export class ExpenseService {
 
@@ -24,6 +26,8 @@ export class ExpenseService {
 
     private budgetService: BudgetService;
 
+    private userRepository: UserRepository;
+
     constructor() {
         const expRepo = container.resolve(EXPENSE_REPOSITORY);
         // const walletRepo = container.resolve('WalletRepository');
@@ -33,6 +37,8 @@ export class ExpenseService {
         const catSer = container.resolve(CATEGORY_SERVICE);
 
         const budgetSer = container.resolve(BUDGET_SERVICE);
+
+        const userRepo = container.resolve(USER_REPOSITORY);
 
         if (expRepo == null) {
             const newExpRepo = new ExpenseRepository();
@@ -65,9 +71,17 @@ export class ExpenseService {
         } else {
             this.budgetService = budgetSer;
         }
+
+        if (userRepo == null) {
+            const newUserRepo = new UserRepository();
+            container.register(USER_REPOSITORY, newUserRepo);
+            this.userRepository = newUserRepo;
+        } else {
+            this.userRepository = userRepo;
+        }
     }
 
-    async createExpense(expense: Expense) {
+    async createExpense(expense: Expense, userId: string) {
         try {
             const exists = await this.exists(expense.id);
 
@@ -85,12 +99,23 @@ export class ExpenseService {
             const createdExpense = await this.expenseRepository.save(expense);
 
             if (createdExpense != null) {
+                const createdToday = await this.createdToday(userId, createdExpense.date);
+                const createdThisWeek = await this.createdThisWeek(userId, createdExpense.date);
+                const createdThisMonth = await this.createdThisMonth(userId, createdExpense.date);
+
                 if (createdExpense.amount < 0) {
                     const budgets = await this.budgetService.findByWalletAndCategory(createdExpense?.walletId, createdExpense?.targetCategoryId);
 
                     if (budgets != null) {
                         for (const budget of budgets) {
-                            await this.budgetService.updateMoney(budget, -createdExpense.amount);
+
+                            if (budget.recurrence == 'monthly' && createdThisMonth){
+                                await this.budgetService.updateMoney(budget, -createdExpense.amount);
+                            } else if (budget.recurrence == 'weekly' && createdThisWeek){
+                                await this.budgetService.updateMoney(budget, -createdExpense.amount);
+                            } else if (budget.recurrence == 'daily' && createdToday){
+                                await this.budgetService.updateMoney(budget, -createdExpense.amount);
+                            }
                         }
                     }
                 }
@@ -253,6 +278,20 @@ export class ExpenseService {
                 throw new NotFoundError(`Expense with id ${id} not found`);
             }
 
+            const foundExpense = await this.expenseRepository.findById(id);
+
+            if (foundExpense != null) {
+                if (foundExpense.amount < 0){
+                    const budgets = await this.budgetService.findByWalletAndCategory(foundExpense.walletId, foundExpense.targetCategoryId);
+
+                    if (budgets != null){
+                        for (const budget of budgets) {
+                            await this.budgetService.updateMoney(budget, foundExpense.amount);
+                        }
+                    }
+                }
+            }
+
             const deletedRows = await this.expenseRepository.deleteById(id);
 
             return deletedRows != 0;
@@ -283,4 +322,56 @@ export class ExpenseService {
 
     //TODO delete all in category
     //TODO delete all in wallet
+
+    async createdToday(userId: string, expenseDate: Date){
+        const foundUser = await this.userRepository.findById(userId);
+        if (foundUser != null) {
+            const timezone = foundUser.timezone;
+
+            const userToday = DateTime.now().setZone(timezone);
+
+            const year = userToday.year;
+            const month = userToday.month;
+            const day = userToday.day;
+
+            const expYear = expenseDate.getFullYear();
+            const expMonth = expenseDate.getMonth() + 1;
+            const expDay = expenseDate.getDate();
+
+            return year === expYear && month === expMonth && day === expDay;
+        }
+    }
+
+    async createdThisWeek(userId: string, expenseDate: Date){
+        const foundUser = await this.userRepository.findById(userId);
+        if ( foundUser != null){
+            const timezone = foundUser.timezone;
+
+            const userToday = DateTime.now().setZone(timezone);
+
+            const startOfWeek = userToday.startOf('week');
+            const endOfWeek = userToday.endOf('week');
+
+            const expenseDateTime = DateTime.fromJSDate(expenseDate).setZone(timezone);
+
+            return expenseDateTime >= startOfWeek && expenseDateTime <= endOfWeek;
+        }
+    }
+
+    async createdThisMonth(userId: string, expenseDate: Date){
+        const foundUser = await this.userRepository.findById(userId);
+        if ( foundUser != null){
+            const timezone = foundUser.timezone;
+
+            const userToday = DateTime.now().setZone(timezone);
+
+            const year = userToday.year;
+            const month = userToday.month;
+
+            const expYear = expenseDate.getFullYear();
+            const expMonth = expenseDate.getMonth() + 1;
+
+            return year === expYear && month === expMonth;
+        }
+    }
 }
