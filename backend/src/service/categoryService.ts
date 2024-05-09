@@ -1,5 +1,5 @@
 import { CATEGORY_REPOSITORY, USER_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { Category } from "../model/Category.ts";

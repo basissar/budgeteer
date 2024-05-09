@@ -6,13 +6,13 @@ import { Wallet } from './Wallet.ts'
 export class Goal extends Model{
 
     @Column({allowNull: false})
-    declare targetAmount!: number;
+    declare targetAmount: number;
 
     @Column({allowNull: false})
-    declare currentAmount!: number;
+    declare currentAmount: number;
 
     @Column({allowNull: false})
-    declare deadline!: Date;
+    declare deadline: Date;
 
     @ForeignKey(() => Wallet)
     @Column({
@@ -20,6 +20,6 @@ export class Goal extends Model{
         type: DataType.UUID,
         onDelete: 'CASCADE'
     })
-    declare walletId!: string;
+    declare walletId: string;
 
 }

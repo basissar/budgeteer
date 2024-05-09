@@ -8,28 +8,28 @@ import { Wallet } from "./Wallet.ts";
 export class Budget extends Model {
     
     @Column({allowNull: false})
-    declare limit!: number;
+    declare limit: number;
 
     @Column({allowNull: false})
-    declare currentAmount!: number;
+    declare currentAmount: number;
 
     @Column({ allowNull: false })
-    declare recurrence!: string;
+    declare recurrence: string;
 
     @ForeignKey(() => Category)
     @Column({allowNull: false})
-    declare categoryId!: number;
+    declare categoryId: number;
 
     @ForeignKey(() => Wallet)
     @Column({
         allowNull: false,
         type: DataType.UUID
     })
-    declare public walletId: string;
+    declare walletId: string;
     // public wallet?: Wallet;
 
     @Column({allowNull: false})
-    declare name!: string;
+    declare name: string;
 
     @BelongsTo(() => Category, { foreignKey: 'categoryId', as: 'category' })
     declare category: Category;

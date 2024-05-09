@@ -15,7 +15,8 @@ export default function Register() {
 
 	const handleRegister = async () => {
 		try {
-			const response = await axios.post(regURL, { username, password, email });
+			const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			const response = await axios.post(regURL, { username, password, email, timezone });
 
 			if (response.status === 201) {
 				const { id, username, email } = response.data.user;

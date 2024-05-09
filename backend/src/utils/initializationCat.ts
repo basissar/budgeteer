@@ -1,5 +1,5 @@
 import { CATEGORY_REPOSITORY } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "./container.ts";
 import { Category } from "../model/Category.ts";
 import { CategoryRepository } from "../repository/categoryRepository.ts";
 
@@ -19,10 +19,10 @@ const categoriesData = [
 
 
 export async function saveDefaultCategories(){
-    const catRep = container.resolve(CATEGORY_REPOSITORY);
+    let catRep = container.resolve(CATEGORY_REPOSITORY);
 
     if (catRep == null) {
-        const catRep = new CategoryRepository();
+        catRep = new CategoryRepository();
         container.register(CATEGORY_REPOSITORY, catRep);
     }
 
@@ -31,11 +31,10 @@ export async function saveDefaultCategories(){
     for (const categoryData of categoriesData) {
         const category = new Category(categoryData);
 
-        console.log(category);
+        // console.log(category);
 
         const savedCategory = await catRep.save(category);
 
-        console.log(savedCategory);
         if (savedCategory) {
             console.log(`Category "${savedCategory.name}" saved successfully.`);
         } else {

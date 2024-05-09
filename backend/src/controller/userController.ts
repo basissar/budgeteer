@@ -2,7 +2,7 @@ import {RouterContext} from 'https://deno.land/x/oak@v12.6.1/router.ts';
 import { UserService } from "../service/userService.ts";
 import { User } from "../model/User.ts";
 import { BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, NOT_FOUND } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { verify } from 'https://deno.land/x/djwt@v2.4/mod.ts';
 import { key } from "../utils/apiKey.ts";
 import { USER_SERVICE } from '../config/macros.ts';

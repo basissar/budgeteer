@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const BudgetForm = ({ userId, currentWalletId, budgets, setBudgets }) => {
+const BudgetForm = ({ userId, currentWalletId, budgets, setBudgets, onBudgetAddition}) => {
     const [newBudgetName, setNewBudgetName] = useState('');
     const [newBudgetLimit, setNewBudgetLimit] = useState('');
     const [newBudgetCategory, setNewBudgetCategory] = useState('');
@@ -50,6 +50,7 @@ const BudgetForm = ({ userId, currentWalletId, budgets, setBudgets }) => {
             setShowDialog(true);
 
             setBudgets([...budgets, response.data.budget]);
+            // onBudgetAddition(response.data.budget);
 
             setNewBudgetName('');
             setNewBudgetLimit('');

@@ -6,21 +6,21 @@ import { Wallet } from './Wallet.ts';
 export class Expense extends Model{
 
     @Column({ allowNull: false })
-    declare name!: string;
+    declare name: string;
 
     @Column({ allowNull: false })
-    declare amount!: number;
+    declare amount: number;
 
     @Column({ allowNull: false })
-    declare date!: Date;
+    declare date: Date;
 
     @ForeignKey(() => Category)
     @Column({ allowNull: true })
-    declare sourceCategoryId!: number;
+    declare sourceCategoryId: number;
 
     @ForeignKey(() => Category)
-    @Column({ allowNull: true })
-    declare targetCategoryId!: number;
+    @Column({ allowNull: false })
+    declare targetCategoryId: number;
 
     @ForeignKey(() => Wallet)
     @Column({
@@ -28,7 +28,7 @@ export class Expense extends Model{
         type: DataType.UUID,
         onDelete: 'CASCADE'
     })
-    declare walletId!: string;
+    declare walletId: string;
 
     @BelongsTo(() => Category, { foreignKey: 'sourceCategoryId', as: 'sourceCategory' })
     declare sourceCategory: Category;

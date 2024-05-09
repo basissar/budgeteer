@@ -1,6 +1,6 @@
 import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
 import { BUDGET_SERVICE, CREATED, EXPENSE_SERVICE, NO_CONTENT, INTERNAL_ERROR, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { BudgetService } from "../service/budgetService.ts";
 import { ExpenseService } from "../service/expenseService.ts";
 import { UserService } from "../service/userService.ts";
@@ -60,11 +60,13 @@ export class BudgetController {
         try {
             const requestBody = await ctx.request.body().value;
 
+            const { userId } = ctx.params;
+
             const passedBudget = requestBody.valueOf();
 
             const newBudget = new Budget(passedBudget);
 
-            const createdBudget = await this.budgetService.createBudget(newBudget);
+            const createdBudget = await this.budgetService.createBudget(userId, newBudget);
 
             ctx.response.status = CREATED;
             ctx.response.body = {
@@ -106,21 +108,21 @@ export class BudgetController {
         try {
             const { userId, walletId, budgetId} = ctx.params;
 
-            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
+            // const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
 
-            if (!belongsToUser) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-                return;
-            }
+            // if (!belongsToUser) {
+            //     ctx.response.status = UNAUTHORIZED;
+            //     ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
+            //     return;
+            // }
 
             const deleted = await this.budgetService.deleteBudget(Number(budgetId));
 
-            if (deleted) {
-                ctx.response.body = { message: `Budget deletec successfully`}
-            } else {
-                ctx.response.body = { message: `No budgets were deleted`}
-            }
+            // if (deleted) {
+            //     ctx.response.body = { message: `Budget deletec successfully`}
+            // } else {
+            //     ctx.response.body = { message: `No budgets were deleted`}
+            // }
 
             ctx.response.status = NO_CONTENT;
         } catch (err) {

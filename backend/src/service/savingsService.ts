@@ -1,5 +1,5 @@
 import { SAVINGS_REPOSITORY, WALLET_REPOSITORY } from "../config/macros.ts";
-import { container } from "../container.ts";
+import { container } from "../utils/container.ts";
 import { WalletRepository } from "../repository/walletRepository.ts";
 import { SavingsRepository } from "../repository/savingsRepository.ts";
 import { Goal } from "../model/Goal.ts";
