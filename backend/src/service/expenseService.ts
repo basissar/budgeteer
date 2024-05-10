@@ -98,23 +98,25 @@ export class ExpenseService {
 
             const createdExpense = await this.expenseRepository.save(expense);
 
-            if (createdExpense != null) {
-                const createdToday = await this.createdToday(userId, createdExpense.date);
-                const createdThisWeek = await this.createdThisWeek(userId, createdExpense.date);
-                const createdThisMonth = await this.createdThisMonth(userId, createdExpense.date);
+            const foundExpense = await this.expenseRepository.findById(createdExpense.id);
 
-                if (createdExpense.amount < 0) {
-                    const budgets = await this.budgetService.findByWalletAndCategory(createdExpense?.walletId, createdExpense?.targetCategoryId);
+            if (foundExpense != null) {
+                const createdToday = await this.createdToday(userId, foundExpense.date);
+                const createdThisWeek = await this.createdThisWeek(userId, foundExpense.date);
+                const createdThisMonth = await this.createdThisMonth(userId, foundExpense.date);
+
+                if (foundExpense.amount < 0) {
+                    const budgets = await this.budgetService.findByWalletAndCategory(foundExpense?.walletId, foundExpense?.targetCategoryId);
 
                     if (budgets != null) {
                         for (const budget of budgets) {
 
                             if (budget.recurrence == 'monthly' && createdThisMonth){
-                                await this.budgetService.updateMoney(budget, -createdExpense.amount);
+                                await this.budgetService.updateMoney(budget, -foundExpense.amount);
                             } else if (budget.recurrence == 'weekly' && createdThisWeek){
-                                await this.budgetService.updateMoney(budget, -createdExpense.amount);
+                                await this.budgetService.updateMoney(budget, -foundExpense.amount);
                             } else if (budget.recurrence == 'daily' && createdToday){
-                                await this.budgetService.updateMoney(budget, -createdExpense.amount);
+                                await this.budgetService.updateMoney(budget, -foundExpense.amount);
                             }
                         }
                     }
@@ -122,7 +124,7 @@ export class ExpenseService {
             }
 
 
-            return createdExpense;
+            return foundExpense;
         } catch (error) {
             throw new ServiceError("Expense service error: " + error.stack);
         }
@@ -146,19 +148,6 @@ export class ExpenseService {
 
     async findByWallet(walletId: string, userId: string) {
         try {
-            /*
-            const wallet = await this.walletService.getWallet(walletId);
-
-            if (!wallet) {
-                throw new NotFoundError(`Wallet with identifier ${walletId} does not exist`);
-            }
-
-            //optional ownership check
-            if (wallet.userId !== userId) {
-                throw new UnauthorizedError(`User does not have permission to access expenses for this wallet`);
-            }
-            */
-
             const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
 
             if (!foundWallet) {
@@ -166,7 +155,7 @@ export class ExpenseService {
             }
 
             if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+                return null;
             }
 
             const foundExpenses = await this.expenseRepository.findByWallet(walletId);
@@ -195,13 +184,9 @@ export class ExpenseService {
             }
 
             if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+                return null;
             }
-
-            /*
-                no need to check if category is in the wallet -> we are getting category id from categories 
-                that we get from getAllForUserInWallet method in categoryServie
-            */
+            
             const foundExpenses = await this.expenseRepository.findBySource(walletId, sourceCatId);
 
             return foundExpenses;
@@ -219,7 +204,7 @@ export class ExpenseService {
             }
 
             if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+                return null;
             }
 
             const foundExpenses = await this.expenseRepository.findByTarget(walletId, targetCat);
@@ -239,7 +224,7 @@ export class ExpenseService {
             }
 
             if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+                return null;
             }
 
             const foundExpenses = await this.expenseRepository.findByMaxAmount(walletId, maxAmount);
@@ -259,7 +244,7 @@ export class ExpenseService {
             }
 
             if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                throw new ServiceError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+                return null;
             }
 
             const foundExpenses = await this.expenseRepository.findByMinAmount(walletId, minAmount);
@@ -309,7 +294,7 @@ export class ExpenseService {
             }
 
             if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                throw new UnauthorizedError("Expense Service error: The IDs of the found wallet do not match the requested IDs.")
+                return null;
             }
 
             const foundExpenses = await this.expenseRepository.findByDate(walletId, date, categoryId);
