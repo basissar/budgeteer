@@ -57,7 +57,6 @@ export class BudgetController {
 
 
     async createBudget(ctx: RouterContext<string>) {
-        try {
             const requestBody = await ctx.request.body().value;
 
             const { userId } = ctx.params;
@@ -73,14 +72,9 @@ export class BudgetController {
                 message: "Budget created successfully",
                 budget: createdBudget
             }
-        } catch (err) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = {message: err.message};
-        }
     }
 
     async getBudgetsForWallet(ctx: RouterContext<string>) {
-        try {
             const { userId, walletId } = ctx.params;
 
             const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
@@ -98,37 +92,20 @@ export class BudgetController {
                 message: "Budgets retrieved successfully",
                 budgets: budgets,
             }
-        } catch (err) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = { message: err.message };
-        }
     }
 
     async deleteBudget(ctx: RouterContext<string>){
-        try {
             const { userId, walletId, budgetId} = ctx.params;
-
-            // const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
-
-            // if (!belongsToUser) {
-            //     ctx.response.status = UNAUTHORIZED;
-            //     ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-            //     return;
-            // }
 
             const deleted = await this.budgetService.deleteBudget(Number(budgetId));
 
-            // if (deleted) {
-            //     ctx.response.body = { message: `Budget deletec successfully`}
-            // } else {
-            //     ctx.response.body = { message: `No budgets were deleted`}
-            // }
-
-            ctx.response.status = NO_CONTENT;
-        } catch (err) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = { message: err.message}
-        }
+            if (deleted) {
+                ctx.response.status = OK;
+                ctx.response.body = { message: 'Budget deleted'};
+            } else {
+                ctx.response.status = NOT_FOUND;
+                ctx.response.body = { message: 'No budget was deleted'};
+            }
     }
 
     // async updateBudget(ctx: RouterContext<string>){
