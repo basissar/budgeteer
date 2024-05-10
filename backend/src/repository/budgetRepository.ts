@@ -11,8 +11,7 @@ export class BudgetRepository implements BaseRepository<Budget, number> {
 
             return result;
         } catch (err) {
-            console.log(err);
-            return null;
+            throw new RepositoryError(`Budget repository error: ${err}`);
         }
     }
 

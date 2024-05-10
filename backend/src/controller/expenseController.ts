@@ -46,135 +46,78 @@ export class ExpenseController {
     }
 
     async createExpense(ctx: RouterContext<string>) {
-        try {
-            const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body().value;
 
-            const { userId } = ctx.params;
+        const { userId } = ctx.params;
 
-            const passedExpense = requestBody.valueOf();
+        const passedExpense = requestBody.valueOf();
 
-            const newExpense = new Expense(passedExpense);
+        const newExpense = new Expense(passedExpense);
 
-            const createdExpense = await this.expenseService.createExpense(newExpense, userId);
+        const createdExpense = await this.expenseService.createExpense(newExpense, userId);
 
-            ctx.response.status = CREATED;
-            ctx.response.body = {
-                message: "Expense created successfully",
-                expense: createdExpense
-            }
-
-        } catch (error) {
-            ctx.response.status = INTERNAL_ERROR,
-            ctx.response.body = { message: error.message };
+        ctx.response.status = CREATED;
+        ctx.response.body = {
+            message: "Expense created successfully",
+            expense: createdExpense
         }
     }
 
-    //TODO when returning expenses for wallet that does not exist i should not check for wallet existence here
-    //instead do it in service or data layer and return null instead 
     async getExpensesForWallet(ctx: RouterContext<string>) {
-        try {
-            const { userId, walletId } = ctx.params;
+        const { userId, walletId } = ctx.params;
 
-            const userExists = await this.userService.exists(userId);
+        const expenses = await this.expenseService.findByWallet(walletId, userId);
 
-            if (!userExists) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: `User with id: ${userId} does not exist` };
-                return;
-            }
-
-            const walletExists = await this.walletService.exists(walletId);
-
-            if (!walletExists) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: `Wallet with id: ${walletId} does not exist` };
-                return;
-            }
-
-            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
-
-            if (!belongsToUser) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-                return;
-            }
-
-            const expenses = await this.expenseService.findByWallet(walletId, userId);
-
-            ctx.response.status = OK;
-            ctx.response.body = {
-                message: `Expenses for wallet with id: ${walletId} retrieved`,
-                expenses: expenses
-            }
-        } catch (error) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = { messasge: error.message };
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: `Expenses for wallet with id: ${walletId} retrieved`,
+            expenses: expenses
         }
     }
 
     async getAllForUser(ctx: RouterContext<string>) {
-        try {
-            const { userId } = ctx.params;
+        const { userId } = ctx.params;
 
-            const userExists = await this.userService.exists(userId);
+        const userExists = await this.userService.exists(userId);
 
-            if (!userExists) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: `User with id: ${userId} does not exist` };
-                return;
-            }
+        if (!userExists) {
+            ctx.response.status = BAD_REQUEST;
+            ctx.response.body = { message: `User with id: ${userId} does not exist` };
+            return;
+        }
 
-            const expenses = await this.expenseService.findByUser(userId);
+        const expenses = await this.expenseService.findByUser(userId);
 
-            ctx.response.status = OK;
-            ctx.response.body = {
-                message: `All expenses for user retrieved`,
-                expenses: expenses
-            }
-        } catch (err) {
-            ctx.response.status = INTERNAL_ERROR,
-                ctx.response.body = { message: err.message }
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: `All expenses for user retrieved`,
+            expenses: expenses
         }
     }
 
     async deleteExpense(ctx: RouterContext<string>) {
-        try {
-            const { userId, walletId, expenseId } = ctx.params;
+        const { userId, walletId, expenseId } = ctx.params;
 
-            const userExists = await this.userService.exists(userId);
+        const userExists = await this.userService.exists(userId);
 
-            if (!userExists) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: `User with id: ${userId} does not exist` };
-                return;
+        if (!userExists) {
+            ctx.response.status = BAD_REQUEST;
+            ctx.response.body = { message: `User with id: ${userId} does not exist` };
+            return;
+        }
+
+        const deleted = await this.expenseService.deleteExpense(Number(expenseId));
+
+        if (deleted) {
+            ctx.response.status = OK;
+            ctx.response.body = {
+                message: `Expense with deleted successfully.`
             }
-
-            //we don't neccessarily need to check for wallet and expense existence since we are passing it from frontend directly
-
-            // const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
-
-            // if (!belongsToUser) {
-            //     ctx.response.status = UNAUTHORIZED;
-            //     ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-            //     return;
-            // }
-
-            const deleted = await this.expenseService.deleteExpense(Number(expenseId));
-
-            if (deleted) {
-                ctx.response.status = OK;
-                ctx.response.body = {
-                    message: `Expense with deleted successfully.`
-                }
-            } else {
-                ctx.response.status = NOT_FOUND;
-                ctx.response.body = {
-                    message: `Expense has not been found.`
-                }
+        } else {
+            ctx.response.status = NOT_FOUND;
+            ctx.response.body = {
+                message: `Expense has not been found.`
             }
-        } catch (error) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = { message: error.message };
         }
     }
 }

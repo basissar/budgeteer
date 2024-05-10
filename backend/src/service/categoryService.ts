@@ -66,7 +66,7 @@ export class CategoryService {
         const userExists = await this.userRepo.existsById(userId);
 
         if (!userExists){
-            throw new NotFoundError("User with id " + userId + " does not exist.");
+            return null;
         }
 
         return await this.categoryRepo.getAllForUser(userId);

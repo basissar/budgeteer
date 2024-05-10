@@ -160,8 +160,7 @@ export class BudgetService {
             const foundBudget = await this.budgetRepository.exists(budgetId);
 
             if (!foundBudget) {
-                //todo throwing error vs returning false
-                throw new NotFoundError(`Budget ${budgetId} not found`);
+                return false;
             }
 
             const deletedRows = await this.budgetRepository.deleteById(budgetId);
@@ -174,7 +173,7 @@ export class BudgetService {
 
     /**
      * Returns true if user went over the limit, else false
-     * @param budgetId id of budget that we are updating
+     * @param toUpdate budget that we are updating
      * @param amount amount of added money
      */
     async updateMoney(toUpdate: Budget, amount: number): Promise<boolean> {
@@ -218,7 +217,6 @@ export class BudgetService {
             const foundBudget = await this.budgetRepository.findById(budgetId);
 
             if (!foundBudget) {
-                //todo throwing error vs returning false
                 throw new NotFoundError(`Budget ${budgetId} not found`);
             }
 

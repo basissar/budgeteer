@@ -12,8 +12,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
             const result = await expense.save();
             return result;
         } catch (error) {
-            console.error(error);
-            return null;
+            throw new RepositoryError(`Expense repository error: ${error.message}`);
         }
     }
 
@@ -26,7 +25,12 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
     }
 
     async findById(id: number): Promise<Expense | null> {
-        return await Expense.findByPk(id);
+        return await Expense.findByPk(id, {
+            include : [
+                { model : Category, as: 'sourceCategory', attributes:['name', 'color']},
+                { model : Category, as: 'targetCategory', attributes:['name', 'color']}
+            ]
+        });
     }
 
     async deleteById(id: number): Promise<number> {
@@ -68,7 +72,8 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
             include : [
                 { model : Category, as: 'sourceCategory', attributes:['name', 'color']},
                 { model : Category, as: 'targetCategory', attributes:['name', 'color']}
-            ]
+            ],
+            order: [['date', 'DESC']]
         })
     }
 
@@ -81,7 +86,6 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
             const walletIds = userWallets.map(wallet => wallet.id);
 
             return await Expense.findAll({
-                order: ['date','DESC'],
                 where: {
                     walletId: {
                         [Op.in]: walletIds // Using the "in" operator to match walletIds
@@ -90,7 +94,8 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 include: [
                     { model: Category, as: 'sourceCategory', attributes: ['name', 'color'] },
                     { model: Category, as: 'targetCategory', attributes: ['name', 'color'] }
-                ]
+                ],
+                order: [['date', 'DESC']]
             });
         } catch (error) {
             throw new RepositoryError(error.stack);

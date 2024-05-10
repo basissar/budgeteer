@@ -12,8 +12,7 @@ export class WalletRepository implements BaseRepository<Wallet, string> {
 
             return result;
         } catch (error){
-            console.log(error);
-            return null;
+            throw new RepositoryError(`Wallet repository error: ${error.message}`);
         }
     }
 

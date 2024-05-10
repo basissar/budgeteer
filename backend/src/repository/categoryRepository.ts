@@ -43,22 +43,6 @@ export class CategoryRepository implements BaseRepository<Category, number> {
         return !!result;
     }
 
-    /**
-     * Theoretically a useless query as we won't ever need to know all the categories.
-     *
-     */
-    /*
-    static async getAllCategories(): Promise<Category[]> {
-        const result = await Database.client!.queryObject<Category[]>(
-            "SELECT * FROM categories");
-
-        return result.rows.map((row) => ({
-            id: Number(row.id),
-            name: row.name,
-            userId: Number(row.userId),
-        }))
-    }
-    */
 
     /**
      * Returns all categories for user with given id; that is all default categories and

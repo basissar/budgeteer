@@ -52,8 +52,8 @@ export class WalletService {
         try {
             const createdWallet = await this.walletRepository.save(wallet);
 
-            if (!createdWallet) {
-                throw new ServiceError(`Wallet service error: failed to create a wallet`);
+            if (createdWallet == null){
+                throw new ServiceError(`Wallet creation failed`);
             }
 
             const initialExpense = new Expense({
@@ -80,7 +80,7 @@ export class WalletService {
         const userExists = await this.userRepository.exists(id);
 
         if (!userExists) {
-            throw new NotFoundError("User with identifier: " + id + " does not exist.");
+            return null;
         }
 
         return await this.walletRepository.getAllForUser(id);
@@ -94,16 +94,12 @@ export class WalletService {
         const userExists = await this.userRepository.exists(userId);
 
         if (!userExists) {
-            throw new NotFoundError("User with identifier: " + userId + " does not exist.");
+            return null;
         }
 
         const foundWallet = await this.walletRepository.findById(walletId);
         if (!foundWallet) {
             return null;
-        }
-
-        if (foundWallet.userId !== userId) {
-            throw new Error('Wallet does not belong to the user.');
         }
 
         return foundWallet;
@@ -122,9 +118,6 @@ export class WalletService {
             const foundWallet = await this.getWallet(walletId);
 
             if (foundWallet == null) {
-                //probably better to log it and return false
-                // throw new NotFoundError(`Wallet with ${walletId} does not exist`);
-                console.error(`Wallet with ${walletId} does not exist`);
                 return false;
             }
 
@@ -142,19 +135,13 @@ export class WalletService {
         const userExists = await this.userRepository.existsById(userId);
 
         if (!userExists) {
-            // throw new Error("User with identifier: " + userId + " does not exist.");
-            console.error(`User with identifier: ${userId} does not exist`);
             return false;
         }
 
         const foundWallet = await this.walletRepository.findById(walletId);
 
         if (!foundWallet) {
-            throw new NotFoundError("Wallet with identifier: " + walletId + " does not exist");
-        }
-
-        if (foundWallet.userId != userId && foundWallet.userId !== null) {
-            throw new Error("Wallet")
+            return false;
         }
 
         return await this.walletRepository.deleteById(walletId) != 0;

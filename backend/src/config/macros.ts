@@ -18,7 +18,7 @@ export const BAD_REQUEST = 400;
 export const UNAUTHORIZED = 401;
 export const FORBIDDEN = 403;
 export const NOT_FOUND = 404;
-
+export const CONFLICT = 409;
 // Database configuration
 export const DEV_DB = "mgmawvxf";
 export const DEV_HOSTNAME = "cornelius.db.elephantsql.com";
@@ -33,7 +33,8 @@ export const CATEGORY_REPOSITORY = "CategoryRepository";
 export const BUDGET_REPOSITORY = "BudgetRepository";
 export const SAVINGS_REPOSITORY = "SavingsRepository";
 export const ITEM_REPOSITORY = "ItemRepository";
-export const TRANSACTION_REPOSITORY = "TransactionRepository"
+export const TRANSACTION_REPOSITORY = "TransactionRepository";
+export const ACCOUNT_REPOSITORY = "AccountRepository";
 
 export const USER_SERVICE = "UserService";
 export const WALLET_SERVICE = "WalletService";
@@ -43,3 +44,4 @@ export const BUDGET_SERVICE = "BudgetService";
 export const SAVINGS_SERVICE = "SavingsService";
 export const ITEM_SERVICE = "ItemService";
 export const TRANSACTION_SERVICE = "TransactionService";
+export const ACCOUNT_SERVICE = "AccountService";
