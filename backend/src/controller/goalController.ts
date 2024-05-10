@@ -1,5 +1,5 @@
 import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
-import { CREATED, INTERNAL_ERROR, NO_CONTENT, OK, SAVINGS_SERVICE, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
+import { BAD_REQUEST, CREATED, INTERNAL_ERROR, NO_CONTENT, OK, SAVINGS_SERVICE, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
 import { GoalService } from "../service/goalService.ts";
 import { UserService } from "../service/userService.ts";
 import { WalletService } from "../service/walletService.ts";
@@ -14,7 +14,7 @@ export class GoalController {
 
     private userService: UserService;
 
-    constructor(){
+    constructor() {
         const goalSer = container.resolve(SAVINGS_SERVICE);
         const walletSer = container.resolve(WALLET_SERVICE);
         const userSer = container.resolve(USER_SERVICE);
@@ -45,62 +45,53 @@ export class GoalController {
     }
 
 
-    async createGoal(ctx: RouterContext<string>){
-        try {
-            const requestBody = await ctx.request.body().value;
+    async createGoal(ctx: RouterContext<string>) {
+        const requestBody = await ctx.request.body().value;
 
-            const passedGoal = requestBody.valueOf();
+        const passedGoal = requestBody.valueOf();
 
-            const newGoal = new Goal(passedGoal);
+        const newGoal = new Goal(passedGoal);
 
-            const createdGoal = await this.goalService.createGoal(newGoal);
+        const createdGoal = await this.goalService.createGoal(newGoal);
 
-            ctx.response.status = CREATED;
-            ctx.response.body = {
-                message: "Goal created successfully",
-                goal: createdGoal
-            }
-        } catch (err) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = {message: err.message};
+        ctx.response.status = CREATED;
+        ctx.response.body = {
+            message: "Goal created successfully",
+            goal: createdGoal
         }
     }
 
-    async getGoalsForWallet(ctx: RouterContext<string>){
-        try {
-            const { userId, walletId } = ctx.params;
+    async getGoalsForWallet(ctx: RouterContext<string>) {
+        const { userId, walletId } = ctx.params;
 
-            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
+        const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
 
-            if (!belongsToUser) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-                return;
-            }
+        if (!belongsToUser) {
+            ctx.response.status = UNAUTHORIZED;
+            ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
+            return;
+        }
 
-            const goals = await this.goalService.findByWallet(walletId, userId);
+        const goals = await this.goalService.findByWallet(walletId, userId);
 
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Goals retrieved successfully",
+            goals: goals
+        }
+    }
+
+    async deleteGoal(ctx: RouterContext<string>) {
+        const { goalId } = ctx.params;
+
+        const deletedGoal = await this.goalService.deleteGoal(Number(goalId));
+
+        if (deletedGoal){
             ctx.response.status = OK;
-            ctx.response.body = {
-                message: "Goals retrieved successfully",
-                goals: goals
-            }
-        } catch (err) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = { message: err.message}
-        }
-    }
-
-    async deleteGoal(ctx: RouterContext<string>){
-        try {
-            const { goalId } = ctx.params;
-
-            await this.goalService.deleteGoal(Number(goalId));
-
-            ctx.response.status = NO_CONTENT;
-        } catch (err) {
-            ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = { message: err.message}
+            ctx.response.body = { message: "Goal deleted successfully"}
+        } else {
+            ctx.response.status = BAD_REQUEST;
+            ctx.response.body = { message: "No goal deleted"}
         }
     }
 }

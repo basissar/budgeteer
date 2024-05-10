@@ -67,7 +67,7 @@ export class GoalService {
             }
 
             if (foundWallet.id != walletId && foundWallet.userId != userId){
-                throw new ServiceError("Savings Service error: The IDs of the found wallet do not match the requested IDs.")
+                return null;
             }
 
             const foundGoals = await this.goalRepository.findByWallet(walletId);
@@ -122,7 +122,7 @@ export class GoalService {
             const foundGoal = await this.goalRepository.exists(goalId);
 
             if (!foundGoal) {
-                throw new NotFoundError(`Goal ${goalId} not found`);
+                return false;
             }
 
             const deletedRows = await this.goalRepository.deleteById(goalId);

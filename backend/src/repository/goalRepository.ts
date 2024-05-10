@@ -1,3 +1,4 @@
+import { RepositoryError } from "../errors/RepositoryError.ts";
 import { Category } from "../model/Category.ts";
 import { Goal } from "../model/Goal.ts";
 import { BaseRepository } from "./baseRepository.ts";
@@ -11,8 +12,7 @@ export class GoalRepository implements BaseRepository<Goal, number> {
 
             return result;
         } catch (err) {
-            console.log(err);
-            return null;
+            throw new RepositoryError(`Savings repository error: ${err.message}`);
         }
     }
 
