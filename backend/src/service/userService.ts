@@ -27,14 +27,6 @@ export class UserService {
         console.log("User service initialized");
     }
 
-    /*
-    constructor( repo: UserRepository) {
-        this.repository = repo;
-        console.log("user service constructor initialized");
-        console.log(this.repository);
-    }
-    */
-
     async createUser(user: User): Promise<User | null> {
         try {
             const exists = await this.existsByUsername(user.username);
@@ -74,8 +66,6 @@ export class UserService {
         const user = await this.repository.findByUsername(username);
 
         if(!user) {
-            // throw new NotFoundError(`User with ${username} not found`);
-            console.warn(`User ${username} not found`);
             return null;
         }
 
@@ -93,8 +83,6 @@ export class UserService {
 
         const jwt = await create({ alg: "HS512", typ: "JWT" }, { payload }, key);
 
-        // console.log(jwt);
-
         return {token: jwt, id: user.id};
     }
 
@@ -107,15 +95,12 @@ export class UserService {
     }
 
     async getUserByUsername(username: string): Promise<User | null> {
-        const userExists = await this.existsByUsername(username);
-
-        if (!userExists){
-            // throw new NotFoundError("User with username " + username + " does not exist.");
-            console.warn(`User with username: ${username} not found`);
-            return null;
+        try {
+            return await this.repository.findByUsername(username);
+        } catch (err) {
+            throw new ServiceError(`User service error: ${err.message}`)
         }
-
-        return this.repository.findByUsername(username);
+        
     }
 
     async getUserInfo(id: string){
@@ -123,17 +108,7 @@ export class UserService {
     }
 
     async deleteUser(username: string): Promise<boolean> {
-
-        const userExists = await this.repository.existsByUsername(username);
-
-        if (!userExists){
-            // throw new Error("User with username " + username + " does not exist.");
-            console.warn(`User with username ${username} not found`);
-            return false;
-        }
-
         return  await this.repository.deleteByUsername(username) != 0;
-
     }
 
     async exists(identifier: string): Promise<boolean>{

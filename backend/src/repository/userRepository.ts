@@ -20,7 +20,7 @@ export class UserRepository implements BaseRepository<User, string> {
     async findAll(): Promise<User[] | null> {
         try {
             return await User.findAll({
-                attributes: ['id', 'username'] // Specify only required attributes
+                attributes: ['id', 'username']
             });
         } catch (err) {
             throw new RepositoryError(err.message);
@@ -71,13 +71,6 @@ export class UserRepository implements BaseRepository<User, string> {
             where: {username: username}
         });
     }
-
-    // async getForCron(timezone: string){
-    //     return await User.findAll({
-    //         attributes:['id'],
-    //         where: {timezone: timezone}
-    //     })
-    // }
 
     async getForCron(timezones: string[], recurrence: string){
         try {
