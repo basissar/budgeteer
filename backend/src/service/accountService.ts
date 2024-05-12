@@ -106,7 +106,7 @@ export class AccountService {
      * @param level level to reach
      * @returns experience points needed
      */
-    calculateXPForLevel(level: number): number {
+    private calculateXPForLevel(level: number): number {
         return Math.floor(this.BASE_XP * Math.pow(1 + this.XP_INCREASE_PERCENTAGE, level - 1));
     }
 
@@ -115,7 +115,7 @@ export class AccountService {
      * @param xp experience points for which we are calculating level
      * @returns highest reachable level for given XP
      */    
-    calculateLevelForXP(xp: number): number {
+    private calculateLevelForXP(xp: number): number {
         let level = 1;
         let xpRequired = this.BASE_XP;
         while (xp >= xpRequired) {
@@ -130,7 +130,7 @@ export class AccountService {
      * @param targetLevel level to reach
      * @returns sum of all XP needed to reach target level
      */
-    totalXPForLevel(targetLevel: number): number {
+    private totalXPForLevel(targetLevel: number): number {
         let totalXP = 0;
         for (let level = 1; level <= targetLevel; level++) {
             totalXP += this.calculateXPForLevel(level);
@@ -138,11 +138,11 @@ export class AccountService {
         return totalXP;
     }
 
-    rewardXPForEvent(eventType: EventType): number {
+    private rewardXPForEvent(eventType: EventType): number {
         return this.eventXPRewards[eventType] || 0; // Return XP reward for the event type, or 0 if not found
     }
 
-    rewardCreditsForEvent(eventType: EventType): number {
+    private rewardCreditsForEvent(eventType: EventType): number {
         return this.eventCreditRewards[eventType] || 0;
     }
 

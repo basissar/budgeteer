@@ -1,4 +1,4 @@
-import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE, USER_REPOSITORY } from "../config/macros.ts";
+import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE, USER_REPOSITORY, ACCOUNT_SERVICE } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
@@ -13,6 +13,8 @@ import { CategoryService } from "./categoryService.ts";
 import { WalletService } from "./walletService.ts";
 import { UserRepository } from "../repository/userRepository.ts";
 import { DateTime } from "https://cdn.skypack.dev/luxon";
+import { AccountService } from "./accountService.ts";
+import { EventType } from "../model/EventType.ts";
 
 export class ExpenseService {
 
@@ -28,6 +30,8 @@ export class ExpenseService {
 
     private userRepository: UserRepository;
 
+    private accountService: AccountService;
+
     constructor() {
         const expRepo = container.resolve(EXPENSE_REPOSITORY);
         // const walletRepo = container.resolve('WalletRepository');
@@ -39,6 +43,8 @@ export class ExpenseService {
         const budgetSer = container.resolve(BUDGET_SERVICE);
 
         const userRepo = container.resolve(USER_REPOSITORY);
+
+        const accountSer = container.resolve(ACCOUNT_SERVICE);
 
         if (expRepo == null) {
             const newExpRepo = new ExpenseRepository();
@@ -79,6 +85,14 @@ export class ExpenseService {
         } else {
             this.userRepository = userRepo;
         }
+
+        if (accountSer == null) {
+            const newAccountSer = new AccountService();
+            container.register(ACCOUNT_SERVICE, newAccountSer);
+            this.accountService = newAccountSer;
+        } else {
+            this.accountService = accountSer;
+        }
     }
 
     async createExpense(expense: Expense, userId: string) {
@@ -96,9 +110,9 @@ export class ExpenseService {
 
             expense.set('date', expenseDate);
 
-            const createdExpense = await this.expenseRepository.save(expense);
+            await this.expenseRepository.save(expense);
 
-            const foundExpense = await this.expenseRepository.findById(createdExpense.id);
+            const foundExpense = await this.expenseRepository.findById(expense.id);
 
             if (foundExpense != null) {
                 const createdToday = await this.createdToday(userId, foundExpense.date);
@@ -123,8 +137,16 @@ export class ExpenseService {
                 }
             }
 
+            //expense created so we create an event
+            const eventResult = await this.accountService.handleEvent(EventType.ADD_EXPENSE, userId);
 
-            return foundExpense;
+            const finalResponse = {
+                eventResult: eventResult,
+                expense: expense
+            }
+
+
+            return finalResponse;
         } catch (error) {
             throw new ServiceError("Expense service error: " + error.stack);
         }
