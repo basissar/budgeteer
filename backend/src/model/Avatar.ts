@@ -1,11 +1,4 @@
-/*
-export interface Avatar {
-    id: bigint;
-    name: string;
-    description: string;
-    //ownedItems: Item[];
-}
-*/
+
 
 import { Column } from "npm:sequelize-typescript";
 import { Table, Model} from "../config/deps.ts";
