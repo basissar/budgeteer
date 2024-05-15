@@ -1,4 +1,4 @@
-import { BUDGET_REPOSITORY, EXPENSE_REPOSITORY, USER_REPOSITORY, WALLET_REPOSITORY } from "../config/macros.ts";
+import { ACCOUNT_SERVICE, BUDGET_REPOSITORY, EXPENSE_REPOSITORY, USER_REPOSITORY, WALLET_REPOSITORY } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { BudgetRepository } from "../repository/budgetRepository.ts";
 import { Budget } from "../model/Budget.ts";
@@ -10,6 +10,8 @@ import { ExpenseRepository } from "../repository/expenseRepository.ts";
 import { UserRepository } from "../repository/userRepository.ts";
 import { DateTime } from "https://cdn.skypack.dev/luxon";
 import { Expense } from "../model/Expense.ts";
+import { AccountService } from "./accountService.ts";
+import { EventType } from "../model/EventType.ts";
 
 export class BudgetService {
     public budgetRepository: BudgetRepository;
@@ -20,11 +22,14 @@ export class BudgetService {
 
     private userRepository: UserRepository;
 
+    private accountService: AccountService;
+
     constructor() {
         const budgetRepo = container.resolve(BUDGET_REPOSITORY);
         const walletRepo = container.resolve(WALLET_REPOSITORY);
         const expenseRepo = container.resolve(EXPENSE_REPOSITORY);
         const userRepo = container.resolve(USER_REPOSITORY);
+        const accountSer = container.resolve(ACCOUNT_SERVICE);
 
         if (budgetRepo == null) {
             const newBudgetRepo = new BudgetRepository();
@@ -56,6 +61,14 @@ export class BudgetService {
             this.userRepository = newUserRepo;
         } else {
             this.userRepository = userRepo;
+        }
+
+        if (accountSer == null){
+            const newAccountSer = new AccountService();
+            container.register(ACCOUNT_SERVICE, newAccountSer);
+            this.accountService = newAccountSer;
+        } else {
+            this.accountService = accountSer;
         }
     }
 
@@ -102,7 +115,16 @@ export class BudgetService {
                     budget.set('currentAmount', 0);
                 }
 
-                return await this.budgetRepository.save(budget);
+                const eventResult = await this.accountService.handleEvent(EventType.CREATE_BUDGET, userId);
+
+                const createdBudget = await this.budgetRepository.save(budget);
+
+                const finalResponse = {
+                    eventResult: eventResult,
+                    budget: createdBudget
+                }
+
+                return finalResponse;
             }
         } catch (error) {
             throw new ServiceError(`Budget service error: ${error.message}`);
@@ -234,6 +256,26 @@ export class BudgetService {
 
         } catch (err) {
             throw new ServiceError(`Budget service error: ${err.message}`);
+        }
+    }
+
+    async checkBudgetLimit(budgetId: number){
+        try {
+            const foundBudget = await this.budgetRepository.findById(budgetId);
+
+            if (!foundBudget) {
+                throw new NotFoundError(`Budget ${budgetId} not found`);
+            }
+
+            let overLimit = false;
+
+            if (foundBudget.currentAmount >= foundBudget.limit){
+                overLimit = true;
+            }
+
+            return overLimit;
+        } catch (error) {
+            throw new ServiceError(`Budget service error: ${error.message}`);
         }
     }
 
