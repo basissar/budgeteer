@@ -15,7 +15,7 @@ import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/utils/container.ts";
 
 // import { config } from 'https://deno.land/x/dotenv/mod.ts';
-import { BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
+import { ACCOUNT_SERVICE, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
 import { WALLET_REPOSITORY } from "./src/config/macros.ts";
 import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
 import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
@@ -25,12 +25,14 @@ import { BudgetRepository } from "./src/repository/budgetRepository.ts";
 import { saveDefaultCategories } from "./src/utils/initializationCat.ts";
 import { DateTime } from "https://cdn.skypack.dev/luxon";
 import { Scheduler } from "./src/utils/scheduler.ts";
+import { AccountService } from "./src/service/accountService.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
 container.register(EXPENSE_REPOSITORY, new ExpenseRepository());
 container.register(CATEGORY_REPOSITORY, new CategoryRepository());
-container.register(BUDGET_REPOSITORY, new BudgetRepository())
+container.register(BUDGET_REPOSITORY, new BudgetRepository());
+container.register(ACCOUNT_SERVICE, new AccountService());
 
 const server = new Application();
 const router = new Router();
@@ -190,7 +192,7 @@ await initializeDatabase().catch(error => {
   console.error("Failed to initialize database:", error);
 }).then(async () => {
   // Start the scheduler...
-  const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE));
+  const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE), container.resolve(ACCOUNT_SERVICE));
   scheduler.start();
 })
 
