@@ -5,11 +5,14 @@ import { DateTime } from "https://cdn.skypack.dev/luxon";
 import { Budget } from "../model/Budget.ts";
 import timezonesJson from 'npm:timezones.json';
 import { Timezone } from "../model/Timezone.ts";
+import { AccountService } from "../service/accountService.ts";
+import { EventType } from "../model/EventType.ts";
 
 export class Scheduler {
 
     private userService: UserService;
     private budgetService: BudgetService;
+    private accountService: AccountService;
     private dailyCronInstance: Cron | null;
     private weeklyCronInstance: Cron | null;
     private monthlyCronInstance: Cron | null;
@@ -26,9 +29,10 @@ export class Scheduler {
     //     }
     // }
 
-    constructor(userService: UserService, budgetService: BudgetService) {
+    constructor(userService: UserService, budgetService: BudgetService, accountService: AccountService) {
         this.userService = userService;
         this.budgetService = budgetService;
+        this.accountService = accountService;
         this.dailyCronInstance = null;
         this.weeklyCronInstance = null;
         this.monthlyCronInstance = null;
@@ -92,6 +96,12 @@ export class Scheduler {
                 for (const wallet of user.getDataValue('wallets')) {
                     await Promise.all(
                         wallet.getDataValue('budgets').map(async (budget: Budget) => {
+                            const overLimit = await this.budgetService.checkBudgetLimit(budget.id);
+
+                            if (!overLimit) {
+                                await this.accountService.handleEvent(EventType.WITHIN_BUDGET, user.id);
+                            }
+
                             await this.budgetService.resetBudget(budget.id);
                             console.log(`Reset budget ${budget.id} for user ${user.id}`);
                         }) ?? []

@@ -65,12 +65,13 @@ export class BudgetController {
 
             const newBudget = new Budget(passedBudget);
 
-            const createdBudget = await this.budgetService.createBudget(userId, newBudget);
+            const serviceResponse = await this.budgetService.createBudget(userId, newBudget);
 
             ctx.response.status = CREATED;
             ctx.response.body = {
                 message: "Budget created successfully",
-                budget: createdBudget
+                budget: serviceResponse?.budget,
+                eventResult: serviceResponse?.eventResult
             }
     }
 

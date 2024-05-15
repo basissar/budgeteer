@@ -54,12 +54,13 @@ export class ExpenseController {
 
         const newExpense = new Expense(passedExpense);
 
-        const createdExpense = await this.expenseService.createExpense(newExpense, userId);
+        const serviceResponse = await this.expenseService.createExpense(newExpense, userId);
 
         ctx.response.status = CREATED;
         ctx.response.body = {
             message: "Expense created successfully",
-            expense: createdExpense
+            expense: serviceResponse.expense,
+            eventResult: serviceResponse.eventResult
         }
     }
 
