@@ -48,16 +48,44 @@ export class GoalController {
     async createGoal(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body().value;
 
+        const { userId } = ctx.params;
+
         const passedGoal = requestBody.valueOf();
 
         const newGoal = new Goal(passedGoal);
 
-        const createdGoal = await this.goalService.createGoal(newGoal);
+        const serviceResponse = await this.goalService.createGoal(newGoal, userId);
 
         ctx.response.status = CREATED;
         ctx.response.body = {
             message: "Goal created successfully",
-            goal: createdGoal
+            goal: serviceResponse.goal,
+            eventResult: serviceResponse.eventResult
+        }
+    }
+
+    async updateMoney(ctx: RouterContext<string>) {
+        const requestBody = await ctx.request.body().value;
+
+        const { userId, goalId } = ctx.params;
+
+        const updateAmount = requestBody.valueOf();
+
+        const serviceResponse = await this.goalService.updateMoney(Number(goalId), updateAmount, userId);
+
+        ctx.response.status = OK;
+
+        if ( serviceResponse instanceof Goal ){
+            ctx.response.body = {
+                message: "Money in goal updated successfully",
+                goal: serviceResponse
+            }
+        } else {
+            ctx.response.body = {
+                message: "Money in goal updated successfully",
+                goal: serviceResponse.goal,
+                eventResult: serviceResponse.eventResult
+            }
         }
     }
 

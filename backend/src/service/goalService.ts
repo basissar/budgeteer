@@ -1,4 +1,4 @@
-import { SAVINGS_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
+import { ACCOUNT_SERVICE, SAVINGS_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
 import { GoalRepository } from "../repository/goalRepository.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
@@ -6,15 +6,20 @@ import { ServiceError } from "../errors/ServiceError.ts";
 import { Goal } from "../model/Goal.ts";
 import { WalletService } from "./walletService.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
+import { AccountService } from "./accountService.ts";
+import { EventType } from "../model/EventType.ts";
 
 export class GoalService {
     private goalRepository: GoalRepository;
 
     private walletService: WalletService;
 
+    private accountService: AccountService;
+
     constructor(){
         const goalRepo = container.resolve(SAVINGS_REPOSITORY);
         const walletSer = container.resolve(WALLET_SERVICE);
+        const accSer = container.resolve(ACCOUNT_SERVICE);
 
         if (goalRepo == null){
             const newGoalRepo = new GoalRepository();
@@ -31,10 +36,18 @@ export class GoalService {
         } else {
             this.walletService = walletSer;
         }
+
+        if (accSer == null){
+            const newAccountSer = new AccountService();
+            container.register(ACCOUNT_SERVICE, newAccountSer);
+            this.accountService = newAccountSer;
+        } else {
+            this.accountService = accSer;
+        }
     }
 
 
-    async createGoal(goal: Goal){
+    async createGoal(goal: Goal, userId: string){
         try {
             const exists = await this.goalRepository.exists(goal.id);
 
@@ -44,7 +57,14 @@ export class GoalService {
 
             const createdGoal = await this.goalRepository.save(goal);
 
-            return createdGoal;
+            const eventResult = await this.accountService.handleEvent(EventType.CREATE_GOAL, userId);
+
+            const finalResponse = {
+                eventResult: eventResult,
+                goal: createdGoal
+            }
+
+            return finalResponse;
         } catch (error) {
             throw new ServiceError(`Savings service error: ${error.message}`);
         }
@@ -76,28 +96,49 @@ export class GoalService {
             throw new ServiceError(`Savings Service error: ${error.message}`);
         }
     }
+
     /**
      * Same as budgets -> returns true if user achieved the target goal, else false
      * @param toUpdate goal to be updated
      * @param amount amount of added money
      * @returns 
      */
-    async updateMoney(toUpdate: Goal, amount: number){
+    async updateMoney(goalId: number, amount: number, userId: string){
         try {
-            toUpdate.set({
-                currentAmount: toUpdate.currentAmount + amount,
+            const foundGoal = await this.goalRepository.findById(goalId);
+
+            if (foundGoal == null){
+                throw new NotFoundError(`Goal with id ${goalId} was not found and cannto be updated`);
+            }
+
+            foundGoal.set({
+                currentAmount: foundGoal.currentAmount + amount,
             });
 
-            const savedGoal = await this.goalRepository.save(toUpdate);
+            const savedGoal = await this.goalRepository.save(foundGoal);
 
-            if (savedGoal != null) {
-                const newAmount = savedGoal.currentAmount;
-                const target = savedGoal.targetAmount;
-
-                return newAmount >= target;
-            } else {
+            if (savedGoal == null) {
                 throw new ServiceError(`Savings Service error: error updating goal amount`);
             }
+
+            const newAmount = savedGoal.currentAmount;
+            const target = savedGoal.targetAmount;
+
+            const reachedTarget = newAmount >= target;
+
+            if (reachedTarget) {
+                const eventResult = await this.accountService.handleEvent(EventType.REACH_GOAL, userId);
+
+                const finalResponse = {
+                    eventResult: eventResult,
+                    goal: savedGoal
+                }
+
+                return finalResponse;
+            } else {
+                return savedGoal;
+            }
+
         } catch (err) {
             throw new ServiceError(`Savings service error: ${err.message}`);
         }
