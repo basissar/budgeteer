@@ -1,27 +1,38 @@
-import { Column } from "../config/deps.ts";
+import { BelongsToMany } from "npm:sequelize-typescript";
+import { Column, ForeignKey } from "../config/deps.ts";
 import { Model, Table } from "../config/deps.ts";
 import {Avatar} from "./Avatar.ts";
 import {ItemRarity} from "./ItemRarity.ts";
-
-/*
-export interface Item {
-    id: number;
-    name: string;
-    rarity: ItemRarity;
-    avatar: Avatar;
-}
-*/
-
+import { Account } from "./Account.ts";
+import { ItemOwned } from "./ItemOwned.ts";
+import { ItemAvatar } from "./ItemAvatar.ts";
 
 @Table({tableName: "items"})
 export class Item extends Model {
 
     @Column({allowNull: false})
-    public name!: string;
+    declare name: string;
 
     @Column({allowNull: false})
-    public rarity!: ItemRarity;
+    declare price: number;
 
     @Column({allowNull: false})
-    public avatar!: Avatar;
+    declare rarity: string;
+
+    @Column({allowNull: true})
+    declare type: string;
+
+    @ForeignKey(() => Avatar)
+    @Column({allowNull: false})
+    declare avatarId: number;
+
+    @BelongsToMany(() => Account, () => ItemOwned)
+    declare accounts: Account[]
+
+    /**
+     * avatarId only if we expect item to belong to one Avatar only
+     * list of Avatars if we expect that more Avatars can be customized with the same Item
+     */
+    @BelongsToMany(() => Avatar, () => ItemAvatar)
+    declare avatars: Avatar[]
 }

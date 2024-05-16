@@ -1,16 +1,19 @@
 
 
-import { Column } from "npm:sequelize-typescript";
-import { Table, Model} from "../config/deps.ts";
+import { Column, Table, Model, HasMany, BelongsTo, BelongsToMany} from "npm:sequelize-typescript";
+import { Item } from "./Item.ts";
+import { ItemAvatar } from "./ItemAvatar.ts";
 
 @Table({tableName: "avatars"})
 export class Avatar extends Model{
 
     @Column({allowNull: false})
-    public name!: string;
+    declare name: string;
 
     @Column({allowNull: false})
-    public description!: string;
+    declare description: string;
 
+    @BelongsToMany(() => Item, () => ItemAvatar)
+    declare items: Item[]
 }
 

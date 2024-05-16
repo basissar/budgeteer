@@ -1,8 +1,7 @@
-
 export enum ItemRarity{
-    common,
-    uncommon,
-    rare,
-    epic
+    common = "common",
+    uncommon = "uncommon",
+    rare = "rare",
+    epic = "epic"
 }
 
