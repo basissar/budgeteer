@@ -1,15 +1,13 @@
-import { ACCOUNT_REPOSITORY, USER_SERVICE } from "../config/macros.ts";
+import { ACCOUNT_REPOSITORY } from "../config/macros.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
+import { Account } from "../model/Account.ts";
 import { EventResult } from "../model/EventResult.ts";
 import { EventType } from "../model/EventType.ts";
 import { AccountRepository } from "../repository/accountRepository.ts";
 import { container } from "../utils/container.ts";
-import { UserService } from "./userService.ts";
 
 
 export class AccountService {
-
-    private userService: UserService;
 
     private accountRepository: AccountRepository;
 
@@ -32,21 +30,11 @@ export class AccountService {
       [EventType.REACH_GOAL]: 100,
       [EventType.CREATE_BUDGET]: 20,
       [EventType.WITHIN_BUDGET]: 80,
-      [EventType.LEVEL_UP]: 20 //todo add credit reward based on the reached level
+      [EventType.LEVEL_UP]: 20 //TODO add credit reward based on the reached level
     }
 
     constructor(){
-        const userSer = container.resolve(USER_SERVICE);
         const accountRepo = container.resolve(ACCOUNT_REPOSITORY);
-
-        //todo user service has no use so far FIX
-        if (userSer == null) {
-            const newUserSer = new UserService();
-            container.register(USER_SERVICE, newUserSer);
-            this.userService = newUserSer;
-        } else {
-            this.userService = userSer;
-        }
 
         if (accountRepo == null) {
             const newAccountRepo = new AccountRepository();
@@ -96,6 +84,62 @@ export class AccountService {
 
             return result;
 
+        } catch (err) {
+            throw new ServiceError(`Account service error: ${err.message}`);
+        }
+    }
+
+    async createAccount(userId: string, avatarId: number) {
+        try {
+            const newAccount = new Account({
+                experience: 0,
+                credits: 0,
+                level: 0,
+                userId: userId,
+                avatarId: avatarId
+            });
+
+            return await this.accountRepository.save(newAccount);
+        } catch (err) {
+            throw new ServiceError(`Account service error: ${err.message}`);
+        }
+    }
+
+    async updateAccount(account: Account){
+        try {
+            return await this.accountRepository.save(account);
+        } catch (err) {
+            throw new ServiceError(`Account service error: ${err.message}`);
+        }
+    }
+
+    async findById(accountId: string) {
+        try {
+            return await this.accountRepository.findById(accountId);
+        } catch (err) {
+            throw new ServiceError(`Account service error: ${err.message}`);
+        }
+    }
+
+    async findByUser(userId: string) {
+        try {
+            return await this.accountRepository.findByUser(userId);
+        } catch (err){
+            throw new ServiceError(`Account service error: ${err.message}`);
+        }
+    }
+
+    async findByUserNoItem(userId: string) {
+        try {
+            return await this.accountRepository.findByUserNoItem(userId);
+        } catch (err) {
+            throw new ServiceError(`Account service error: ${err.message}`);
+        }
+    }
+
+    async getOwnedForUser(accountId: string) {
+        try {
+            return await this.accountRepository.getItemsOwnedForAccount(accountId);
         } catch (err) {
             throw new ServiceError(`Account service error: ${err.message}`);
         }

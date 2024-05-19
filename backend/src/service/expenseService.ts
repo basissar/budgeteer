@@ -18,7 +18,7 @@ import { EventType } from "../model/EventType.ts";
 
 export class ExpenseService {
 
-    public expenseRepository: ExpenseRepository;
+    private expenseRepository: ExpenseRepository;
 
     // public walletRepository: WalletRepository;
 
