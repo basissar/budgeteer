@@ -35,6 +35,7 @@ export const SAVINGS_REPOSITORY = "SavingsRepository";
 export const ITEM_REPOSITORY = "ItemRepository";
 export const TRANSACTION_REPOSITORY = "TransactionRepository";
 export const ACCOUNT_REPOSITORY = "AccountRepository";
+export const AVATAR_REPOSITORY = "AvatarRepository";
 
 export const USER_SERVICE = "UserService";
 export const WALLET_SERVICE = "WalletService";
@@ -45,3 +46,4 @@ export const SAVINGS_SERVICE = "SavingsService";
 export const ITEM_SERVICE = "ItemService";
 export const TRANSACTION_SERVICE = "TransactionService";
 export const ACCOUNT_SERVICE = "AccountService";
+export const AVATAR_SERVICE = "AvatarService";

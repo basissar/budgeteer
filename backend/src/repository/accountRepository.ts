@@ -1,5 +1,7 @@
 import { RepositoryError } from "../errors/RepositoryError.ts";
 import { Account } from "../model/Account.ts";
+import { Avatar } from "../model/Avatar.ts";
+import { Item } from "../model/Item.ts";
 import { BaseRepository } from "./baseRepository.ts";
 
 
@@ -28,8 +30,44 @@ export class AccountRepository implements BaseRepository<Account, string> {
         return await Account.findOne({
             where: {
                 userId: id,
-            }
+            },
+            include: [
+                {
+                    model: Avatar,
+                    as: 'avatar'
+                },
+                {
+                    model: Item,
+                    as: 'ownedItems',
+                    through: { attributes: [] } // Exclude join table attributes
+                },
+                {
+                    model: Item,
+                    as: 'equippedItems',
+                    through: { attributes: [] } // Exclude join table attributes
+                }
+            ]
         });
+    }
+
+    async findByUserNoItem(id: string): Promise<Account | null> {
+        return await Account.findOne({
+            where: {
+                userId: id,
+            }
+        })
+    }
+
+    //The method below could as well be useless since the items are alway connected to account by default
+    async getItemsOwnedForAccount(id: string) {
+        const account = await Account.findByPk(id);
+
+        if(!account){
+            return null;
+        } else {
+            const items = await account.$get('ownedItems');
+            return items;
+        }
     }
     
     async deleteById(id: string): Promise<number> {
