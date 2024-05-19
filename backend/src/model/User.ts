@@ -10,7 +10,7 @@ import {
 } from 'npm:sequelize-typescript'
 import { Wallet } from "./Wallet.ts";
 
-@Table({tableName: "users"})
+@Table({tableName: "users", createdAt: false, updatedAt: false})
 export class User extends Model {
 
     @PrimaryKey

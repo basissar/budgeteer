@@ -4,7 +4,7 @@ import { Column, Table, Model, HasMany, BelongsTo, BelongsToMany} from "npm:sequ
 import { Item } from "./Item.ts";
 import { ItemAvatar } from "./ItemAvatar.ts";
 
-@Table({tableName: "avatars"})
+@Table({tableName: "avatars", createdAt: false, updatedAt: false})
 export class Avatar extends Model{
 
     @Column({allowNull: false})

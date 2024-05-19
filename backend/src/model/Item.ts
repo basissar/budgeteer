@@ -7,7 +7,7 @@ import { Account } from "./Account.ts";
 import { ItemOwned } from "./ItemOwned.ts";
 import { ItemAvatar } from "./ItemAvatar.ts";
 
-@Table({tableName: "items"})
+@Table({tableName: "items", createdAt: false, updatedAt: false})
 export class Item extends Model {
 
     @Column({allowNull: false})
