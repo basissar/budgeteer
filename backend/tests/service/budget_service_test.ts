@@ -10,11 +10,17 @@ import { Goal } from "../../src/model/Goal.ts";
 import { Wallet } from "../../src/model/Wallet.ts";
 import timezones from "npm:timezones.json";
 import { BudgetService } from "../../src/service/budgetService.ts";
-import { saveDefaultCategories } from "../../src/utils/initializationCat.ts";
+import { insertData } from "../../src/utils/dataInitialization.ts";
 import { container } from "../../src/utils/container.ts";
 import { CATEGORY_REPOSITORY, EXPENSE_REPOSITORY } from "../../src/config/macros.ts";
 import { CategoryRepository } from "../../src/repository/categoryRepository.ts";
 import { ExpenseRepository } from "../../src/repository/expenseRepository.ts";
+import { Account } from "../../src/model/Account.ts";
+import { Avatar } from "../../src/model/Avatar.ts";
+import { Item } from "../../src/model/Item.ts";
+import { ItemAvatar } from "../../src/model/ItemAvatar.ts";
+import { ItemEquipped } from "../../src/model/ItemEquipped.ts";
+import { ItemOwned } from "../../src/model/ItemOwned.ts";
 
 Deno.test("Check weeks", () => {
     const perth = DateTime.local().setZone("Australia/Perth");
@@ -58,7 +64,7 @@ Deno.test("Creating new budgets", async (t) => {
 
     await sequelize.authenticate();
     console.log("Authenticated");
-    sequelize.addModels([User, Wallet, Category, Budget, Goal, Expense]);
+    sequelize.addModels([Account, User, Wallet, Expense, Budget, Goal, Category, Avatar, Item, ItemOwned, ItemEquipped, ItemAvatar]);
 
     await sequelize.sync();
     console.log('Models synchronized successfully.');
@@ -101,7 +107,7 @@ Deno.test("Creating new budgets", async (t) => {
 
             await t.step("Initialize categories", async () => {
                 try {
-                    await saveDefaultCategories();
+                    await insertData();
                 } catch (err) {
                     throw new Error(err.stack);
                 }
