@@ -10,22 +10,27 @@ import { WalletController } from "./src/controller/walletController.ts";
 import { ExpenseController } from "./src/controller/expenseController.ts";
 import { CategoryController } from "./src/controller/categoryController.ts";
 import { BudgetController } from "./src/controller/budgetsController.ts";
+import { GoalController } from "./src/controller/goalController.ts";
 
 import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/utils/container.ts";
 
 // import { config } from 'https://deno.land/x/dotenv/mod.ts';
-import { ACCOUNT_SERVICE, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
+import { ACCOUNT_SERVICE, AVATAR_REPOSITORY, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, ITEM_REPOSITORY, SAVINGS_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
 import { WALLET_REPOSITORY } from "./src/config/macros.ts";
 import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
 import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
 import authorization from "./src/controller/authorization.ts";
 import { CategoryRepository } from "./src/repository/categoryRepository.ts";
 import { BudgetRepository } from "./src/repository/budgetRepository.ts";
-import { saveDefaultCategories } from "./src/utils/initializationCat.ts";
+import { insertData } from "./src/utils/dataInitialization.ts";
 import { DateTime } from "https://cdn.skypack.dev/luxon";
 import { Scheduler } from "./src/utils/scheduler.ts";
 import { AccountService } from "./src/service/accountService.ts";
+import { ItemRepository } from "./src/repository/itemRepository.ts";
+import { AvatarRepository } from "./src/repository/avatarRepository.ts";
+import { AccountController } from "./src/controller/accountController.ts";
+import { GoalRepository } from "./src/repository/goalRepository.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
@@ -33,6 +38,9 @@ container.register(EXPENSE_REPOSITORY, new ExpenseRepository());
 container.register(CATEGORY_REPOSITORY, new CategoryRepository());
 container.register(BUDGET_REPOSITORY, new BudgetRepository());
 container.register(ACCOUNT_SERVICE, new AccountService());
+container.register(ITEM_REPOSITORY, new ItemRepository());
+container.register(AVATAR_REPOSITORY, new AvatarRepository());
+container.register(SAVINGS_REPOSITORY, new GoalRepository());
 
 const server = new Application();
 const router = new Router();
@@ -48,6 +56,10 @@ const expenseController = new ExpenseController();
 const categoryController = new CategoryController();
 
 const budgetController = new BudgetController();
+
+const accountController = new AccountController();
+
+const savingsController = new GoalController();
 
 const oauth2Client = new OAuth2Client({
   clientId: "464adeab29b6617d357a",
@@ -142,6 +154,16 @@ router.delete("/budgeteer/:userId/expenses/:expenseId", authorization, expenseCo
 
 router.get("/budgeteer/:userId/categories/:walletId", authorization, categoryController.getAllByWallet.bind(categoryController));
 
+//GOALS
+router.post("/budgeteer/:userId/goals/:walletId", authorization, savingsController.createGoal.bind(savingsController));
+
+//TODO might be PUT instead
+router.post("/budgeteer/:userId/goals/:walletId/:goalId", authorization, savingsController.updateMoney.bind(savingsController));
+
+router.delete("/budgeteer/:userId/goals/:goalId", authorization, savingsController.deleteGoal.bind(savingsController));
+
+router.get("/budgeteer/:userId/goals/:walletId", authorization, savingsController.getGoalsForWallet.bind(savingsController));
+
 
 //BUDGETS
 router.post("/budgeteer/:userId/budgets/:walletId/", authorization, budgetController.createBudget.bind(budgetController));
@@ -150,7 +172,20 @@ router.get("/budgeteer/:userId/budgets/:walletId", authorization, budgetControll
 
 router.delete("/budgeteer/:userId/budgets/:budgetId", authorization, budgetController.deleteBudget.bind(budgetController));
 
-// router.delete("/budgeteer/wallets/:id", deleteWalletForUser)
+//ACCOUNT,ITEM,AVATAR for beter handling all contained in the AccountController
+router.post("/budgeteer/:userId/account", authorization, accountController.createAccount.bind(accountController));
+
+router.get("/budgeteer/:userId/account", authorization, accountController.getAccount.bind(accountController));
+
+router.post("/budgeteer/:userId/buy/:itemId", authorization, accountController.buyItem.bind(accountController));
+
+router.post("/budgeteer/:userId/equip/:itemId", authorization, accountController.equipItem.bind(accountController));
+
+router.post("/budgeteer/:userId/unequip/:itemId", authorization, accountController.unequipItem.bind(accountController));
+
+router.get("/budgeteer/avatars/:avatarId", authorization, accountController.getAvatarItems.bind(accountController));
+
+router.get("/budgeteer/avatars", authorization, accountController.getAllAvatars.bind(accountController));
 
 server.use(router.routes());
 server.use(router.allowedMethods());
@@ -175,26 +210,19 @@ const port = 8000;
 
 server.listen({ port });
 
-// initializeDatabase();
-
-//Initialize database and save default categories
-// initializeDatabase().then(() => {
-//   saveDefaultCategories().then(() => {
-//       console.log("Default categories saved successfully.");
-//   }).catch((error) => {
-//       console.error("Failed to save default categories:", error);
-//   });
-// }).catch((error) => {
-//   console.error("Database initialization failed:", error);
-// });
-
-await initializeDatabase().catch(error => {
-  console.error("Failed to initialize database:", error);
-}).then(async () => {
+initializeDatabase().then(() => {
+  insertData().then(() => {
+      console.log("Date created successfully.");
+  }).catch((error) => {
+      console.error("Failed to save default categories:", error);
+  });
+}).catch((error) => {
+  console.error("Database initialization failed:", error);
+}).then(() => {
   // Start the scheduler...
   const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE), container.resolve(ACCOUNT_SERVICE));
   scheduler.start();
-})
+});
 
-// .then(() => {startScheduler();})
+
 
