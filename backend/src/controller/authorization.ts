@@ -29,15 +29,17 @@ const authorization = async (ctx: RouterContext<string>, next: () => Promise<any
     
         const paramsId = ctx.params.userId;
 
-        if (Object.keys(paramsId).length !== 0) {
+        if (paramsId != null || paramsId != undefined){
+            if (Object.keys(paramsId).length !== 0) {
 
-            if(tokenId != paramsId) {
-                ctx.response.status = FORBIDDEN;
-                ctx.response.body = { message: 'You are not authorized to perform this action' };
-                return;
+                if(tokenId != paramsId) {
+                    ctx.response.status = FORBIDDEN;
+                    ctx.response.body = { message: 'You are not authorized to perform this action' };
+                    return;
+                }
             }
         }
-    
+
         await next();
     } catch (err) {
         ctx.response.status = UNAUTHORIZED;

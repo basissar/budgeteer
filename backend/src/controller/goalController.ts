@@ -77,12 +77,12 @@ export class GoalController {
 
         if ( serviceResponse instanceof Goal ){
             ctx.response.body = {
-                message: "Money in goal updated successfully",
+                message: "Money in savings goal updated successfully",
                 goal: serviceResponse
             }
         } else {
             ctx.response.body = {
-                message: "Money in goal updated successfully",
+                message: "Money in savings goal updated successfully",
                 goal: serviceResponse.goal,
                 eventResult: serviceResponse.eventResult
             }
