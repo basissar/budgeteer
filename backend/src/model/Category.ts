@@ -2,7 +2,7 @@ import { Table, Column, Model, ForeignKey, DataType } from 'npm:sequelize-typesc
 import { User } from "./User.ts";
 import { Wallet } from "./Wallet.ts";
 
-@Table({ tableName: "categories" })
+@Table({ tableName: "categories", createdAt: false, updatedAt: false })
 export class Category extends Model {
 
     @Column({ allowNull: false, type: DataType.STRING })

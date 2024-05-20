@@ -1,6 +1,8 @@
 import { CATEGORY_REPOSITORY } from "../config/macros.ts";
 import { container } from "./container.ts";
 import { Category } from "../model/Category.ts";
+import { Avatar } from "../model/Avatar.ts";
+import { Item } from "../model/Item.ts";
 import { CategoryRepository } from "../repository/categoryRepository.ts";
 
 const categoriesData = [
@@ -17,8 +19,20 @@ const categoriesData = [
     { name: "Subscriptions", color: "#D00000" }
 ];
 
+const avatarData = [
+    { id: 1, name: "Dog", description: "This is Rex the doggo"},
+    { id: 2, name: "Cat", description: "This is Pumpkin the cat"}
+];
 
-export async function saveDefaultCategories(){
+const itemData = [
+    { name: "Brown hat", price: 100, rarity: 'common', avatarId: 1},
+    { name: "Special brown hat", price: 200, rarity: 'rare', avatarId: 1},   
+    { name: "Pants", price: 120, rarity: 'common', avatarId: 2},
+    { name: "Very special pants", price: 300, rarity: 'epic', avatarId: 2}, 
+]
+
+
+export async function insertData(){
     let catRep = container.resolve(CATEGORY_REPOSITORY);
 
     if (catRep == null) {
@@ -40,5 +54,17 @@ export async function saveDefaultCategories(){
         } else {
             console.log(`Failed to save category "${category.name}".`);
         }
+    }
+
+    for (const avatar of avatarData){
+        const toSave = new Avatar(avatar);
+        toSave.save();
+        console.log(`Avatar ${avatar.name} saved successfully`);
+    }
+
+    for (const item of itemData){
+        const toSave = new Item(item);
+        toSave.save();
+        console.log(`Item ${item.name} for ${item.price} credits with ${item.rarity} saved successfuly`);
     }
 }

@@ -6,10 +6,15 @@ import {
     PrimaryKey,
     DataType,
     BelongsTo,
-    ForeignKey
+    ForeignKey,
+    BelongsToMany
 } from 'npm:sequelize-typescript';
 import { User } from "./User.ts";
 import { Avatar } from "./Avatar.ts";
+import { Item } from "./Item.ts";
+import { ItemOwned } from "./ItemOwned.ts";
+import { ItemAvatar } from "./ItemAvatar.ts";
+import { ItemEquipped } from "./ItemEquipped.ts";
 
 @Table({tableName: "accounts", createdAt: false, updatedAt: false})
 export class Account extends Model {
@@ -39,4 +44,16 @@ export class Account extends Model {
 
     @BelongsTo(() => User)
     declare user: User;
+
+    @BelongsTo(() => Avatar, { foreignKey: 'avatarId', as: 'avatar' })
+    declare avatar: Avatar;
+
+    // @BelongsToMany(() => Item, () => ItemAvatar)
+    // declare items: Item[]
+
+    @BelongsToMany(() => Item, () => ItemOwned)
+    declare ownedItems: Item[];
+
+    @BelongsToMany(() => Item, () => ItemEquipped)
+    declare equippedItems: Item[];
 }

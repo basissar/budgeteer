@@ -9,7 +9,7 @@ import { Goal } from './Goal.ts';
 import { Expense } from './Expense.ts';
 
 
-@Table({tableName:"wallets"})
+@Table({tableName:"wallets", createdAt: false, updatedAt: false})
 export class Wallet extends Model{
 
     @PrimaryKey

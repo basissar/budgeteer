@@ -2,7 +2,7 @@ import { Table, Column, Model, ForeignKey, DataType, BelongsTo } from 'npm:seque
 import { Category } from './Category.ts';
 import { Wallet } from './Wallet.ts';
 
-@Table({ tableName: "expenses" })
+@Table({ tableName: "expenses", createdAt: false, updatedAt: false })
 export class Expense extends Model{
 
     @Column({ allowNull: false })

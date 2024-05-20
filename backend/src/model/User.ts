@@ -1,3 +1,4 @@
+import { Account } from "./Account.ts";
 import {
     Table,
     Column,
@@ -8,9 +9,8 @@ import {
     HasOne
 } from 'npm:sequelize-typescript'
 import { Wallet } from "./Wallet.ts";
-import { Account } from "./Account.ts";
 
-@Table({tableName: "users"})
+@Table({tableName: "users", createdAt: false, updatedAt: false})
 export class User extends Model {
 
     @PrimaryKey
@@ -41,8 +41,8 @@ export class User extends Model {
     @HasMany(() => Wallet)
     public wallets!: Wallet[];
 
-    @HasOne(() => Account)
-    declare account: Account;
+    // @HasOne(() => Account)
+    // declare account: Account;
 
 }
   
