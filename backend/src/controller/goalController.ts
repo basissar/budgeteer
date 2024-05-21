@@ -1,5 +1,5 @@
 import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
-import { BAD_REQUEST, CREATED, INTERNAL_ERROR, NO_CONTENT, OK, SAVINGS_SERVICE, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
+import { BAD_REQUEST, CREATED, INTERNAL_ERROR, NOT_FOUND, NO_CONTENT, OK, SAVINGS_SERVICE, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
 import { GoalService } from "../service/goalService.ts";
 import { UserService } from "../service/userService.ts";
 import { WalletService } from "../service/walletService.ts";
@@ -75,6 +75,7 @@ export class GoalController {
 
         ctx.response.status = OK;
 
+        //TODO handle complete goal on frontend 
         if ( serviceResponse instanceof Goal ){
             ctx.response.body = {
                 message: "Money in savings goal updated successfully",
@@ -84,8 +85,28 @@ export class GoalController {
             ctx.response.body = {
                 message: "Money in savings goal updated successfully",
                 goal: serviceResponse.goal,
-                eventResult: serviceResponse.eventResult
+                eventResult: serviceResponse.eventResult,
+                completeMessage: serviceResponse.completeMessage
             }
+        }
+    }
+
+    async completeGoal(ctx: RouterContext<string>) {
+        const { userId, goalId } = ctx.params;
+
+        const completedGoal = await this.goalService.completeGoal(Number(goalId), userId);
+
+        if (!completedGoal) {
+            ctx.response.status = NOT_FOUND;
+            ctx.response.body = {
+                message: `No goal to be completed was found`,
+            }
+            return;
+        } 
+
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: `Goal was completed successfully`
         }
     }
 
