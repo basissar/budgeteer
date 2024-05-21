@@ -13,6 +13,9 @@ import { Item } from "../model/Item.ts";
 import { ItemAvatar } from "../model/ItemAvatar.ts";
 import { ItemEquipped } from "../model/ItemEquipped.ts";
 import { ItemOwned } from "../model/ItemOwned.ts";
+import { Achievement } from "../model/Achievement.ts";
+import { AccountAchievement } from "../model/AccountAchievement.ts";
+import { GREEN, RED, RESET_COLOR, YELLOW } from "../config/macros.ts";
 
 config({ export: true });
 
@@ -35,25 +38,25 @@ export const sequelize = new Sequelize({
 });
 
 // const sequelize = new Sequelize({
-//     database: 'postgres', 
+//     database: 'postgres',
 //     username: 'postgres',
 //     password: 'password',
 //     host: 'localhost',
 //     port: 5432,
 //     dialect: 'postgres',
 //     dialectModule: pg,
-//     models: [Account, User, Wallet, Expense, Budget, Goal, Category, Avatar, Item, ItemOwned, ItemEquipped, ItemAvatar],
-//   });
+//     // models: [Account, User, Wallet, Expense, Budget, Goal, Category, Avatar, Item, ItemOwned, ItemEquipped, ItemAvatar],
+// });
 
 export async function initializeDatabase() {
     try {
         await sequelize.authenticate();
-        console.log('Connection has been established successfully.');
-        await sequelize.addModels([Account, User, Wallet, Expense, Budget, Goal, Category, Avatar, Item, ItemOwned, ItemEquipped, ItemAvatar]);
-        // await sequelize.sync({force: true});
-        await sequelize.sync();
-        console.log('Models synchronized successfully.');
+        console.log(GREEN, 'Connection has been established successfully.', RESET_COLOR);
+        await sequelize.addModels([Account, User, Wallet, Expense, Budget, Goal, Category, Avatar, Item, ItemOwned, ItemEquipped, ItemAvatar, Achievement, AccountAchievement]);
+        await sequelize.sync({ force: true });
+        // await sequelize.sync();
+        console.log(GREEN, 'Models synchronized successfully.', RESET_COLOR);
     } catch (error) {
-        console.error('Unable to connect to the database:', error.stack);
+        console.error(RED, `Unable to connect to the database: ${error.stack}`, RESET_COLOR);
     }
 }

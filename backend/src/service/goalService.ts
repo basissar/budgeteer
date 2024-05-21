@@ -1,4 +1,4 @@
-import { ACCOUNT_SERVICE, SAVINGS_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
+import { ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, SAVINGS_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
 import { GoalRepository } from "../repository/goalRepository.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
@@ -8,6 +8,8 @@ import { WalletService } from "./walletService.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { AccountService } from "./accountService.ts";
 import { EventType } from "../model/EventType.ts";
+import { AchievementService } from "./achievementService.ts";
+import { AchievementType } from "../model/AchievementType.ts";
 
 export class GoalService {
     private goalRepository: GoalRepository;
@@ -16,10 +18,13 @@ export class GoalService {
 
     private accountService: AccountService;
 
+    private achievementService: AchievementService;
+
     constructor(){
         const goalRepo = container.resolve(SAVINGS_REPOSITORY);
         const walletSer = container.resolve(WALLET_SERVICE);
         const accSer = container.resolve(ACCOUNT_SERVICE);
+        const achievSer = container.resolve(ACHIEVEMENT_SERVICE);
 
         if (goalRepo == null){
             const newGoalRepo = new GoalRepository();
@@ -43,6 +48,14 @@ export class GoalService {
             this.accountService = newAccountSer;
         } else {
             this.accountService = accSer;
+        }
+
+        if (achievSer == null){
+            const newAchievementSer = new AchievementService();
+            container.register(ACHIEVEMENT_SERVICE, newAchievementSer);
+            this.achievementService = newAchievementSer;
+        } else {
+            this.achievementService = achievSer;
         }
     }
 
@@ -131,7 +144,9 @@ export class GoalService {
 
                 const finalResponse = {
                     eventResult: eventResult,
-                    goal: savedGoal
+                    goal: savedGoal,
+                    completeMessage: "Mark the goal as completed?" 
+                    //TODO finish the return complete goal message
                 }
 
                 return finalResponse;
@@ -142,6 +157,23 @@ export class GoalService {
         } catch (err) {
             throw new ServiceError(`Savings service error: ${err.message}`);
         }
+    }
+
+    async completeGoal(goalId: number, userId: string) {
+        const foundGoal = await this.findById(goalId);
+
+        if (foundGoal == null){
+            return false;
+        }
+
+        foundGoal.set('completed', true);
+        foundGoal.save();
+
+        const completed = await this.goalRepository.countCompleted(userId);
+        const account = await this.accountService.getIdForUser(userId);
+
+        await this.achievementService.evaluateAchievement(account?.id, AchievementType.GOAL, [this.goalRepository, completed]);
+        return true;
     }
 
     async updateGoal(goal: Goal){

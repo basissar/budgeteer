@@ -1,10 +1,12 @@
-import { ACCOUNT_REPOSITORY } from "../config/macros.ts";
+import { ACCOUNT_REPOSITORY, ACHIEVEMENT_SERVICE } from "../config/macros.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { Account } from "../model/Account.ts";
+import { Achievement } from "../model/Achievement.ts";
 import { EventResult } from "../model/EventResult.ts";
 import { EventType } from "../model/EventType.ts";
 import { AccountRepository } from "../repository/accountRepository.ts";
 import { container } from "../utils/container.ts";
+import { AchievementService } from "./achievementService.ts";
 
 
 export class AccountService {
@@ -22,6 +24,8 @@ export class AccountService {
       [EventType.CREATE_BUDGET]: 20,
       [EventType.WITHIN_BUDGET]: 100,
       [EventType.LEVEL_UP]: 0 // no experience points rewarded for level up
+      ,
+      [EventType.ACHIEVEMENT]: 0
     };
 
     private eventCreditRewards: Record<EventType, number> = {
@@ -31,6 +35,8 @@ export class AccountService {
       [EventType.CREATE_BUDGET]: 20,
       [EventType.WITHIN_BUDGET]: 80,
       [EventType.LEVEL_UP]: 20 //TODO add credit reward based on the reached level
+      ,
+      [EventType.ACHIEVEMENT]: 0
     }
 
     constructor(){
@@ -46,16 +52,24 @@ export class AccountService {
     }
 
 
-    async handleEvent(event: EventType, userId: string): Promise<EventResult | null> {
+    async handleEvent(event: EventType, userId: string, achievement?: Achievement): Promise<EventResult | null> {
         try {
+            let earnedCredits = 0;
+            let earnedXP = 0;
+
             const foundAccount = await this.accountRepository.findByUser(userId);
 
             if (foundAccount == null) {
                 return null;
             }
 
-            let earnedCredits = this.rewardCreditsForEvent(event);
-            const earnedXP = this.rewardXPForEvent(event);
+            if (event == EventType.ACHIEVEMENT){
+                earnedCredits = achievement!.gainedCredits;
+                earnedXP = achievement!.gainedXp;
+            } else {
+                earnedCredits = this.rewardCreditsForEvent(event);
+                earnedXP = this.rewardXPForEvent(event);
+            }
 
             const totalXPBalance = foundAccount.experience + earnedXP;
 
@@ -145,6 +159,10 @@ export class AccountService {
         }
     }
 
+    async getIdForUser(userId: string){
+        return await this.accountRepository.getAccountIdForUser(userId);
+    }
+
     /** Calculates needed XP to reach next level
      * 
      * @param level level to reach
@@ -183,7 +201,7 @@ export class AccountService {
     }
 
     private rewardXPForEvent(eventType: EventType): number {
-        return this.eventXPRewards[eventType] || 0; // Return XP reward for the event type, or 0 if not found
+        return this.eventXPRewards[eventType] || 0; 
     }
 
     private rewardCreditsForEvent(eventType: EventType): number {

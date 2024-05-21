@@ -7,32 +7,26 @@ import timezonesJson from 'npm:timezones.json';
 import { Timezone } from "../model/Timezone.ts";
 import { AccountService } from "../service/accountService.ts";
 import { EventType } from "../model/EventType.ts";
+import { AchievementService } from "../service/achievementService.ts";
+import { AchievementType } from "../model/AchievementType.ts";
+import { Account } from "../model/Account.ts";
+import { NotFoundError } from "../errors/NotFoundError.ts";
 
 export class Scheduler {
 
     private userService: UserService;
     private budgetService: BudgetService;
     private accountService: AccountService;
+    private achievementService: AchievementService;
     private dailyCronInstance: Cron | null;
     private weeklyCronInstance: Cron | null;
     private monthlyCronInstance: Cron | null;
 
-    // constructor() {
-    //     this.userService = container.resolve(USER_SERVICE);
-    //     this.budgetService = container.resolve(BUDGET_SERVICE);
-    //     this.dailyCronInstance = null;
-    //     this.weeklyCronInstance = null;
-    //     this.monthlyCronInstance = null;
-
-    //     if (this.userService == null || this.budgetService == null) {
-    //         throw new Error("User or budget service not found. Cannot start scheduler.");
-    //     }
-    // }
-
-    constructor(userService: UserService, budgetService: BudgetService, accountService: AccountService) {
+    constructor(userService: UserService, budgetService: BudgetService, accountService: AccountService, achievementService: AchievementService) {
         this.userService = userService;
         this.budgetService = budgetService;
         this.accountService = accountService;
+        this.achievementService = achievementService;
         this.dailyCronInstance = null;
         this.weeklyCronInstance = null;
         this.monthlyCronInstance = null;
@@ -96,11 +90,8 @@ export class Scheduler {
                 for (const wallet of user.getDataValue('wallets')) {
                     await Promise.all(
                         wallet.getDataValue('budgets').map(async (budget: Budget) => {
-                            const overLimit = await this.budgetService.checkBudgetLimit(budget.id);
-
-                            if (!overLimit) {
-                                await this.accountService.handleEvent(EventType.WITHIN_BUDGET, user.id);
-                            }
+                            
+                            await this.handleCountCheck(budget.id, user.id);
 
                             await this.budgetService.resetBudget(budget.id);
                             console.log(`Reset budget ${budget.id} for user ${user.id}`);
@@ -108,6 +99,30 @@ export class Scheduler {
                     );
                 }
             }
+        }
+    }
+
+    private async handleCountCheck(budgetId: number, userId: string){
+        const overLimit = await this.budgetService.checkBudgetLimit(budgetId);
+
+        const account = await Account.findOne({
+            where: {
+                userId: userId
+            },
+            attributes: [
+                'id',
+                'stayedWithinBudget'
+            ]
+        });
+
+        const newBudgetCount = account!.stayedWithinBudget + 1;
+
+        account!.set('stayedWithinBudget', newBudgetCount);
+        account!.save();
+
+        if (!overLimit) {
+            await this.accountService.handleEvent(EventType.WITHIN_BUDGET, userId);
+            await this.achievementService.evaluateAchievement(account!.id, AchievementType.BUDGET,[newBudgetCount]);
         }
     }
 
