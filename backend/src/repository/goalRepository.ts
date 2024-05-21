@@ -1,6 +1,7 @@
 import { RepositoryError } from "../errors/RepositoryError.ts";
 import { Category } from "../model/Category.ts";
 import { Goal } from "../model/Goal.ts";
+import { Wallet } from "../model/Wallet.ts";
 import { BaseRepository } from "./baseRepository.ts";
 
 
@@ -47,5 +48,20 @@ export class GoalRepository implements BaseRepository<Goal, number> {
                 {model: Category, as: 'category', attributes:['name', 'color']},
             ]
         });
+    }
+
+    async countCompleted(userId: string) {
+        const completedGoals = await Goal.count({
+            where : {completed: true},
+            include: [
+                {
+                    model: Wallet,
+                    as: 'wallet',
+                    where: {userId: userId}
+                }
+            ]
+        });
+
+        return completedGoals;
     }
 }

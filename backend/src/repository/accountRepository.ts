@@ -1,5 +1,6 @@
 import { RepositoryError } from "../errors/RepositoryError.ts";
 import { Account } from "../model/Account.ts";
+import { Achievement } from "../model/Achievement.ts";
 import { Avatar } from "../model/Avatar.ts";
 import { Item } from "../model/Item.ts";
 import { BaseRepository } from "./baseRepository.ts";
@@ -45,6 +46,10 @@ export class AccountRepository implements BaseRepository<Account, string> {
                     model: Item,
                     as: 'equippedItems',
                     through: { attributes: [] } // Exclude join table attributes
+                },
+                {
+                    model: Achievement,
+                    as: 'achievements'
                 }
             ]
         });
@@ -68,6 +73,29 @@ export class AccountRepository implements BaseRepository<Account, string> {
             const items = await account.$get('ownedItems');
             return items;
         }
+    }
+
+    async getAccountIdForUser(userId: string){
+        return await Account.findOne({
+            where: {
+                userId: userId
+            },
+            attributes: [
+                'id'
+            ]
+        })
+    }
+
+    async getAccountForScheduler(userId: string){
+        return await Account.findOne({
+            where: {
+                userId: userId
+            },
+            attributes: [
+                'id',
+                'stayedWithinBudget'
+            ]
+        })
     }
     
     async deleteById(id: string): Promise<number> {
