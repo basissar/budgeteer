@@ -4,7 +4,7 @@ import {Category} from "./Category.ts";
 import { Wallet } from "./Wallet.ts";
 
 
-@Table({tableName: "budgets"})
+@Table({tableName: "budgets", createdAt: false, updatedAt: false})
 export class Budget extends Model {
     
     @Column({allowNull: false})

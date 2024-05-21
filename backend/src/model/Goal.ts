@@ -14,6 +14,9 @@ export class Goal extends Model{
     @Column({allowNull: false})
     declare currentAmount: number;
 
+    @Column({allowNull: false, defaultValue: false})
+    declare completed: boolean;
+
     @ForeignKey(() => Category)
     @Column({allowNull: false})
     declare categoryId: number;

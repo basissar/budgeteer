@@ -1,33 +1,32 @@
-/*
-export interface Achievement {
-    id: number;
-    name: string;
-    description: string;
-    quote: string;
-    gainedCredits: number;
-    gainedXp: number;
-}
+import { Column, Table, Model, ForeignKey } from "../config/deps.ts";
+import { Category } from "./Category.ts";
 
-*/
-
-import { Column, Table, Model } from "../config/deps.ts";
-
-@Table({tableName: "achievements"})
+@Table({tableName: "achievements", createdAt: false, updatedAt: false})
 export class Achievement extends Model{
 
     @Column({allowNull: false})
-    public name!: string;
+    declare name: string;
 
     @Column({allowNull: false})
-    public description!: string;
+    declare description: string;
 
     @Column({allowNull: false})
-    public quote!: string;
+    declare quote: string;
 
     @Column({allowNull: false})
-    public gainedCredits!: number;
+    declare gainedCredits: number;
 
     @Column({ allowNull: false })
-    public gainedXp!: number;
+    declare gainedXp: number;
+
+    @ForeignKey(() => Category)
+    @Column({allowNull: true})
+    declare categoryId: number;
+
+    @Column({allowNull: true})
+    declare targetCount: number;
+
+    @Column({allowNull: false})
+    declare type: string;
 
 }
