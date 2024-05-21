@@ -15,6 +15,8 @@ import { Item } from "./Item.ts";
 import { ItemOwned } from "./ItemOwned.ts";
 import { ItemAvatar } from "./ItemAvatar.ts";
 import { ItemEquipped } from "./ItemEquipped.ts";
+import { Achievement } from "./Achievement.ts";
+import { AccountAchievement } from "./AccountAchievement.ts";
 
 @Table({tableName: "accounts", createdAt: false, updatedAt: false})
 export class Account extends Model {
@@ -42,6 +44,9 @@ export class Account extends Model {
     @ForeignKey(() => Avatar)
     declare avatarId: number;
 
+    @Column({allowNull: false, defaultValue: 0})
+    declare stayedWithinBudget: number;
+
     @BelongsTo(() => User)
     declare user: User;
 
@@ -56,4 +61,7 @@ export class Account extends Model {
 
     @BelongsToMany(() => Item, () => ItemEquipped)
     declare equippedItems: Item[];
+
+    @BelongsToMany(() => Achievement, () => AccountAchievement)
+    declare achievements: Achievement[];
 }

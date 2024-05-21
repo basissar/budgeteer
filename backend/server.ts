@@ -16,7 +16,7 @@ import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/utils/container.ts";
 
 // import { config } from 'https://deno.land/x/dotenv/mod.ts';
-import { ACCOUNT_SERVICE, AVATAR_REPOSITORY, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, ITEM_REPOSITORY, SAVINGS_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
+import { ACCOUNT_SERVICE, ACHIEVEMENT_REPOSITORY, ACHIEVEMENT_SERVICE, AVATAR_REPOSITORY, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, GREEN, ITEM_REPOSITORY, RESET_COLOR, SAVINGS_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
 import { WALLET_REPOSITORY } from "./src/config/macros.ts";
 import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
 import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
@@ -24,13 +24,13 @@ import authorization from "./src/controller/authorization.ts";
 import { CategoryRepository } from "./src/repository/categoryRepository.ts";
 import { BudgetRepository } from "./src/repository/budgetRepository.ts";
 import { insertData } from "./src/utils/dataInitialization.ts";
-import { DateTime } from "https://cdn.skypack.dev/luxon";
 import { Scheduler } from "./src/utils/scheduler.ts";
 import { AccountService } from "./src/service/accountService.ts";
 import { ItemRepository } from "./src/repository/itemRepository.ts";
 import { AvatarRepository } from "./src/repository/avatarRepository.ts";
 import { AccountController } from "./src/controller/accountController.ts";
 import { GoalRepository } from "./src/repository/goalRepository.ts";
+import { AchievementRepositroy } from "./src/repository/achievementRepository.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
@@ -41,6 +41,8 @@ container.register(ACCOUNT_SERVICE, new AccountService());
 container.register(ITEM_REPOSITORY, new ItemRepository());
 container.register(AVATAR_REPOSITORY, new AvatarRepository());
 container.register(SAVINGS_REPOSITORY, new GoalRepository());
+container.register(ACHIEVEMENT_REPOSITORY, new AchievementRepositroy());
+
 
 const server = new Application();
 const router = new Router();
@@ -212,15 +214,15 @@ server.listen({ port });
 
 initializeDatabase().then(() => {
   insertData().then(() => {
-      console.log("Date created successfully.");
+    console.log(GREEN, "Data created successfully.", RESET_COLOR);
   }).catch((error) => {
-      console.error("Failed to save default categories:", error);
+    console.error("Failed to save data:", error);
   });
 }).catch((error) => {
   console.error("Database initialization failed:", error);
 }).then(() => {
   // Start the scheduler...
-  const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE), container.resolve(ACCOUNT_SERVICE));
+  const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE), container.resolve(ACCOUNT_SERVICE), container.resolve(ACHIEVEMENT_SERVICE));
   scheduler.start();
 });
 

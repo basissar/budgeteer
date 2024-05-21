@@ -58,13 +58,13 @@ export async function insertData(){
 
     for (const avatar of avatarData){
         const toSave = new Avatar(avatar);
-        toSave.save();
-        console.log(`Avatar ${avatar.name} saved successfully`);
+        await toSave.save();
+        console.log(`Avatar ${avatar.name} with id ${avatar.id} saved successfully`);
     }
 
     for (const item of itemData){
         const toSave = new Item(item);
-        toSave.save();
+        await toSave.save();
         console.log(`Item ${item.name} for ${item.price} credits with ${item.rarity} saved successfuly`);
     }
 }

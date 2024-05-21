@@ -6,7 +6,8 @@ import {
     HasMany,
     PrimaryKey,
     DataType,
-    HasOne
+    HasOne,
+    BelongsToMany
 } from 'npm:sequelize-typescript'
 import { Wallet } from "./Wallet.ts";
 
@@ -40,9 +41,5 @@ export class User extends Model {
 
     @HasMany(() => Wallet)
     public wallets!: Wallet[];
-
-    // @HasOne(() => Account)
-    // declare account: Account;
-
 }
   

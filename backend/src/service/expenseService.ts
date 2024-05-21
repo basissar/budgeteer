@@ -1,4 +1,4 @@
-import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE, USER_REPOSITORY, ACCOUNT_SERVICE } from "../config/macros.ts";
+import { CATEGORY_SERVICE, EXPENSE_REPOSITORY, WALLET_SERVICE, BUDGET_SERVICE, USER_REPOSITORY, ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
@@ -15,16 +15,14 @@ import { UserRepository } from "../repository/userRepository.ts";
 import { DateTime } from "https://cdn.skypack.dev/luxon";
 import { AccountService } from "./accountService.ts";
 import { EventType } from "../model/EventType.ts";
+import { AchievementService } from "./achievementService.ts";
+import { AchievementType } from "../model/AchievementType.ts";
 
 export class ExpenseService {
 
     private expenseRepository: ExpenseRepository;
 
-    // public walletRepository: WalletRepository;
-
     private walletService: WalletService;
-
-    private categoryService: CategoryService;
 
     private budgetService: BudgetService;
 
@@ -32,19 +30,20 @@ export class ExpenseService {
 
     private accountService: AccountService;
 
+    private achievementService: AchievementService;
+
     constructor() {
         const expRepo = container.resolve(EXPENSE_REPOSITORY);
-        // const walletRepo = container.resolve('WalletRepository');
 
-        const wallSer = container.resolve(WALLET_SERVICE)
-
-        const catSer = container.resolve(CATEGORY_SERVICE);
+        const wallSer = container.resolve(WALLET_SERVICE);
 
         const budgetSer = container.resolve(BUDGET_SERVICE);
 
         const userRepo = container.resolve(USER_REPOSITORY);
 
         const accountSer = container.resolve(ACCOUNT_SERVICE);
+
+        const achievementSer = container.resolve(ACHIEVEMENT_SERVICE);
 
         if (expRepo == null) {
             const newExpRepo = new ExpenseRepository();
@@ -60,14 +59,6 @@ export class ExpenseService {
             this.walletService = newWallSer;
         } else {
             this.walletService = wallSer;
-        }
-
-        if (catSer == null) {
-            const newCatSer = new CategoryService();
-            container.register(CATEGORY_SERVICE, newCatSer);
-            this.categoryService = newCatSer;
-        } else {
-            this.categoryService = catSer;
         }
 
         if (budgetSer == null) {
@@ -92,6 +83,14 @@ export class ExpenseService {
             this.accountService = newAccountSer;
         } else {
             this.accountService = accountSer;
+        }
+
+        if (achievementSer == null){
+            const newAchievementSer = new AchievementService();
+            container.register(ACCOUNT_SERVICE, newAchievementSer);
+            this.achievementService = newAchievementSer;
+        } else {
+            this.achievementService = achievementSer;
         }
     }
 
@@ -145,7 +144,11 @@ export class ExpenseService {
                 expense: expense
             }
 
+            const countByCategory = await this.expenseRepository.getCountByCategoryForUser(userId,expense.targetCategoryId);
 
+            const account = await this.accountService.getIdForUser(userId);
+
+            await this.achievementService.evaluateAchievement(account?.id, AchievementType.EXPENSE, [this.expenseRepository, countByCategory])
             return finalResponse;
         } catch (error) {
             throw new ServiceError("Expense service error: " + error.stack);
