@@ -31,6 +31,7 @@ import { AvatarRepository } from "./src/repository/avatarRepository.ts";
 import { AccountController } from "./src/controller/accountController.ts";
 import { GoalRepository } from "./src/repository/goalRepository.ts";
 import { AchievementRepositroy } from "./src/repository/achievementRepository.ts";
+import { AnalyticsController } from "./src/controller/analyticsController.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
@@ -62,6 +63,8 @@ const budgetController = new BudgetController();
 const accountController = new AccountController();
 
 const savingsController = new GoalController();
+
+const analyticsController = new AnalyticsController();
 
 const oauth2Client = new OAuth2Client({
   clientId: "464adeab29b6617d357a",
@@ -188,6 +191,18 @@ router.post("/budgeteer/:userId/unequip/:itemId", authorization, accountControll
 router.get("/budgeteer/avatars/:avatarId", authorization, accountController.getAvatarItems.bind(accountController));
 
 router.get("/budgeteer/avatars", authorization, accountController.getAllAvatars.bind(accountController));
+
+//ANALYTICS
+
+router.post("/budgeteer/analytics/:userId/sumPositive", authorization, analyticsController.getSumPositiveForMonth.bind(analyticsController));
+
+router.post("/budgeteer/analytics/:userId/sumNegative", authorization, analyticsController.getSumNegativeForMonth.bind(analyticsController))
+
+router.post("/budgeteer/analytics/:userId/sumPositiveRange", authorization, analyticsController.getSumPositiveForRange.bind(analyticsController));
+
+router.post("/budgeteer/analytics/:userId/sumNegativeRange", authorization, analyticsController.getSumNegativeForRange.bind(analyticsController));
+
+router.get("/budgeteer/analytics/:userId/:walletId", authorization, analyticsController.getCurrentWalletBalance.bind(analyticsController));
 
 server.use(router.routes());
 server.use(router.allowedMethods());
