@@ -49,3 +49,4 @@ export const TRANSACTION_SERVICE = "TransactionService";
 export const ACCOUNT_SERVICE = "AccountService";
 export const AVATAR_SERVICE = "AvatarService";
 export const ACHIEVEMENT_SERVICE = "AchievementService";
+export const ANALYTICS_SERVICE = "AnalyticsService";

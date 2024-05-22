@@ -141,7 +141,7 @@ export class ExpenseService {
 
             const finalResponse = {
                 eventResult: eventResult,
-                expense: expense
+                expense: foundExpense
             }
 
             const countByCategory = await this.expenseRepository.getCountByCategoryForUser(userId,expense.targetCategoryId);
@@ -330,10 +330,11 @@ export class ExpenseService {
         }
     }
 
+
     //TODO delete all in category
     //TODO delete all in wallet
 
-    async createdToday(userId: string, expenseDate: Date){
+    private async createdToday(userId: string, expenseDate: Date){
         const foundUser = await this.userRepository.findById(userId);
         if (foundUser != null) {
             const timezone = foundUser.timezone;
@@ -352,7 +353,7 @@ export class ExpenseService {
         }
     }
 
-    async createdThisWeek(userId: string, expenseDate: Date){
+    private async createdThisWeek(userId: string, expenseDate: Date){
         const foundUser = await this.userRepository.findById(userId);
         if ( foundUser != null){
             const timezone = foundUser.timezone;
@@ -368,7 +369,7 @@ export class ExpenseService {
         }
     }
 
-    async createdThisMonth(userId: string, expenseDate: Date){
+    private async createdThisMonth(userId: string, expenseDate: Date){
         const foundUser = await this.userRepository.findById(userId);
         if ( foundUser != null){
             const timezone = foundUser.timezone;

@@ -43,6 +43,11 @@ export class CategoryRepository implements BaseRepository<Category, number> {
         return !!result;
     }
 
+    async existsByName(name: string): Promise<boolean> {
+        const result = await Category.findOne({where: {name: name}});
+        return !!result;
+    }
+
 
     /**
      * Returns all categories for user with given id; that is all default categories and

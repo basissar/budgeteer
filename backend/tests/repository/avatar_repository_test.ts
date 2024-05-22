@@ -13,6 +13,8 @@ import { Budget } from "../../src/model/Budget.ts";
 import { Goal } from "../../src/model/Goal.ts";
 import { Category } from "../../src/model/Category.ts";
 import { ItemAvatar } from "../../src/model/ItemAvatar.ts";
+import { AccountAchievement } from "../../src/model/AccountAchievement.ts";
+import { Achievement } from "../../src/model/Achievement.ts";
 
 const sequelize = new Sequelize({
     database: 'postgres', 
@@ -22,7 +24,7 @@ const sequelize = new Sequelize({
     port: 5432,
     dialect: 'postgres',
     dialectModule: pg,
-    models: [Account, User, Wallet, Expense, Budget, Goal, Category, Avatar, Item, ItemOwned, ItemEquipped, ItemAvatar],
+    models: [Account, User, Wallet, Expense, Budget, Goal, Category, Avatar, Item, ItemOwned, ItemEquipped, ItemAvatar, Achievement, AccountAchievement],
   });
   
   async function findByUser(id: string): Promise<Account | null> {

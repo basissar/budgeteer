@@ -6,6 +6,7 @@ import ExpenseForm from './expenseForm.js';
 import deleteIcon from "../assets/delete.svg";
 import editIcon from "../assets/edit.svg";
 import CustomWalletSelect from './customWalletSelect.js';
+import { API_BASE_URL } from '../utils/macros.js';
 
 // Define the array of category icons
 const categoryIcons = [
@@ -44,7 +45,7 @@ export default function Expenses() {
 
                 setUserId(userResponse.data.user.id);
 
-                const walletResponse = await axios.get(`http://localhost:8000/budgeteer/${userResponse.data.user.id}/wallets`, {
+                const walletResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/wallets`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setWallets(walletResponse.data.wallets);
@@ -54,7 +55,7 @@ export default function Expenses() {
                     setCurrentWalletId(firstWalletId);
                     setCurrentWalletCurrency(walletResponse.data.wallets[0].currency);
 
-                    const expensesResponse = await axios.get(`http://localhost:8000/budgeteer/${userResponse.data.user.id}/wallets/${firstWalletId}/expenses`, {
+                    const expensesResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/wallets/${firstWalletId}/expenses`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setExpenses(expensesResponse.data.expenses);
@@ -77,7 +78,7 @@ export default function Expenses() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:8000/budgeteer/${userId}/wallets/${selectedOption}/expenses`, {
+            const response = await axios.get(`${API_BASE_URL}/${userId}/wallets/${selectedOption}/expenses`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setExpenses(response.data.expenses);
@@ -92,9 +93,11 @@ export default function Expenses() {
     const handleDeleteExpense = async (expenseId) => {
         try {
             const token = localStorage.getItem('token');
-            const reponse = await axios.delete(`http://localhost:8000/budgeteer/${userId}/expenses/${expenseId}`, {
+            const reponse = await axios.delete(`${API_BASE_URL}/${userId}/expenses/${expenseId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+
+            console.log(reponse);
 
             setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== expenseId));
         } catch (error) {

@@ -35,7 +35,7 @@ export default function Wallets() {
         };
 
         fetchData();
-    });
+    }, []);
 
     const handleCreateWallet = async (e) => {
         e.preventDefault();
