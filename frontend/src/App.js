@@ -11,6 +11,7 @@ import Budgets from './components/budgets.js';
 
 
 import Header from './components/header.js';
+import Analytics from './components/analytics.js';
 
 function App() {
 	return (
@@ -31,6 +32,8 @@ function App() {
 					<Route path="/expenses" element={<Expenses />}>
 					</Route>
 					<Route path="/budgets" element={<Budgets />}>
+					</Route>
+					<Route path='/analytics' element={<Analytics />}>
 					</Route>
 				</Routes>
 			</Router>
