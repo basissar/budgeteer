@@ -35,6 +35,8 @@ const itemData = [
 export async function insertData(){
     let catRep = container.resolve(CATEGORY_REPOSITORY);
 
+    // await Category.drop();
+
     if (catRep == null) {
         catRep = new CategoryRepository();
         container.register(CATEGORY_REPOSITORY, catRep);
@@ -45,7 +47,9 @@ export async function insertData(){
     for (const categoryData of categoriesData) {
         const category = new Category(categoryData);
 
-        // console.log(category);
+        const exists = await catRep.existsByName(category.name);
+        if (!exists){
+            // console.log(category);
 
         const savedCategory = await catRep.save(category);
 
@@ -53,6 +57,7 @@ export async function insertData(){
             console.log(`Category "${savedCategory.name}" saved successfully.`);
         } else {
             console.log(`Failed to save category "${category.name}".`);
+        }
         }
     }
 
