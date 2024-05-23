@@ -193,12 +193,7 @@ router.get("/budgeteer/avatars/:avatarId", authorization, accountController.getA
 router.get("/budgeteer/avatars", authorization, accountController.getAllAvatars.bind(accountController));
 
 //ANALYTICS
-
-router.post("/budgeteer/analytics/:userId/sumPositive", authorization, analyticsController.getSumPositiveForMonth.bind(analyticsController));
-
 router.post("/budgeteer/analytics/:userId/sumNegative", authorization, analyticsController.getSumNegativeForMonth.bind(analyticsController))
-
-router.post("/budgeteer/analytics/:userId/sumPositiveRange", authorization, analyticsController.getSumPositiveForRange.bind(analyticsController));
 
 router.post("/budgeteer/analytics/:userId/sumNegativeRange", authorization, analyticsController.getSumNegativeForRange.bind(analyticsController));
 

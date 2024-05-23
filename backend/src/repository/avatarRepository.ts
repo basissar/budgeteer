@@ -40,7 +40,13 @@ export class AvatarRepository implements BaseRepository<Avatar, number> {
     }
 
     async exists(id: number): Promise<boolean> {
-        throw new Error("Method not implemented.");
+        const result = await Avatar.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        return !!result;
     }
 
 }

@@ -1,9 +1,10 @@
-import { CATEGORY_REPOSITORY } from "../config/macros.ts";
+import { AVATAR_REPOSITORY, CATEGORY_REPOSITORY } from "../config/macros.ts";
 import { container } from "./container.ts";
 import { Category } from "../model/Category.ts";
 import { Avatar } from "../model/Avatar.ts";
 import { Item } from "../model/Item.ts";
 import { CategoryRepository } from "../repository/categoryRepository.ts";
+import { AvatarRepository } from "../repository/avatarRepository.ts";
 
 const categoriesData = [
     { name: "Unclassified", color: "#8A817C" },
@@ -20,8 +21,8 @@ const categoriesData = [
 ];
 
 const avatarData = [
-    { id: 1, name: "Dog", description: "This is Rex the doggo"},
-    { id: 2, name: "Cat", description: "This is Pumpkin the cat"}
+    { id: 1, name: "Mejvina", description: "Mejvina is a wild catto."},
+    { id: 2, name: "Pumpkin", description: "This is Pumpkin the cat."}
 ];
 
 const itemData = [
@@ -34,12 +35,18 @@ const itemData = [
 
 export async function insertData(){
     let catRep = container.resolve(CATEGORY_REPOSITORY);
+    let avRepo = container.resolve(AVATAR_REPOSITORY);
 
     // await Category.drop();
 
     if (catRep == null) {
         catRep = new CategoryRepository();
         container.register(CATEGORY_REPOSITORY, catRep);
+    }
+
+    if (avRepo == null) {
+        avRepo = new AvatarRepository;
+        container.register(AVATAR_REPOSITORY, avRepo);
     }
 
 
@@ -63,8 +70,13 @@ export async function insertData(){
 
     for (const avatar of avatarData){
         const toSave = new Avatar(avatar);
-        await toSave.save();
-        console.log(`Avatar ${avatar.name} with id ${avatar.id} saved successfully`);
+
+        const exists = await avRepo.exists(toSave.id);
+
+        if (!exists){
+            await toSave.save();
+            console.log(`Avatar ${avatar.name} with id ${avatar.id} saved successfully`);
+        }
     }
 
     for (const item of itemData){
