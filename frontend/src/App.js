@@ -12,6 +12,10 @@ import Budgets from './components/budgets.js';
 
 import Header from './components/header.js';
 import Analytics from './components/analytics.js';
+import Avatars from './components/avatars.js';
+import { Dashboard } from './components/dashboard.js';
+
+//TODO handle routes for dashboard better
 
 function App() {
 	return (
@@ -21,6 +25,8 @@ function App() {
 				<Header />
 
 				<Routes>
+					<Route path='/' element={<Dashboard />}>
+					</Route>
 					<Route path="/login" element={<Login />}>
 					</Route>
 					<Route path="/register" element={<Register />}>
@@ -34,6 +40,8 @@ function App() {
 					<Route path="/budgets" element={<Budgets />}>
 					</Route>
 					<Route path='/analytics' element={<Analytics />}>
+					</Route>
+					<Route path='/avatars' element={<Avatars />}>
 					</Route>
 				</Routes>
 			</Router>

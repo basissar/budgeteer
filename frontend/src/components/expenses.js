@@ -6,7 +6,7 @@ import ExpenseForm from './expenseForm.js';
 import deleteIcon from "../assets/delete.svg";
 import editIcon from "../assets/edit.svg";
 import CustomWalletSelect from './customWalletSelect.js';
-import { API_BASE_URL } from '../utils/macros.js';
+import { API_BASE_URL, INFO } from '../utils/macros.js';
 
 // Define the array of category icons
 const categoryIcons = [
@@ -31,13 +31,12 @@ export default function Expenses() {
     const [wallets, setWallets] = useState([]);
     const [userId, setUserId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const endpoint = 'http://localhost:8000/userinfo'
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const userResponse = await axios.get(endpoint, {
+                const userResponse = await axios.get(INFO, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     }

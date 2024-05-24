@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL, INFO } from '../utils/macros.js';
 
 const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
     const [newExpenseName, setNewExpenseName] = useState('');
@@ -9,13 +10,14 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
     const [newExpenseDate, setNewExpenseDate] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [categories, setCategories] = useState([]);
+    const [eventResult, setEventResult] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`http://localhost:8000/budgeteer/${userId}/categories/${currentWalletId}`, {
+                const response = await axios.get(`${API_BASE_URL}/${userId}/categories/${currentWalletId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -39,7 +41,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`http://localhost:8000/budgeteer/${userId}/wallets/${currentWalletId}/expenses`,
+            const response = await axios.post(`${API_BASE_URL}/${userId}/wallets/${currentWalletId}/expenses`,
                 {
                     name: newExpenseName,
                     amount: newExpenseAmount,
@@ -56,6 +58,11 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
 
             // Show the dialog
             setShowDialog(true);
+
+            console.log(response.data.eventResult);
+            setEventResult(response.data.eventResult);
+
+            // alert(response.data.eventResult);
 
             setExpenses([...expenses, response.data.expense]);
 
@@ -123,6 +130,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
                     <div className="dialog-content">
                         <span className="close" onClick={() => setShowDialog(false)}>&times;</span>
                         <p>Expense created successfully!</p>
+                        <div>{eventResult && eventResult.earnedCredits} {eventResult && eventResult.earnedXP}</div>
                     </div>
                 </div>
             )}

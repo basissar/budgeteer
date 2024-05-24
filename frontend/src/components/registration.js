@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './registration.module.css';
 import logo from '../assets/budget_logo.svg';
+import { API_BASE_URL } from '../utils/macros';
 
 export default function Register() {
 	const navigate = useNavigate();
@@ -20,10 +21,26 @@ export default function Register() {
 
 			if (response.status === 201) {
 				const { id, username, email } = response.data.user;
-				alert(`User ${username} registered!`);
+				// alert(`User ${username} registered!`);
+
+				try {
+					const response = await axios.post(`${API_BASE_URL}/user/login`,{
+						username, password
+					});
+
+					if (response.status === 200) {
+						localStorage.setItem('token', response.data.token);
+
+						//TODO navigate to avatar choice
+						// navigate(`profile/${username}`);
+						navigate('/avatars')
+					}
+				} catch (err) {
+					console.error(err.message);
+				}
 
 				//redirection to login page
-				navigate('/login');
+				// navigate('/login');
 			}
 		} catch (e) {
 			if (e.response.status === 400) {

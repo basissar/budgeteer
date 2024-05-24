@@ -19,7 +19,9 @@ export default function Login() {
                 localStorage.setItem('token', response.data.token);
 
                 // Redirect to the profile page with the username
-                navigate(`/profile/${username}`);
+                // navigate(`/profile/${username}`);
+
+                navigate('/');
             }
 
 

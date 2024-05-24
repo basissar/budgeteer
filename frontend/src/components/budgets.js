@@ -3,6 +3,7 @@ import axios from 'axios';
 import BudgetForm from './budgetForm.js'; // Create a BudgetForm component similar to ExpenseForm.js
 import './budgets.css'; // Import the CSS file
 import CustomWalletSelect from './customWalletSelect.js';
+import { API_BASE_URL, INFO } from '../utils/macros.js';
 
 const categoryIcons = [
     { name: 'Unclassified', icon: require("../assets/cat-1.svg").default },
@@ -30,7 +31,7 @@ export default function Budgets() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const userResponse = await axios.get('http://localhost:8000/userinfo', {
+                const userResponse = await axios.get(`${INFO}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     }
@@ -38,7 +39,7 @@ export default function Budgets() {
 
                 setUserId(userResponse.data.user.id);
 
-                const walletResponse = await axios.get(`http://localhost:8000/budgeteer/${userResponse.data.user.id}/wallets`, {
+                const walletResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/wallets`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setWallets(walletResponse.data.wallets);
@@ -48,7 +49,7 @@ export default function Budgets() {
                     setCurrentWalletId(firstWalletId);
                     setCurrentWalletCurrency(walletResponse.data.wallets[0].currency);
 
-                    const budgetsResponse = await axios.get(`http://localhost:8000/budgeteer/${userResponse.data.user.id}/budgets/${firstWalletId}`, {
+                    const budgetsResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/budgets/${firstWalletId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setBudgets(budgetsResponse.data.budgets);
@@ -62,16 +63,16 @@ export default function Budgets() {
         fetchData();
     }, []);
 
-    const handleWalletChange = async (selectedOption, e) => {
+    const handleWalletChange = async (event) => {
+        const selectedOption = event.target.value;
+        const selectedWalletCurrency = event.target.options[event.target.selectedIndex].getAttribute('data-currency');
+        
         setCurrentWalletId(selectedOption);
-
-        const selectedWalletCurr = e;
-
-        setCurrentWalletCurrency(selectedWalletCurr);
-
+        setCurrentWalletCurrency(selectedWalletCurrency);
+    
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:8000/budgeteer/${userId}/budgets/${selectedOption}`, {
+            const response = await axios.get(`${API_BASE_URL}/${userId}/budgets/${selectedOption}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBudgets(response.data.budgets);
@@ -93,7 +94,7 @@ export default function Budgets() {
         console.log("Calling budget delete on budget: ", budgetId);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.delete(`http://localhost:8000/budgeteer/${userId}/budgets/${budgetId}`, {
+            const response = await axios.delete(`${API_BASE_URL}/${userId}/budgets/${budgetId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
