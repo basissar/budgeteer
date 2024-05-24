@@ -1,4 +1,5 @@
 import { ACHIEVEMENT_REPOSITORY } from "../config/macros.ts";
+import { ServiceError } from "../errors/ServiceError.ts";
 import { UnknownTypeError } from "../errors/UnknownTypeError.ts";
 import { AccountAchievement } from "../model/AccountAchievement.ts";
 import { Achievement } from "../model/Achievement.ts";
@@ -31,6 +32,26 @@ export class AchievementService {
         }
     }
 
+    async getAllAchievements() {
+        try {
+            const result = await this.achievementRepository.findAll();
+
+            return result;
+        } catch (err) {
+            throw new ServiceError(`Achievement service error: ${err.message}`);
+        }
+    }
+
+    async getAllForAccount(accountId: string) {
+        try {
+            const result = await this.achievementRepository.findAllForAccount(accountId);
+
+            return result;
+        } catch (err) {
+            throw new ServiceError(`Achievement service error: ${err.message}`);
+        }
+    }
+
     /**
      * 
      * @param accountId id of user account
@@ -42,7 +63,7 @@ export class AchievementService {
     async evaluateAchievement(accountId: string, type: AchievementType, data: any[]){
         switch(type){
             case AchievementType.GOAL: {
-                this.achievementContext.setStrategy(new GoalCompletionStrategy(data[0], this));
+                this.achievementContext.setStrategy(new GoalCompletionStrategy(this));
                 await this.achievementContext.executeStrategy(accountId, type, data);
                 break;
             }
@@ -52,7 +73,7 @@ export class AchievementService {
                 break;
             }
             case AchievementType.BUDGET:{
-                this.achievementContext.setStrategy(new BudgetStrategy(data[0], this));
+                this.achievementContext.setStrategy(new BudgetStrategy(this));
                 await this.achievementContext.executeStrategy(accountId,type,data);
                 break;
             }

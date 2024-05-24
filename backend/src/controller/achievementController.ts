@@ -27,6 +27,30 @@ export class AchievementController {
         }
     }
 
+    async getAllAchievements(ctx: RouterContext<string>) {
+        const achievements = await this.achievementService.getAllAchievements();
+
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Achievements retrieved successfully",
+            achievements: achievements
+        }
+    }
+
+    async getAllAchievementsForUser(ctx: RouterContext<string>) {
+        const {userId} = ctx.params;
+
+        const account = await this.accountService.getIdForUser(userId);
+
+        const achievements = await this.achievementService.getAllForAccount(account!.id);
+
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Achievements retrieved successfully",
+            achievements: achievements
+        }
+    }
+
     async claimAchievement(ctx: RouterContext<string>){
         const {userId, achievemetId} = ctx.params;
 

@@ -33,6 +33,7 @@ import { GoalRepository } from "./src/repository/goalRepository.ts";
 import { AchievementRepositroy } from "./src/repository/achievementRepository.ts";
 import { AnalyticsController } from "./src/controller/analyticsController.ts";
 import { AccountRepository } from "./src/repository/accountRepository.ts";
+import { AchievementController } from "./src/controller/achievementController.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
@@ -67,6 +68,8 @@ const accountController = new AccountController();
 const savingsController = new GoalController();
 
 const analyticsController = new AnalyticsController();
+
+const achievementController = new AchievementController();
 
 const oauth2Client = new OAuth2Client({
   clientId: "464adeab29b6617d357a",
@@ -193,6 +196,13 @@ router.post("/budgeteer/:userId/unequip/:itemId", authorization, accountControll
 router.get("/budgeteer/avatars/:avatarId", authorization, accountController.getAvatarItems.bind(accountController));
 
 router.get("/budgeteer/avatars", authorization, accountController.getAllAvatars.bind(accountController));
+
+//ACHIEVEMENTS
+router.get("/budgeteer/achievements/:userId", authorization, achievementController.getAllAchievementsForUser.bind(achievementController));
+
+router.get("/budgeteer/achievements", authorization, achievementController.getAllAchievements.bind(achievementController));
+
+router.post("/budgeteer/achievements/:userId/:achievementId", authorization, achievementController.claimAchievement.bind(achievementController));
 
 //ANALYTICS
 router.post("/budgeteer/analytics/:userId/:walletId/sumNegative", authorization, analyticsController.getSumNegativeForMonth.bind(analyticsController))

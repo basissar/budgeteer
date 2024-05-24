@@ -41,6 +41,15 @@ export class AchievementRepositroy implements BaseRepository<Achievement, number
         });
     }
 
+    async findAllForAccount(accountId: string) {
+        return await AccountAchievement.findAll({
+            where:{
+                accountId: accountId
+            },
+            include: [Achievement]
+        })
+    }
+
     async accountAchievementExists(accountId: string, achievementId: number){
         const result = await AccountAchievement.findOne({
             where: {
