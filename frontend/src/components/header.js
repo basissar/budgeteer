@@ -30,7 +30,7 @@ const Header = () => {
                     <li><Link to="/analytics">Analytics</Link></li>
                     <li><Link to="/budgets_and_goals">Budgets & Savings</Link></li>
                     <li><Link to="/wallets">Wallets</Link></li>
-                    <li><Link to="/avatasr">Avatar</Link></li>
+                    <li><Link to="/avatarOverview">Avatar</Link></li>
                     <li><Link to="/account">Account</Link></li>
                 </ul>
             </nav>

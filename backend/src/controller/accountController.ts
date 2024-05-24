@@ -149,7 +149,7 @@ export class AccountController {
     }
 
     async getAvatarItems(ctx: RouterContext<string>) {
-        const avatarId = ctx.params;
+        const {avatarId} = ctx.params;
 
         const foundItems = await this.itemService.findByAvatar(Number(avatarId));
 

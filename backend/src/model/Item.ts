@@ -26,6 +26,9 @@ export class Item extends Model {
     @Column({allowNull: false})
     declare avatarId: number;
 
+    @Column({allowNull: false})
+    declare item_img: string;
+
     @BelongsToMany(() => Account, () => ItemOwned)
     declare accounts: Account[]
 

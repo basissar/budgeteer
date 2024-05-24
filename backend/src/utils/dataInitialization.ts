@@ -26,11 +26,17 @@ const avatarData = [
 ];
 
 const itemData = [
-    { name: "Brown hat", price: 100, rarity: 'common', avatarId: 1},
-    { name: "Special brown hat", price: 200, rarity: 'rare', avatarId: 1},   
-    { name: "Pants", price: 120, rarity: 'common', avatarId: 2},
-    { name: "Very special pants", price: 300, rarity: 'epic', avatarId: 2}, 
+    { name: "Blue fly", price: 50, rarity: 'common', avatarId: 1, item_img: 'blue_fly'},
+    { name: "Green hat", price: 20, rarity: 'common', avatarId: 1, item_img: 'green_hat'},
+    { name: "Golden hat", price: 100, rarity: 'rare', avatarId: 1, item_img: 'golden_hat'},
+    { name: "Green fly", price: 100, rarity: 'rare', avatarId: 2, item_img: 'green_fly'},
+    { name: "Blue hat", price: 15, rarity: 'common', avatarId: 2, item_img: 'blue_hat'},
+    { name: "Red hat", price: 15, rarity: 'common', avatarId: 2, item_img: 'red_hat'}
 ]
+
+// const achievementData = [
+//     { name: "5 Expenses added", description: "You have added 5 expenses!", gainedCredits: 10,}
+// ]
 
 
 export async function insertData(){

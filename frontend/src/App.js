@@ -15,6 +15,7 @@ import Header from './components/header.js';
 import Analytics from './components/analytics.js';
 import Avatars from './components/avatars.js';
 import { Dashboard } from './components/dashboard/dashboard.js';
+import { AvatarOverview } from './components/avatarOverview/avatarOverview.js';
 
 //TODO handle routes for dashboard better
 
@@ -43,6 +44,8 @@ function App() {
 					<Route path='/analytics' element={<Analytics />}>
 					</Route>
 					<Route path='/avatars' element={<Avatars />}>
+					</Route>
+					<Route path='/avatarOverview' element={<AvatarOverview />}>
 					</Route>
 				</Routes>
 			</Router>

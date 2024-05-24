@@ -34,6 +34,16 @@ export class ItemRepository implements BaseRepository<Item, number> {
         throw new Error("Method not implemented.");
     }
 
+    async existsByName(name: string) {
+        const result = await Item.findOne({
+            where: {
+                name: name
+            }
+        });
+
+        return !!result;
+    }
+
     async findByAvatar(avatarId: number) {
         return await Item.findAll({
             where: {

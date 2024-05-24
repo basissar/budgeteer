@@ -1,0 +1,108 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 20px;
+}
+
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.items-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+}
+
+.item-section {
+    width: 48%;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.item-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.item {
+    position: relative; /* Ensure the div can contain absolutely positioned elements */
+    flex: 1 1 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    text-align: center;
+    overflow: hidden; /* Hide the overflow if image goes out of div */
+    max-width: 180px;
+    min-width: 180px;
+}
+
+.item img {
+    position: absolute; /* Position the image absolutely within the div */
+    top: -50%; /* Adjust as needed */
+    left: 55%;
+    transform: translateX(-50%);
+    width: 200px; /* Increase the size of the image */
+    height: auto;
+    z-index: 1;
+}
+
+.item.hat img {
+    top: -20px; /* Adjust for hat items */
+    left: 58%;
+}
+
+.item.neck img {
+    left: 58%;
+}
+
+
+.item-details {
+    margin-top: 60px; /* Add margin to account for the image */
+    width: 100%;
+    text-align: center;
+    z-index: 2;
+    position: relative;
+}
+
+.item-details h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.item-details p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.item button {
+    padding: 5px 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.item button:hover {
+    background-color: #45a049;
+}
