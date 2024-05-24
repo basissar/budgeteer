@@ -16,7 +16,7 @@ import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/utils/container.ts";
 
 // import { config } from 'https://deno.land/x/dotenv/mod.ts';
-import { ACCOUNT_SERVICE, ACHIEVEMENT_REPOSITORY, ACHIEVEMENT_SERVICE, AVATAR_REPOSITORY, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, GREEN, ITEM_REPOSITORY, RESET_COLOR, SAVINGS_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
+import { ACCOUNT_REPOSITORY, ACCOUNT_SERVICE, ACHIEVEMENT_REPOSITORY, ACHIEVEMENT_SERVICE, AVATAR_REPOSITORY, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, GREEN, ITEM_REPOSITORY, RESET_COLOR, SAVINGS_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
 import { WALLET_REPOSITORY } from "./src/config/macros.ts";
 import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
 import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
@@ -32,13 +32,15 @@ import { AccountController } from "./src/controller/accountController.ts";
 import { GoalRepository } from "./src/repository/goalRepository.ts";
 import { AchievementRepositroy } from "./src/repository/achievementRepository.ts";
 import { AnalyticsController } from "./src/controller/analyticsController.ts";
+import { AccountRepository } from "./src/repository/accountRepository.ts";
 
 container.register(USER_REPOSITORY, new UserRepository());
 container.register(WALLET_REPOSITORY, new WalletRepository());
 container.register(EXPENSE_REPOSITORY, new ExpenseRepository());
 container.register(CATEGORY_REPOSITORY, new CategoryRepository());
 container.register(BUDGET_REPOSITORY, new BudgetRepository());
-container.register(ACCOUNT_SERVICE, new AccountService());
+container.register(ACCOUNT_REPOSITORY, new AccountRepository);
+// container.register(ACCOUNT_SERVICE, new AccountService());
 container.register(ITEM_REPOSITORY, new ItemRepository());
 container.register(AVATAR_REPOSITORY, new AvatarRepository());
 container.register(SAVINGS_REPOSITORY, new GoalRepository());

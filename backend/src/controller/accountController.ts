@@ -53,7 +53,7 @@ export class AccountController {
 
         const avatarId = requestBody.valueOf().avatarId;
 
-        const createdAccount = await this.accountService.createAccount(userId, avatarId);
+        const createdAccount = await this.accountService.createAccount(userId, Number(avatarId));
 
         ctx.response.status = CREATED;
         ctx.response.body = {
@@ -65,16 +65,21 @@ export class AccountController {
     async getAccount(ctx: RouterContext<string>) {
         const { userId } = ctx.params;
 
-        const foundAccount = await this.accountService.findByUser(userId);
+        const serviceResponse = await this.accountService.findByUser(userId);
 
-        if ( foundAccount == null) {
+        if ( serviceResponse == null) {
             ctx.response.status = NOT_FOUND;
             ctx.response.body = {
                 message: "Account for user has not been found"
             }
         }
 
-        return foundAccount;        
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Account retrieved successfully",
+            account: serviceResponse.account,
+            neededXP: serviceResponse.neededXP
+        }        
     }
 
     async buyItem(ctx: RouterContext<string>) {

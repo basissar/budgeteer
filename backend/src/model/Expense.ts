@@ -8,7 +8,7 @@ export class Expense extends Model{
     @Column({ allowNull: false })
     declare name: string;
 
-    @Column({ allowNull: false })
+    @Column({ allowNull: false , type: DataType.DOUBLE})
     declare amount: number;
 
     @Column({ allowNull: false })

@@ -10,7 +10,7 @@ export class Achievement extends Model{
     @Column({allowNull: false})
     declare description: string;
 
-    @Column({allowNull: false})
+    @Column({allowNull: true})
     declare quote: string;
 
     @Column({allowNull: false})

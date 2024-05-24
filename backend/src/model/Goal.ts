@@ -8,10 +8,10 @@ export class Goal extends Model{
     @Column({allowNull: false})
     declare name: string;
 
-    @Column({allowNull: false})
+    @Column({ allowNull: false , type: DataType.DOUBLE})
     declare targetAmount: number;
 
-    @Column({allowNull: false})
+    @Column({ allowNull: false , type: DataType.DOUBLE})
     declare currentAmount: number;
 
     @Column({allowNull: false, defaultValue: false})

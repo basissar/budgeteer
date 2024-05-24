@@ -87,7 +87,7 @@ export class ExpenseService {
 
         if (achievementSer == null){
             const newAchievementSer = new AchievementService();
-            container.register(ACCOUNT_SERVICE, newAchievementSer);
+            container.register(ACHIEVEMENT_SERVICE, newAchievementSer);
             this.achievementService = newAchievementSer;
         } else {
             this.achievementService = achievementSer;

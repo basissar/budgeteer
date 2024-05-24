@@ -6,7 +6,6 @@ import { EventResult } from "../model/EventResult.ts";
 import { EventType } from "../model/EventType.ts";
 import { AccountRepository } from "../repository/accountRepository.ts";
 import { container } from "../utils/container.ts";
-import { AchievementService } from "./achievementService.ts";
 
 
 export class AccountService {
@@ -137,7 +136,16 @@ export class AccountService {
 
     async findByUser(userId: string) {
         try {
-            return await this.accountRepository.findByUser(userId);
+            const account = await this.accountRepository.findByUser(userId);
+            const neededXP = this.totalXPForLevel(account!.level + 1);
+
+            const result = {
+                account: account,
+                neededXP: neededXP
+            }
+
+            // return await this.accountRepository.findByUser(userId);
+            return result;
         } catch (err){
             throw new ServiceError(`Account service error: ${err.message}`);
         }
@@ -169,6 +177,7 @@ export class AccountService {
      * @returns experience points needed
      */
     private calculateXPForLevel(level: number): number {
+        if (level === 1) return this.BASE_XP;
         return Math.floor(this.BASE_XP * Math.pow(1 + this.XP_INCREASE_PERCENTAGE, level - 1));
     }
 
@@ -179,10 +188,10 @@ export class AccountService {
      */    
     private calculateLevelForXP(xp: number): number {
         let level = 1;
-        let xpRequired = this.BASE_XP;
-        while (xp >= xpRequired) {
+        let cumulativeXP = this.BASE_XP;
+        while (xp >= cumulativeXP) {
             level++;
-            xpRequired = this.calculateXPForLevel(level);
+            cumulativeXP += this.calculateXPForLevel(level);
         }
         return level - 1; // return previous level
     }

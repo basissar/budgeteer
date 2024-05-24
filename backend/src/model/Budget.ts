@@ -7,10 +7,10 @@ import { Wallet } from "./Wallet.ts";
 @Table({tableName: "budgets", createdAt: false, updatedAt: false})
 export class Budget extends Model {
     
-    @Column({allowNull: false})
+    @Column({ allowNull: false , type: DataType.DOUBLE})
     declare limit: number;
 
-    @Column({allowNull: false})
+    @Column({ allowNull: false , type: DataType.DOUBLE})
     declare currentAmount: number;
 
     @Column({ allowNull: false })
