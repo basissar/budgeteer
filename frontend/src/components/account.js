@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { API_BASE_URL, INFO } from "../utils/macros";
-import  './dashboard.css';
+import { API_BASE_URL, INFO } from "../utils/macros.js";
+import  './avatar.css';
 import {ProgressBar} from './progressBar.js';
+import credit from '../assets/credit.svg';
 
 import av1 from '../assets/avatars/1.png';
 import av2 from '../assets/avatars/2.png';
@@ -12,8 +13,7 @@ const avatarImages = [
     av1, av2
 ]
 
-
-export function Avatar(){
+export function Account(){
     const [account, setAccount] = useState(null);
     const [nextLevelXP, setXP] = useState(0);
     const [userId, setUserId] = useState('');
@@ -61,13 +61,13 @@ export function Avatar(){
     return (
         <div className="account_container">
             <div className="accountInfo">
-            <div>
+            <div className="image_container">
                 <img src={account && avatarImages[account.avatar.id - 1]} alt={account && account.avatar.name} />
             </div>
             {account ? (
                 <>
-                    <div>{username}</div>
-                    <div>Credits: {account.credits}</div>
+                    <div id="username">{username}</div>
+                    <div className="creds"><p>{account.credits}</p> <img src={credit} alt="credit_icon"/></div>
                 </>
             ) : (
                 <div>Loading...</div>

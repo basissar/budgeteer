@@ -55,4 +55,11 @@ export class WalletRepository implements BaseRepository<Wallet, string> {
             return null;
         }
     }
+
+    public async getAfterCreate(id: string) {
+        return await Wallet.findOne({
+            where: { id: id},
+            include: Expense
+        });
+    }
 }

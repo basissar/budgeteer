@@ -70,7 +70,9 @@ export class WalletService {
                 throw new Error("Failed to create initial expense");
             }
 
-            return createdWallet;
+            const toReturn = await this.walletRepository.getAfterCreate(wallet.id);
+
+            return toReturn;
         } catch (error) {
             throw new ServiceError(`Wallet service error: error creating wallet: ${error.message}`);
         }

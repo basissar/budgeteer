@@ -6,17 +6,17 @@ import CustomWalletSelect from './customWalletSelect.js';
 import { API_BASE_URL, INFO } from '../utils/macros.js';
 
 const categoryIcons = [
-    { name: 'Unclassified', icon: require("../assets/cat-1.svg").default },
-    { name: 'Entertainment', icon: require("../assets/cat-2.svg").default },
-    { name: 'Food', icon: require("../assets/cat-3.svg").default },
-    { name: 'School', icon: require("../assets/cat-4.svg").default },
-    { name: 'Transport', icon: require("../assets/cat-5.svg").default },
-    { name: 'Shopping', icon: require("../assets/cat-6.svg").default },
-    { name: 'Healthcare', icon: require("../assets/cat-7.svg").default },
-    { name: 'Housing', icon: require("../assets/cat-8.svg").default },
-    { name: 'Pets', icon: require("../assets/cat-9.svg").default },
-    { name: 'Travel', icon: require("../assets/cat-10.svg").default },
-    { name: 'Subscriptions', icon: require("../assets/cat-11.svg").default }
+    { name: 'Unclassified', icon: require("../assets/categories/cat-1.svg").default },
+    { name: 'Entertainment', icon: require("../assets/categories/cat-2.svg").default },
+    { name: 'Food', icon: require("../assets/categories/cat-3.svg").default },
+    { name: 'School', icon: require("../assets/categories/cat-4.svg").default },
+    { name: 'Transport', icon: require("../assets/categories/cat-5.svg").default },
+    { name: 'Shopping', icon: require("../assets/categories/cat-6.svg").default },
+    { name: 'Healthcare', icon: require("../assets/categories/cat-7.svg").default },
+    { name: 'Housing', icon: require("../assets/categories/cat-8.svg").default },
+    { name: 'Pets', icon: require("../assets/categories/cat-9.svg").default },
+    { name: 'Travel', icon: require("../assets/categories/cat-10.svg").default },
+    { name: 'Subscriptions', icon: require("../assets/categories/cat-11.svg").default }
 ];
 
 export default function Budgets() {

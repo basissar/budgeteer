@@ -54,6 +54,7 @@ export default function Wallets() {
             const createdWallet = response.data.wallet;
 
             setNewWalletName('');
+            setInitialAmount('');
             setWallets([...wallets, createdWallet]); 
         } catch (err) {
             alert(err.message);
