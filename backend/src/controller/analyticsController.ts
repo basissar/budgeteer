@@ -17,7 +17,7 @@ export class AnalyticsController {
     }
 
     async getSumNegativeForMonth(ctx: RouterContext<string>){
-        const { userId } = ctx.params;
+        const { userId , walletId } = ctx.params;
 
         const requestBody = await ctx.request.body().value;
 
@@ -25,7 +25,7 @@ export class AnalyticsController {
 
         const passedDate = new Date(date);
 
-        const sumNegative = await this.analyticsService.getSumNegativeForMonth(userId, passedDate);
+        const sumNegative = await this.analyticsService.getSumNegativeForMonth(userId, passedDate,walletId);
 
         ctx.response.status = OK;
         ctx.response.body = {
@@ -33,6 +33,25 @@ export class AnalyticsController {
             date: date,
             sum: sumNegative
         }        
+    }
+
+    async getSumPositiveForMonth(ctx: RouterContext<string>){
+        const { userId , walletId} = ctx.params;
+
+        const requestBody = await ctx.request.body().value;
+
+        const date = requestBody.valueOf().date;
+
+        const passedDate = new Date(date);
+
+        const sumPositive = await this.analyticsService.getSumPositiveForMonth(userId, passedDate,walletId);
+
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Sum for expenses retrived successfully",
+            date: date,
+            sum: sumPositive
+        }  
     }
 
     async getSumNegativeForRange(ctx: RouterContext<string>){

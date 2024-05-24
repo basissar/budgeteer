@@ -28,12 +28,25 @@ export class AnalyticsService {
         }
     }
 
-    async getSumNegativeForMonth(userId: string, date: Date) {
+    async getSumNegativeForMonth(userId: string, date: Date, walletId: string) {
         try {
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
 
-            const resultSum = await this.expenseRepository.sumNegativeExpensesForMonth(userId, year, month);
+            const resultSum = await this.expenseRepository.sumNegativeExpensesForMonth(userId, year, month, walletId);
+
+            return resultSum;
+        } catch (err) {
+            throw new ServiceError(`Analytics service error: ${err.message}`);
+        }
+    }
+
+    async getSumPositiveForMonth(userId: string, date: Date, walletId: string) {
+        try {
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            const resultSum = await this.expenseRepository.sumPositiveExpensesForMonth(userId, year, month, walletId);
 
             return resultSum;
         } catch (err) {

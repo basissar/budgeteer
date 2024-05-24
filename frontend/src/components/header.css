@@ -21,6 +21,7 @@ nav ul li {
     padding: 10px;
     transition: border-bottom-color 0.3s; /* Smooth transition for bottom border color */
     border-bottom: 2px solid transparent; /* Initial border color */
+    font-weight: 550;
 }
 
 nav ul li:last-child {

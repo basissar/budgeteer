@@ -6,14 +6,15 @@ import './App.css';
 import Register from './components/registration.js';
 import UserProfile from './UserProfile.js';
 import Wallets from './components/wallets.js';
-import Expenses from './components/expenses.js';
+import Expenses from './components/expenses/expenses.js';
 import Budgets from './components/budgets.js';
+import BudgetGoalOverview from './components/budgetGoal.js';
 
 
 import Header from './components/header.js';
 import Analytics from './components/analytics.js';
 import Avatars from './components/avatars.js';
-import { Dashboard } from './components/dashboard.js';
+import { Dashboard } from './components/dashboard/dashboard.js';
 
 //TODO handle routes for dashboard better
 
@@ -37,7 +38,7 @@ function App() {
 					</Route>
 					<Route path="/expenses" element={<Expenses />}>
 					</Route>
-					<Route path="/budgets" element={<Budgets />}>
+					<Route path="/budgets_and_goals" element={<BudgetGoalOverview />}>
 					</Route>
 					<Route path='/analytics' element={<Analytics />}>
 					</Route>

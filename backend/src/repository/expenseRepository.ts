@@ -209,26 +209,53 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         }
     }
 
-    async sumNegativeExpensesForMonth(userId: string, year: number, month: number) {
+    async sumNegativeExpensesForMonth(userId: string, year: number, month: number, walletId: string) {
         try {
-            const userWallets = await Wallet.findAll({
-                where: { userId: userId },
-                attributes: ['id']
-            });
+            // const userWallets = await Wallet.findAll({
+            //     where: { userId: userId },
+            //     attributes: ['id']
+            // });
 
-            const walletIds = userWallets.map(wallet => wallet.id);
+            // const walletIds = userWallets.map(wallet => wallet.id);
 
             const result = await Expense.sum('amount', {
                 where: {
-                    walletId: {
-                        [Op.in]: walletIds
-                    },
+                    walletId: walletId,
                     amount: {
-                        [Op.lt]: 0 // negative amounts
+                        [Op.lt]: 0 // positive amounts
                     },
                     date: {
                         [Op.between]: [new Date(year, month - 1, 1), new Date(year, month, 0)] // date range for the month
-                    }
+                    },
+                    sourceCategoryId: null,
+                }
+            });
+
+            return result || 0;
+        } catch (error) {
+            throw new RepositoryError(`Expense repository error: ${error.message}`);
+        }
+    }
+
+    async sumPositiveExpensesForMonth(userId: string, year: number, month: number, walletId: string) {
+        try {
+            // const userWallets = await Wallet.findAll({
+            //     where: { userId: userId },
+            //     attributes: ['id']
+            // });
+
+            // const walletIds = userWallets.map(wallet => wallet.id);
+
+            const result = await Expense.sum('amount', {
+                where: {
+                    walletId: walletId,
+                    amount: {
+                        [Op.gt]: 0 // positive amounts
+                    },
+                    date: {
+                        [Op.between]: [new Date(year, month - 1, 1), new Date(year, month, 0)] // date range for the month
+                    },
+                    sourceCategoryId: null,
                 }
             });
 
@@ -275,15 +302,17 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 targetCategoryId: targetCategoryId
             }
         });
-
+    
+        const positiveTargetCategorySum = targetCategorySum > 0 ? targetCategorySum : 0;
+    
         const sourceCategorySum = await Expense.sum('amount', {
             where: {
                 walletId: walletId,
                 sourceCategoryId: targetCategoryId
             }
         });
-
-        const currentBalanec = (targetCategorySum || 0) - (sourceCategorySum || 0);
-        return currentBalanec || 0;
+    
+        const currentBalance = positiveTargetCategorySum - (sourceCategorySum || 0);
+        return currentBalance || 0;
     }
 }

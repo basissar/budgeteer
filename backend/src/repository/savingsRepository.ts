@@ -1,3 +1,4 @@
+import { Category } from "../model/Category.ts";
 import { Goal } from "../model/Goal.ts";
 import { BaseRepository } from "./baseRepository.ts";
 
@@ -21,7 +22,14 @@ export class SavingsRepository implements BaseRepository<Goal, number> {
     }
 
     async findById(id: number): Promise<Goal | null> {
-        return await Goal.findByPk(id);
+        return await Goal.findOne({
+            where:{
+                id: id
+            },
+            include: [
+                {model: Category, as: 'category', attributes: ['name','category']};
+            ]
+        });
     }
 
     async deleteById(id: number): Promise<number> {

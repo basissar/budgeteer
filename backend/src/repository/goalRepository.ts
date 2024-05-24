@@ -22,7 +22,14 @@ export class GoalRepository implements BaseRepository<Goal, number> {
     }
 
     async findById(id: number): Promise<Goal | null> {
-        return await Goal.findByPk(id);
+        return await Goal.findOne({
+            where:{
+                id: id
+            },
+            include: [
+                {model: Category, as: 'category', attributes: ['name','color']}
+            ]
+        });
     }
 
     async deleteById(id: number): Promise<number> {

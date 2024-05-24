@@ -72,9 +72,11 @@ export class GoalService {
 
             const eventResult = await this.accountService.handleEvent(EventType.CREATE_GOAL, userId);
 
+            const toReturn = await this.goalRepository.findById(createdGoal!.id);
+
             const finalResponse = {
                 eventResult: eventResult,
-                goal: createdGoal
+                goal: toReturn
             }
 
             return finalResponse;

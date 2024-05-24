@@ -119,9 +119,11 @@ export class BudgetService {
 
                 const createdBudget = await this.budgetRepository.save(budget);
 
+                const toReturn = await this.budgetRepository.findById(createdBudget!.id);
+
                 const finalResponse = {
                     eventResult: eventResult,
-                    budget: createdBudget
+                    budget: toReturn
                 }
 
                 return finalResponse;

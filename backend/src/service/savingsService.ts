@@ -7,6 +7,7 @@ import { DuplicateError } from "../errors/DuplicateError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 
+//TODO remove all of this
 export class SavingsService {
     public savingsRepository: SavingsRepository;
 

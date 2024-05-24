@@ -2,25 +2,26 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import './expenses.css'; // Import the CSS file
 import ExpenseForm from './expenseForm.js';
+import { CustomSelect } from '../custom/customSelect.js';
 
-import deleteIcon from "../assets/delete.svg";
-import editIcon from "../assets/edit.svg";
-import CustomWalletSelect from './customWalletSelect.js';
-import { API_BASE_URL, INFO } from '../utils/macros.js';
+import deleteIcon from "../../assets/delete.svg";
+import editIcon from "../../assets/edit.svg";
+import CustomWalletSelect from '../customWalletSelect.js';
+import { API_BASE_URL, INFO } from '../../utils/macros.js';
 
 // Define the array of category icons
 const categoryIcons = [
-    { name: 'Unclassified', icon: require("../assets/categories/cat-1.svg").default },
-    { name: 'Entertainment', icon: require("../assets/categories/cat-2.svg").default },
-    { name: 'Food', icon: require("../assets/categories/cat-3.svg").default },
-    { name: 'School', icon: require("../assets/categories/cat-4.svg").default },
-    { name: 'Transport', icon: require("../assets/categories/cat-5.svg").default },
-    { name: 'Shopping', icon: require("../assets/categories/cat-6.svg").default },
-    { name: 'Healthcare', icon: require("../assets/categories/cat-7.svg").default },
-    { name: 'Housing', icon: require("../assets/categories/cat-8.svg").default },
-    { name: 'Pets', icon: require("../assets/categories/cat-9.svg").default },
-    { name: 'Travel', icon: require("../assets/categories/cat-10.svg").default },
-    { name: 'Subscriptions', icon: require("../assets/categories/cat-11.svg").default }
+    { name: 'Unclassified', icon: require("../../assets/categories/cat-1.svg").default },
+    { name: 'Entertainment', icon: require("../../assets/categories/cat-2.svg").default },
+    { name: 'Food', icon: require("../../assets/categories/cat-3.svg").default },
+    { name: 'School', icon: require("../../assets/categories/cat-4.svg").default },
+    { name: 'Transport', icon: require("../../assets/categories/cat-5.svg").default },
+    { name: 'Shopping', icon: require("../../assets/categories/cat-6.svg").default },
+    { name: 'Healthcare', icon: require("../../assets/categories/cat-7.svg").default },
+    { name: 'Housing', icon: require("../../assets/categories/cat-8.svg").default },
+    { name: 'Pets', icon: require("../../assets/categories/cat-9.svg").default },
+    { name: 'Travel', icon: require("../../assets/categories/cat-10.svg").default },
+    { name: 'Subscriptions', icon: require("../../assets/categories/cat-11.svg").default }
 ];
 
 
@@ -68,16 +69,14 @@ export default function Expenses() {
         fetchData();
     }, []);
 
-    const handleWalletChange = async (selectedOption, e) => {
-        setCurrentWalletId(selectedOption);
-
-        const selectedWalletCurr = e;
-
-        setCurrentWalletCurrency(selectedWalletCurr);
+    const handleWalletChange = async (selectedOption) => {
+        setCurrentWalletId(selectedOption.value);
+        const selectedWallet = wallets.find(wallet => wallet.id === selectedOption.value);
+        setCurrentWalletCurrency(selectedWallet.currency)
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_BASE_URL}/${userId}/wallets/${selectedOption}/expenses`, {
+            const response = await axios.get(`${API_BASE_URL}/${userId}/wallets/${selectedOption.value}/expenses`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setExpenses(response.data.expenses);
@@ -112,14 +111,22 @@ export default function Expenses() {
 
             {errorMessage && <p>${errorMessage}</p>}
 
-            <CustomWalletSelect
+            {/* <CustomWalletSelect
                 label="Select wallet"
                 options={wallets.map(wallet => wallet.name)}
                 onChange={(option) => {
                     const selectedWallet = wallets.find(wallet => wallet.name === option);
                     handleWalletChange(selectedWallet.id, selectedWallet.currency);
                 }}
-            />
+            /> */}
+
+            <div className="select-container">
+                <CustomSelect
+                    options={wallets}
+                    value={currentWalletId}
+                    onChange={handleWalletChange}
+                />
+            </div>
 
             <div className="expenses-container">
                 <div className="expense-table">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_BASE_URL, INFO } from '../utils/macros.js';
+import { API_BASE_URL, INFO } from '../../utils/macros.js';
+import CustomDialog from '../custom/customDialog.js'
 
 const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
     const [newExpenseName, setNewExpenseName] = useState('');
@@ -125,7 +126,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
             </form>
 
             {/* Custom dialog window */}
-            {showDialog && (
+            {/* {showDialog && (
                 <div className="dialog-overlay">
                     <div className="dialog-content">
                         <span className="close" onClick={() => setShowDialog(false)}>&times;</span>
@@ -133,7 +134,14 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
                         <div>{eventResult && eventResult.earnedCredits} {eventResult && eventResult.earnedXP}</div>
                     </div>
                 </div>
-            )}
+            )} */}
+            <CustomDialog 
+                show={showDialog} 
+                onClose={() => setShowDialog(false)} 
+                message="Yay! You added an expense! Good job for tracking your finance!"
+                earnedCredits={eventResult ? eventResult.earnedCredits : 0} 
+                earnedXP={eventResult ? eventResult.earnedXP : 0}
+            />
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import { BaseRepository } from "./baseRepository.ts";
 import { Budget } from "../model/Budget.ts";
 import { Category } from "../model/Category.ts";
+import { RepositoryError } from "../errors/RepositoryError.ts";
 
 
 export class BudgetRepository implements BaseRepository<Budget, number> {
@@ -20,7 +21,14 @@ export class BudgetRepository implements BaseRepository<Budget, number> {
     }
 
     async findById(id: number): Promise<Budget | null> {
-        return await Budget.findByPk(id);
+        return await Budget.findOne({
+            where: {
+                id: id
+            },
+            include: [
+                {model: Category, as: 'category', attributes: ['name','color']}
+            ]
+        });
     }
 
     async deleteById(id: number): Promise<number> {

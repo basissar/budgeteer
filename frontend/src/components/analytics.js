@@ -123,6 +123,9 @@ export default function Analytics() {
             });
 
             const balanceMap = new Map(Object.entries(balanceResponse.data.sumMap));
+
+            console.log(balanceMap);
+
             setBalances(balanceMap);
         } catch (err) {
             setErrorMessage(`An error occurred while fetching sums: ${err.message}`);
@@ -166,6 +169,19 @@ export default function Analytics() {
                 return category ? category.color : '#000000';
             })
         }]
+    };
+
+    const chartOptions = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const value = tooltipItem.raw || 0;
+                        return `${value} ${currentWalletCurrency}`;
+                    }
+                }
+            }
+        }
     };
 
     return (
@@ -220,7 +236,7 @@ export default function Analytics() {
 
             <h2>Wallet Balances Pie Chart</h2>
             <div style={{ width: '40%', margin: 'auto' }}>
-                <Pie data={chartData} />
+                <Pie data={chartData} options={chartOptions} />
             </div>
         </div>
     );
