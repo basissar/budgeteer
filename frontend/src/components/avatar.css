@@ -53,3 +53,28 @@
     font-weight: 600;
     font-size: 1.5em;
 }
+
+.avatar-container {
+    position: relative;
+}
+
+.avatar {
+    position: relative;
+}
+
+.equipped-item {
+    position: absolute;
+    height: auto;
+}
+
+.equipped-item.hat {
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.equipped-item.neck {
+    top: 5px; 
+    left: 50%;
+    transform: translateX(-50%);
+}

@@ -105,7 +105,7 @@ export class AchievementService {
             const newAchievement = new AccountAchievement({
                 accountId,
                 achievementId,
-                achievedAt: new Date()
+                dateAchieved: new Date()
             });
             await newAchievement.save();
 

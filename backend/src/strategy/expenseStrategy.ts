@@ -13,7 +13,7 @@ export class ExpenseStrategy implements AchievementStrategy {
     async checkAndReward(accountId: string, type: AchievementType, data: any[]): Promise<void> {
         const achievements = await this.achievementService.findByType(type);
 
-        const addedExpenses = data[0];
+        const addedExpenses = data[1];
 
         for(const achievement of achievements){
             if (achievement.targetCount == addedExpenses){

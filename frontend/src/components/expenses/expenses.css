@@ -76,22 +76,6 @@ table th:first-child{
     align-items: center; 
 }
 
-/* .custom-select-container {
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center; 
-}
-
-.custom-select-container label {
-    margin-right: 10px; 
-    color: #26692A;
-    font-weight: bold;    
-}
-
-.custom-select {
-    border: 1px solid black;
-} */
-
 /* Custom select container */
 .custom-select-container {
     position: relative;

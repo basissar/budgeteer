@@ -52,11 +52,11 @@ export class AchievementController {
     }
 
     async claimAchievement(ctx: RouterContext<string>){
-        const {userId, achievemetId} = ctx.params;
+        const {userId, achievementId} = ctx.params;
 
         const account = await this.accountService.getIdForUser(userId);
 
-        const achievement = await this.achievementService.claimAchievement(account!.id, Number(achievemetId));
+        const achievement = await this.achievementService.claimAchievement(account!.id, Number(achievementId));
 
         if (!achievement) {
             ctx.response.status = NOT_FOUND;

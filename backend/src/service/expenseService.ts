@@ -148,7 +148,7 @@ export class ExpenseService {
 
             const account = await this.accountService.getIdForUser(userId);
 
-            await this.achievementService.evaluateAchievement(account?.id, AchievementType.EXPENSE, [this.expenseRepository, countByCategory])
+            await this.achievementService.evaluateAchievement(account!.id, AchievementType.EXPENSE, [this.expenseRepository, countByCategory])
             return finalResponse;
         } catch (error) {
             throw new ServiceError("Expense service error: " + error.stack);
