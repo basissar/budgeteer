@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { API_BASE_URL } from '../utils/macros';
+import { API_BASE_URL } from '../../utils/macros';
 import './achievements.css';
 
-import star from '../assets/star_icon.svg';
-import credit from "../assets/credit.svg";
-import XP from "../assets/XP.svg";
+import star from '../../assets/star_icon.svg';
+import credit from "../../assets/credit.svg";
+import XP from "../../assets/XP.svg";
 
 const Achievements = ({ userId }) => {
   const [userAchievements, setUserAchievements] = useState([]);
@@ -20,8 +20,8 @@ const Achievements = ({ userId }) => {
           },
         });
 
+
         setUserAchievements(userAchievementsResponse.data.achievements);
-        console.log(userAchievementsResponse.data.achievements);
       } catch (err) {
         console.error(err);
       }

@@ -2,25 +2,24 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import BudgetForm from './budgetForm.js'; // Create a BudgetForm component similar to ExpenseForm.js
 import './budgets.css'; // Import the CSS file
-import CustomWalletSelect from './customWalletSelect.js';
-import { API_BASE_URL, INFO } from '../utils/macros.js';
-import { CustomSelect } from './custom/customSelect.js';
-import deleteIcon from "../assets/delete.svg";
-import editIcon from "../assets/edit.svg";
-import { ProgressBar } from './custom/progressBar.js';
+import { API_BASE_URL, INFO } from '../../utils/macros.js';
+import { CustomCardSelect } from '../custom/customCardSelect.js';
+import deleteIcon from "../../assets/delete.svg";
+import editIcon from "../../assets/edit.svg";
+import { ProgressBar } from '../custom/progressBar.js';
 
 const categoryIcons = [
-    { name: 'Unclassified', icon: require("../assets/categories/cat-1.svg").default },
-    { name: 'Entertainment', icon: require("../assets/categories/cat-2.svg").default },
-    { name: 'Food', icon: require("../assets/categories/cat-3.svg").default },
-    { name: 'School', icon: require("../assets/categories/cat-4.svg").default },
-    { name: 'Transport', icon: require("../assets/categories/cat-5.svg").default },
-    { name: 'Shopping', icon: require("../assets/categories/cat-6.svg").default },
-    { name: 'Healthcare', icon: require("../assets/categories/cat-7.svg").default },
-    { name: 'Housing', icon: require("../assets/categories/cat-8.svg").default },
-    { name: 'Pets', icon: require("../assets/categories/cat-9.svg").default },
-    { name: 'Travel', icon: require("../assets/categories/cat-10.svg").default },
-    { name: 'Subscriptions', icon: require("../assets/categories/cat-11.svg").default }
+    { name: 'Unclassified', icon: require("../../assets/categories/cat-1.svg").default },
+    { name: 'Entertainment', icon: require("../../assets/categories/cat-2.svg").default },
+    { name: 'Food', icon: require("../../assets/categories/cat-3.svg").default },
+    { name: 'School', icon: require("../../assets/categories/cat-4.svg").default },
+    { name: 'Transport', icon: require("../../assets/categories/cat-5.svg").default },
+    { name: 'Shopping', icon: require("../../assets/categories/cat-6.svg").default },
+    { name: 'Healthcare', icon: require("../../assets/categories/cat-7.svg").default },
+    { name: 'Housing', icon: require("../../assets/categories/cat-8.svg").default },
+    { name: 'Pets', icon: require("../../assets/categories/cat-9.svg").default },
+    { name: 'Travel', icon: require("../../assets/categories/cat-10.svg").default },
+    { name: 'Subscriptions', icon: require("../../assets/categories/cat-11.svg").default }
 ];
 
 export default function Budgets({ currentWalletId, currentWalletCurrency, userId })  {

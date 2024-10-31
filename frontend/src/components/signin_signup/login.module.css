@@ -16,12 +16,12 @@ body {
 .log_container form {
     display: grid;
     grid-template-columns: 1fr; /* Single column layout */
-    gap: 10px; /* Adjust the gap between elements as needed */
+    gap: 10px;
     place-items: center;
 }
 
 .log_container form button {
-    width: 50%; /* Adjust the width as needed */
+    width: 50%;
 }
 
 .log_container h2 {

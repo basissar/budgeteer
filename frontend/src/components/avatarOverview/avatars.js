@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios'; // Import axios for making HTTP requests
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL, INFO } from '../utils/macros';
+import { API_BASE_URL, INFO } from '../../utils/macros';
 
-import av1 from '../assets/avatars/1.png';
-import av2 from '../assets/avatars/2.png';
+import av1 from '../../assets/avatars/1.png';
+import av2 from '../../assets/avatars/2.png';
 
 
 const avatarImages = [

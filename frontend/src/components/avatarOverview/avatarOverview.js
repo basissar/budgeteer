@@ -12,7 +12,7 @@ import greenFly from '../../assets/items/green_fly.png';
 import greenHat from '../../assets/items/green_hat.png';
 import purpleFly from '../../assets/items/purple_fly.png';
 import redHat from '../../assets/items/red_hat.png';
-import Achievements from "../achievements";
+import Achievements from "./achievements";
 
 const itemImages = {
     'blue_fly': blueFly,

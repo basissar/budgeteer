@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { API_BASE_URL, INFO } from "../utils/macros.js";
-import  './avatar.css';
+import  './avatarOverview/avatar.css';
 import {ProgressBar} from './custom/progressBar.js';
 import credit from '../assets/credit.svg';
 

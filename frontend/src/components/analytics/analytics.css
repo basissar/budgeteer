@@ -1,0 +1,8 @@
+.dateRangeAnalytics {
+    background-color: lightgray;
+}
+
+.dateRangeAnalytics input, select {
+    width: auto;
+}
+

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './registration.module.css';
-import logo from '../assets/budget_logo.svg';
-import { API_BASE_URL } from '../utils/macros';
+import logo from '../../assets/budget_logo.svg';
+import { API_BASE_URL } from '../../utils/macros';
 
 export default function Register() {
 	const navigate = useNavigate();
@@ -12,12 +12,11 @@ export default function Register() {
 	const [password, setPassword] = useState('');
 	const [email, setEmail] = useState('');
 	const [errorMessage, setErrorMessage] = useState('');
-	const regURL = 'http://localhost:8000/budgeteer/user/register';
 
 	const handleRegister = async () => {
 		try {
 			const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-			const response = await axios.post(regURL, { username, password, email, timezone });
+			const response = await axios.post(`${API_BASE_URL}/user/register`, { username, password, email, timezone });
 
 			if (response.status === 201) {
 				const { id, username, email } = response.data.user;

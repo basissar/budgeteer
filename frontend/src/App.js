@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './components/login.js';
+import Login from './components/signin_signup/login.js';
 
 import './App.css';
-import Register from './components/registration.js';
+import Register from './components/signin_signup/registration.js';
 import UserProfile from './UserProfile.js';
 import Wallets from './components/wallets.js';
 import Expenses from './components/expenses/expenses.js';
-import Budgets from './components/budgets.js';
-import BudgetGoalOverview from './components/budgetGoal.js';
+import Budgets from './components/goals_budgets/budgets.js';
+import BudgetGoalOverview from './components/goals_budgets/budgetGoal.js';
 
 
 import Header from './components/header.js';
-import Analytics from './components/analytics.js';
-import Avatars from './components/avatars.js';
+import Analytics from './components/analytics/analytics.js';
+import Avatars from './components/avatarOverview/avatars.js';
 import { Dashboard } from './components/dashboard/dashboard.js';
 import { AvatarOverview } from './components/avatarOverview/avatarOverview.js';
 

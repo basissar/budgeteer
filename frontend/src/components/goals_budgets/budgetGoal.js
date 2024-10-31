@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Budgets from './budgets';
-import Goals from './goals/goals';
-import { API_BASE_URL, INFO } from '../utils/macros';
-import { CustomSelect } from './custom/customSelect';
+import Goals from './goals';
+import { API_BASE_URL, INFO } from '../../utils/macros';
+import { CustomCardSelect } from '../custom/customCardSelect';
 import './budgets.css';
 
 export default function BudgetGoalOverview() {
@@ -55,7 +55,7 @@ export default function BudgetGoalOverview() {
             {errorMessage && <p>{errorMessage}</p>}
 
             <div className="select-container">
-                <CustomSelect
+                <CustomCardSelect
                     options={wallets}
                     value={currentWalletId}
                     onChange={handleWalletChange}

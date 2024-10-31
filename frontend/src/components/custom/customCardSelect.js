@@ -5,6 +5,7 @@ const customStyles = {
     control: (provided, state) => ({
         ...provided,
         minWidth: '200px',
+        maxWidth: '200px',
         margin: '8px 0',
         border: '1px solid #4B6D4E',
         borderRadius: '5px',
@@ -35,6 +36,7 @@ const customStyles = {
         borderRadius: '5px',
         marginTop: '0',
         border: '1px solid #4B6D4E',
+        maxWidth: '200px',
     }),
     menuList: (provided) => ({
         ...provided,
@@ -52,7 +54,7 @@ const customStyles = {
     }),
 };
 
-export const CustomSelect = ({ options, value, onChange }) => {
+export const CustomCardSelect = ({ options, value, onChange }) => {
     const formattedOptions = options.map(option => ({
         value: option.id,
         label: option.name,

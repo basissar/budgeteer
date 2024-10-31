@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios'; // Import axios for making HTTP requests
 import { useNavigate } from 'react-router-dom';
 import styles from './login.module.css';
-import logo from '../assets/budget_logo.svg';
+import logo from '../../assets/budget_logo.svg';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -17,6 +17,7 @@ export default function Login() {
 
             if (response.status === 200) {
                 localStorage.setItem('token', response.data.token);
+                setErrorMessage('');
 
                 // Redirect to the profile page with the username
                 // navigate(`/profile/${username}`);
@@ -39,6 +40,11 @@ export default function Login() {
         }
     }
 
+    const handleInputChange = (setter) => (e) => {
+        setter(e.target.value);
+        setErrorMessage(''); // Clear error when user changes input
+    };
+
     return (
         <div>
             <div className={styles.logo}>
@@ -53,12 +59,12 @@ export default function Login() {
                 
                 <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
                     <div>
-                        <label htmlFor="username">Username:</label>
+                        <label htmlFor="username_login">Username:</label>
                         <input
                             type="text"
-                            id="username"
+                            id="username_login"
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={handleInputChange(setUsername)}
                         />
                     </div>
                     <div>
@@ -67,13 +73,13 @@ export default function Login() {
                             type="password"
                             id="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={handleInputChange(setPassword)}
                         />
                     </div>
                     {errorMessage && <p>{errorMessage}</p>}
                     <button type="submit">Login</button>
                     <div className={styles.log_redirect}>
-                        <p>Don't have an accout yet?</p>
+                        <p>Don't have an account yet?</p>
                         <a href="/register">Sign Up</a>
                     </div>
                     

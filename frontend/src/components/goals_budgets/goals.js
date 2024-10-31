@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import GoalsForm from './goalsForm.js';
-import '../budgets.css'; // Use the same CSS file
+import './budgets.css'; // Use the same CSS file
 // import CustomWalletSelect from './customWalletSelect';
 import { API_BASE_URL, INFO } from '../../utils/macros.js';
-import { CustomSelect } from '../custom/customSelect.js';
+import { CustomCardSelect } from '../custom/customCardSelect.js';
 import deleteIcon from "../../assets/delete.svg";
 import editIcon from "../../assets/edit.svg";
 import { ProgressBar } from '../custom/progressBar.js';
