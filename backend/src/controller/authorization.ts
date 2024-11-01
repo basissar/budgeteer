@@ -1,4 +1,4 @@
-import {RouterContext} from 'https://deno.land/x/oak@v12.6.1/router.ts';
+import { RouterContext } from "@oak/oak";
 import { key } from "../utils/apiKey.ts";
 import { verify } from "https://deno.land/x/djwt@v2.4/mod.ts";
 import { FORBIDDEN, UNAUTHORIZED } from '../config/macros.ts';

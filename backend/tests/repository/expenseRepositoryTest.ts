@@ -48,7 +48,7 @@ Deno.test("Expense repository sum tests", async (t) => {
         await Expense.create({ name: "test expense", walletId: wallet.id, amount: 200, date: new Date(year, month - 1, 20), targetCategoryId: 1 });
         await Expense.create({ name: "test expense", walletId: wallet.id, amount: 200, date: new Date(year, month - 1, 20), targetCategoryId: 2 });
     
-        const result = await expenseRepo.sumNegativeExpensesForMonth(user.id, year, month);
+        const result = await expenseRepo.sumNegativeExpensesForMonth(user.id, year, month, wallet.id);
     
         assert(result == -150);
     

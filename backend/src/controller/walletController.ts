@@ -1,9 +1,9 @@
-import { WalletService } from "../service/walletService.ts";
-import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
-import { BAD_REQUEST, CREATED, INTERNAL_ERROR, NOT_FOUND, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
-import { Wallet } from "../model/Wallet.ts";
-import { UserService } from "../service/userService.ts";
-import { container } from "../utils/container.ts";
+import {WalletService} from "../service/walletService.ts";
+import {RouterContext} from "@oak/oak";
+import {BAD_REQUEST, CREATED, NOT_FOUND, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE} from "../config/macros.ts";
+import {Wallet} from "../model/Wallet.ts";
+import {UserService} from "../service/userService.ts";
+import {container} from "../utils/container.ts";
 
 export class WalletController {
 
@@ -43,9 +43,7 @@ export class WalletController {
             return;
         }
 
-        const requestBody = await ctx.request.body().value;
-
-        const passedWallet = requestBody.valueOf();
+        const passedWallet = await ctx.request.body.json();
 
         if (!passedWallet.name || !passedWallet.userId) {
             ctx.response.status = BAD_REQUEST;

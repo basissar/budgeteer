@@ -1,4 +1,4 @@
-import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
+import { RouterContext } from "@oak/oak";
 import { ACCOUNT_SERVICE, AVATAR_SERVICE, CONFLICT, CREATED, ITEM_SERVICE, OK } from "../config/macros.ts";
 import { AccountService } from "../service/accountService.ts";
 import { ItemService } from "../service/itemService.ts";
@@ -49,9 +49,9 @@ export class AccountController {
     async createAccount(ctx: RouterContext<string>) {
         const { userId } = ctx.params;
 
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const avatarId = requestBody.valueOf().avatarId;
+        const avatarId = requestBody.avatarId;
 
         const createdAccount = await this.accountService.createAccount(userId, Number(avatarId));
 

@@ -1,4 +1,4 @@
-import { RouterContext } from 'https://deno.land/x/oak@v12.6.1/router.ts';
+import { RouterContext } from '@oak/oak';
 import { UserService } from "../service/userService.ts";
 import { User } from "../model/User.ts";
 import { BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, NOT_FOUND, CONFLICT, USER_SERVICE } from "../config/macros.ts";
@@ -24,9 +24,9 @@ export class UserController {
     }
 
     async register(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const user = new User(requestBody.valueOf());
+        const user = new User(requestBody);
 
         try {
             const createdUser = await this.userService.register(user);
@@ -54,11 +54,11 @@ export class UserController {
     }
 
     async login(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const username = requestBody.valueOf().username;
+        const username = requestBody.username;
 
-        const password = requestBody.valueOf().password;
+        const password = requestBody.password;
 
         if (!username || !password) {
             ctx.response.status = BAD_REQUEST;
@@ -83,13 +83,9 @@ export class UserController {
     }
 
     async createUser(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        console.log(requestBody);
-
-        const passedUser = requestBody.valueOf();
-
-        const passedUserName = passedUser.username;
+        const passedUserName = requestBody.username;
 
         if (!passedUserName) {
             ctx.response.status = BAD_REQUEST; 
@@ -97,7 +93,7 @@ export class UserController {
             return;
         }
 
-        const toCreate = new User(passedUser);
+        const toCreate = new User(requestBody);
 
         const createdUser = await this.userService.createUser(toCreate);
 

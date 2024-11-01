@@ -37,8 +37,8 @@ export class UserService {
 
             return await this.repository.save(user);
         } catch (error) {
-            console.error(error.stack);
-            throw new Error(error.message);
+            console.error((error as Error).stack);
+            throw new Error((error as Error).message);
         }   
     }
 
@@ -51,7 +51,7 @@ export class UserService {
 
                 existsByEmail = await this.existsByEmail(user.email);
             } catch (err) {
-                throw new ServiceError(`User service error: ${err.message}`);
+                throw new ServiceError(`User service error: ${(err as Error).message}`);
             }
             
 
@@ -94,7 +94,7 @@ export class UserService {
        try {
            return await this.repository.findAll();
        } catch (e) {
-           throw new ServiceError(`User service error: ${e.message}`);
+           throw new ServiceError(`User service error: ${(e as Error).message}`);
        }
     }
 
@@ -102,7 +102,7 @@ export class UserService {
         try {
             return await this.repository.findByUsername(username);
         } catch (err) {
-            throw new ServiceError(`User service error: ${err.message}`)
+            throw new ServiceError(`User service error: ${(err as Error).message}`)
         }
         
     }
@@ -127,7 +127,7 @@ export class UserService {
         try{
             return await this.repository.existsByUsername(username);
         } catch (error) {
-            throw new ServiceError('User service error: ' + error.message);
+            throw new ServiceError('User service error: ' + (error as Error).message);
         }
     }
 
@@ -135,7 +135,7 @@ export class UserService {
         try{
             return await this.repository.existsByEmail(email);
         } catch (error) {
-            throw new ServiceError('User service error: ' + error.message);
+            throw new ServiceError('User service error: ' + (error as Error).message);
         }
     }
 
