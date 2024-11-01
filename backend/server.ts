@@ -15,12 +15,11 @@ import { GoalController } from "./src/controller/goalController.ts";
 import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/utils/container.ts";
 
-// import { config } from 'https://deno.land/x/dotenv/mod.ts';
 import { ACCOUNT_REPOSITORY, ACCOUNT_SERVICE, ACHIEVEMENT_REPOSITORY, ACHIEVEMENT_SERVICE, AVATAR_REPOSITORY, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, GREEN, ITEM_REPOSITORY, RESET_COLOR, SAVINGS_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
 import { WALLET_REPOSITORY } from "./src/config/macros.ts";
 import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
 import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
-import authorization from "./src/controller/authorization.ts";
+import { AuthorizationMiddleware} from "./src/controller/authorization.ts";
 import { CategoryRepository } from "./src/repository/categoryRepository.ts";
 import { BudgetRepository } from "./src/repository/budgetRepository.ts";
 import { insertData } from "./src/utils/dataInitialization.ts";
@@ -47,6 +46,7 @@ container.register(AVATAR_REPOSITORY, new AvatarRepository());
 container.register(SAVINGS_REPOSITORY, new GoalRepository());
 container.register(ACHIEVEMENT_REPOSITORY, new AchievementRepositroy());
 
+const authorizationMiddleware = new AuthorizationMiddleware();
 
 const server = new Application();
 const router = new Router();
@@ -85,6 +85,8 @@ const oauth2Client = new OAuth2Client({
     scope: "read:user",
   },
 });
+
+
 
 router.get<string>("/budgeteer", (ctx: RouterContext<string>) => {
   ctx.response.body = {
@@ -133,6 +135,8 @@ router.post("/budgeteer/user/register", userController.register.bind(userControl
 
 router.post("/budgeteer/user", userController.createUser.bind(userController));
 
+router.use(authorizationMiddleware.handle.bind(authorizationMiddleware));
+
 router.get("/budgeteer/users", userController.getAllUsers.bind(userController));
 
 router.get("/budgeteer/users/:username", userController.getUserByUsername.bind(userController));
@@ -148,73 +152,73 @@ router.get("/userinfo", userController.getUserInfo.bind(userController));
 // router.get("/budgeteer/categories/:id", getAllCategoriesForUser);
 
 //WALETS
-router.post("/budgeteer/:userId/wallets", authorization, walletController.createWallet.bind(walletController));
+router.post("/budgeteer/:userId/wallets", walletController.createWallet.bind(walletController));
 
-router.get("/budgeteer/:userId/wallets", authorization, walletController.getAllWalletsForUser.bind(walletController));
+router.get("/budgeteer/:userId/wallets", walletController.getAllWalletsForUser.bind(walletController));
 
-router.get("/budgeteer/:userId/wallets/:walletId", authorization, walletController.getWalletForUser.bind(walletController));
+router.get("/budgeteer/:userId/wallets/:walletId", walletController.getWalletForUser.bind(walletController));
 
-router.delete("/budgeteer/:userId/wallets/:walletId", authorization, walletController.deleteWalletForUser.bind(walletController));
+router.delete("/budgeteer/:userId/wallets/:walletId", walletController.deleteWalletForUser.bind(walletController));
 
 //EXPENSES
-router.post("/budgeteer/:userId/wallets/:walletId/expenses", authorization, expenseController.createExpense.bind(expenseController));
+router.post("/budgeteer/:userId/wallets/:walletId/expenses", expenseController.createExpense.bind(expenseController));
 
-router.get("/budgeteer/:userId/wallets/:walletId/expenses", authorization, expenseController.getExpensesForWallet.bind(expenseController));
+router.get("/budgeteer/:userId/wallets/:walletId/expenses", expenseController.getExpensesForWallet.bind(expenseController));
 
-router.get("/budgeteer/:userId/expenses", authorization, expenseController.getAllForUser.bind(expenseController));
+router.get("/budgeteer/:userId/expenses", expenseController.getAllForUser.bind(expenseController));
 
-router.delete("/budgeteer/:userId/expenses/:expenseId", authorization, expenseController.deleteExpense.bind(expenseController));
+router.delete("/budgeteer/:userId/expenses/:expenseId", expenseController.deleteExpense.bind(expenseController));
 
-router.get("/budgeteer/:userId/categories/:walletId", authorization, categoryController.getAllByWallet.bind(categoryController));
+router.get("/budgeteer/:userId/categories/:walletId", categoryController.getAllByWallet.bind(categoryController));
 
 //GOALS
-router.post("/budgeteer/:userId/goals/:walletId", authorization, savingsController.createGoal.bind(savingsController));
+router.post("/budgeteer/:userId/goals/:walletId", savingsController.createGoal.bind(savingsController));
 
 //TODO might be PUT instead
-router.post("/budgeteer/:userId/goals/:walletId/:goalId", authorization, savingsController.updateMoney.bind(savingsController));
+router.post("/budgeteer/:userId/goals/:walletId/:goalId", savingsController.updateMoney.bind(savingsController));
 
-router.delete("/budgeteer/:userId/goals/:goalId", authorization, savingsController.deleteGoal.bind(savingsController));
+router.delete("/budgeteer/:userId/goals/:goalId", savingsController.deleteGoal.bind(savingsController));
 
-router.get("/budgeteer/:userId/goals/:walletId", authorization, savingsController.getGoalsForWallet.bind(savingsController));
+router.get("/budgeteer/:userId/goals/:walletId", savingsController.getGoalsForWallet.bind(savingsController));
 
 
 //BUDGETS
-router.post("/budgeteer/:userId/budgets/:walletId/", authorization, budgetController.createBudget.bind(budgetController));
+router.post("/budgeteer/:userId/budgets/:walletId/", budgetController.createBudget.bind(budgetController));
 
-router.get("/budgeteer/:userId/budgets/:walletId", authorization, budgetController.getBudgetsForWallet.bind(budgetController));
+router.get("/budgeteer/:userId/budgets/:walletId", budgetController.getBudgetsForWallet.bind(budgetController));
 
-router.delete("/budgeteer/:userId/budgets/:budgetId", authorization, budgetController.deleteBudget.bind(budgetController));
+router.delete("/budgeteer/:userId/budgets/:budgetId", budgetController.deleteBudget.bind(budgetController));
 
 //ACCOUNT,ITEM,AVATAR for beter handling all contained in the AccountController
-router.post("/budgeteer/:userId/account", authorization, accountController.createAccount.bind(accountController));
+router.post("/budgeteer/:userId/account", accountController.createAccount.bind(accountController));
 
-router.get("/budgeteer/:userId/account", authorization, accountController.getAccount.bind(accountController));
+router.get("/budgeteer/:userId/account", accountController.getAccount.bind(accountController));
 
-router.post("/budgeteer/:userId/buy/:itemId", authorization, accountController.buyItem.bind(accountController));
+router.post("/budgeteer/:userId/buy/:itemId", accountController.buyItem.bind(accountController));
 
-router.post("/budgeteer/:userId/equip/:itemId", authorization, accountController.equipItem.bind(accountController));
+router.post("/budgeteer/:userId/equip/:itemId", accountController.equipItem.bind(accountController));
 
-router.post("/budgeteer/:userId/unequip/:itemId", authorization, accountController.unequipItem.bind(accountController));
+router.post("/budgeteer/:userId/unequip/:itemId", accountController.unequipItem.bind(accountController));
 
-router.get("/budgeteer/avatars/:avatarId", authorization, accountController.getAvatarItems.bind(accountController));
+router.get("/budgeteer/avatars/:avatarId", accountController.getAvatarItems.bind(accountController));
 
-router.get("/budgeteer/avatars", authorization, accountController.getAllAvatars.bind(accountController));
+router.get("/budgeteer/avatars", accountController.getAllAvatars.bind(accountController));
 
 //ACHIEVEMENTS
-router.get("/budgeteer/achievements/:userId", authorization, achievementController.getAllAchievementsForUser.bind(achievementController));
+router.get("/budgeteer/achievements/:userId", achievementController.getAllAchievementsForUser.bind(achievementController));
 
-router.get("/budgeteer/achievements", authorization, achievementController.getAllAchievements.bind(achievementController));
+router.get("/budgeteer/achievements", achievementController.getAllAchievements.bind(achievementController));
 
-router.post("/budgeteer/achievements/:userId/:achievementId", authorization, achievementController.claimAchievement.bind(achievementController));
+router.post("/budgeteer/achievements/:userId/:achievementId", achievementController.claimAchievement.bind(achievementController));
 
 //ANALYTICS
-router.post("/budgeteer/analytics/:userId/:walletId/sumNegative", authorization, analyticsController.getSumNegativeForMonth.bind(analyticsController))
+router.post("/budgeteer/analytics/:userId/:walletId/sumNegative", analyticsController.getSumNegativeForMonth.bind(analyticsController))
 
-router.post("/budgeteer/analytics/:userId/:walletId/sumPositive", authorization, analyticsController.getSumPositiveForMonth.bind(analyticsController))
+router.post("/budgeteer/analytics/:userId/:walletId/sumPositive", analyticsController.getSumPositiveForMonth.bind(analyticsController))
 
-router.post("/budgeteer/analytics/:userId/sumNegativeRange", authorization, analyticsController.getSumNegativeForRange.bind(analyticsController));
+router.post("/budgeteer/analytics/:userId/sumNegativeRange", analyticsController.getSumNegativeForRange.bind(analyticsController));
 
-router.get("/budgeteer/analytics/:userId/:walletId", authorization, analyticsController.getCurrentWalletBalance.bind(analyticsController));
+router.get("/budgeteer/analytics/:userId/:walletId", analyticsController.getCurrentWalletBalance.bind(analyticsController));
 
 server.use(router.routes());
 server.use(router.allowedMethods());
