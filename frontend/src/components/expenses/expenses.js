@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import './expenses.css'; // Import the CSS file
+import './expenses.css';
 import ExpenseForm from './expenseForm.js';
-import { CustomSelect } from '../custom/customSelect.js';
+import { CustomCardSelect } from '../custom/customCardSelect.js';
 
 import deleteIcon from "../../assets/delete.svg";
 import editIcon from "../../assets/edit.svg";
-import CustomWalletSelect from '../customWalletSelect.js';
 import { API_BASE_URL, INFO } from '../../utils/macros.js';
 
 // Define the array of category icons
@@ -32,6 +31,11 @@ export default function Expenses() {
     const [wallets, setWallets] = useState([]);
     const [userId, setUserId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+
+    const [sortField, setSortField] = useState('date');
+    const [sortOrder, setSortOrder] = useState('desc');
+
+    const [categoryFilter, setCategoryFilter] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -86,6 +90,7 @@ export default function Expenses() {
         }
     }
 
+    //TODO add handleEditExpense
     const handleEditExpense = async (expenses) => { }
 
     const handleDeleteExpense = async (expenseId) => {
@@ -106,27 +111,106 @@ export default function Expenses() {
 
     const memoizedExpenses = useMemo(() => expenses, [expenses]);
 
+    const sortedExpenses = useMemo(() => {
+        return [...expenses].sort((a, b) => {
+            const fieldA = a[sortField];
+            const fieldB = b[sortField];
+
+            if (typeof fieldA === 'string' && typeof fieldB === 'string') {
+                return sortOrder === 'asc'
+                    ? fieldA.localeCompare(fieldB, undefined, {sensitivity: 'base'})
+                    : fieldB.localeCompare(fieldA, undefined, {sensitivity: 'base'});
+            }
+
+            if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
+            if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [expenses, sortField, sortOrder]);
+
+    const filteredExpenses = useMemo(() => {
+        return sortedExpenses.filter(expense => {
+            if (!categoryFilter) return true;
+            return expense.sourceCategory?.name === categoryFilter || expense.targetCategory?.name === categoryFilter;
+        });
+    }, [sortedExpenses, categoryFilter]);
+
+    const handleSortChange = (e) => {
+        setSortField(e.target.value);
+    };
+
+    const toggleSortOrder = () => {
+        setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
+    };
+
+    const handleCategoryFilterChange = (e) => {
+        setCategoryFilter(e.target.value);
+    };
+
     return (
         <div className="container">
+            <div className="sort-select-container">
+                <div className="select-container">
+                    <CustomCardSelect
+                        options={wallets}
+                        value={currentWalletId}
+                        onChange={handleWalletChange}
+                    />
+                </div>
 
-            {errorMessage && <p>${errorMessage}</p>}
+                <div className="sort-controls">
+                    <span>Sort by:</span>
+                    <div className="sort-radio">
+                        <label>
+                            <input
+                                type="radio"
+                                value="date"
+                                checked={sortField === 'date'}
+                                onChange={handleSortChange}
+                            />
+                            Date
+                        </label>
+                    </div>
+                    <div className="sort-radio">
+                        <label>
+                            <input
+                                type="radio"
+                                value="amount"
+                                checked={sortField === 'amount'}
+                                onChange={handleSortChange}
+                            />
+                            Amount
+                        </label>
+                    </div>
+                    <div className="sort-radio">
+                        <label>
+                            <input
+                                type="radio"
+                                value="name"
+                                checked={sortField === 'name'}
+                                onChange={handleSortChange}
+                            />
+                            Name
+                        </label>
+                    </div>
+                    <button onClick={toggleSortOrder}>
+                        {sortOrder === 'desc' ? 'Descending' : 'Ascending'}
+                    </button>
 
-            {/* <CustomWalletSelect
-                label="Select wallet"
-                options={wallets.map(wallet => wallet.name)}
-                onChange={(option) => {
-                    const selectedWallet = wallets.find(wallet => wallet.name === option);
-                    handleWalletChange(selectedWallet.id, selectedWallet.currency);
-                }}
-            /> */}
-
-            <div className="select-container">
-                <CustomSelect
-                    options={wallets}
-                    value={currentWalletId}
-                    onChange={handleWalletChange}
-                />
+                    <div className="category-filter">
+                        <label>
+                            Category:
+                            <select value={categoryFilter} onChange={handleCategoryFilterChange}>
+                                <option value="">All</option>
+                                {categoryIcons.map(category => (
+                                    <option key={category.name} value={category.name}>{category.name}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                </div>
             </div>
+
 
             <div className="expenses-container">
                 <div className="expense-table">
@@ -134,31 +218,42 @@ export default function Expenses() {
                     <div className="table-wrapper">
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Expense Name</th>
-                                    <th>Source Category</th>
-                                    <th>Target Category</th>
-                                    <th>Amount</th>
-                                </tr>
+                            <tr>
+                                <th>Date</th>
+                                <th>Expense Name</th>
+                                <th>Source Category</th>
+                                <th>Target Category</th>
+                                <th>Amount</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                {memoizedExpenses.map(expense => (
-                                    <tr key={expense.id}>
-                                        <td>{new Date(expense.date).toLocaleDateString()}</td>
-                                        <td>{expense.name}</td>
-                                        <td>{expense.sourceCategory ? (
-                                            <div className="category-with-icon">
-                                                <img className="category-icon" src={categoryIcons.find(icon => icon.name === expense.sourceCategory.name)?.icon} alt={expense.sourceCategory.name} />
-                                                <div className="category-div" style={{ backgroundColor: expense.sourceCategory.color, borderRadius: '5px', padding: '5px' }}>
-                                                    {expense.sourceCategory.name}
-                                                </div>
+                            {filteredExpenses.map(expense => (
+                                <tr key={expense.id}>
+                                    <td>{new Date(expense.date).toLocaleDateString()}</td>
+                                    <td>{expense.name}</td>
+                                    <td>{expense.sourceCategory ? (
+                                        <div className="category-with-icon">
+                                            <img className="category-icon"
+                                                 src={categoryIcons.find(icon => icon.name === expense.sourceCategory.name)?.icon}
+                                                 alt={expense.sourceCategory.name}/>
+                                            <div className="category-div" style={{
+                                                backgroundColor: expense.sourceCategory.color,
+                                                borderRadius: '5px',
+                                                padding: '5px'
+                                            }}>
+                                                {expense.sourceCategory.name}
                                             </div>
-                                        ) : ''}</td>
-                                        <td>{expense.targetCategory ? (
-                                            <div className="category-with-icon">
-                                                <img className="category-icon" src={categoryIcons.find(icon => icon.name === expense.targetCategory.name)?.icon} alt={expense.targetCategory.name} />
-                                                <div className="category-div" style={{ backgroundColor: expense.targetCategory.color, borderRadius: '5px', padding: '5px' }}>
+                                        </div>
+                                    ) : ''}</td>
+                                    <td>{expense.targetCategory ? (
+                                        <div className="category-with-icon">
+                                            <img className="category-icon"
+                                                 src={categoryIcons.find(icon => icon.name === expense.targetCategory.name)?.icon}
+                                                 alt={expense.targetCategory.name}/>
+                                            <div className="category-div" style={{
+                                                backgroundColor: expense.targetCategory.color,
+                                                borderRadius: '5px',
+                                                padding: '5px' }}>
                                                     {expense.targetCategory.name}
                                                 </div>
                                             </div>
@@ -181,6 +276,8 @@ export default function Expenses() {
                     {currentWalletId && <ExpenseForm userId={userId} currentWalletId={currentWalletId} expenses={memoizedExpenses} setExpenses={setExpenses} />}
                 </div>
             </div>
+
+            {errorMessage && <p>${errorMessage}</p>}
         </div>
     );
 

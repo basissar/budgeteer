@@ -4,7 +4,7 @@ import { API_BASE_URL, INFO } from "../../utils/macros";
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './expenseSummary.css'
-import {CustomSelect} from "../custom/customSelect.js";
+import {CustomCardSelect} from "../custom/customCardSelect.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -152,7 +152,7 @@ export function ExpenseSummary({ months }) {
 
     return (
         <div className="month_graph">
-            <CustomSelect
+            <CustomCardSelect
                     options={wallets}
                     value={currentWalletId}
                     onChange={handleWalletChange}

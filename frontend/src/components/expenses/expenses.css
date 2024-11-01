@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+h2 {
+    border: none;
+}
+
 .expense-form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -37,7 +41,7 @@ table {
 
 }
 
-th,
+.table-wrapper th,
 td {
     padding: 10px 20px;
 }
@@ -50,14 +54,6 @@ td {
     border-bottom: 2px solid darkgray;
 }
 
-/* 
-table th:first-child{
-    border-top-left-radius:10px;
-  }
-  
-  table th:last-child{
-    border-top-right-radius:10px;
-  } */
 
 
 .category-div {
@@ -76,31 +72,42 @@ table th:first-child{
     align-items: center; 
 }
 
-/* Custom select container */
+/* .custom-select-container {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center; 
+}
+
+.custom-select-container label {
+    margin-right: 10px; 
+    color: #26692A;
+    font-weight: bold;    
+}
+
+.custom-select {
+    border: 1px solid black;
+} */
+
 .custom-select-container {
     position: relative;
     display: inline-block;
 }
 
-/* Label styling */
 .custom-select-container label {
     margin-right: 10px;
 }
 
-/* Custom select dropdown */
 .custom-select {
     cursor: pointer;
     position: relative;
 }
 
-/* Selected option display */
 .selected-option {
     padding: 8px 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
-/* Options container */
 .options {
     position: absolute;
     top: calc(100% + 2px);
@@ -115,18 +122,15 @@ table th:first-child{
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Option */
 .option {
     padding: 8px 16px;
     cursor: pointer;
 }
 
-/* Option hover */
 .option:hover {
     background-color: #f0f0f0;
 }
 
-/* Show options when custom select is open */
 .custom-select-container.open .options {
     display: block;
 }
@@ -144,6 +148,7 @@ table th:first-child{
 
 .expense-table {
     margin-left: 5%;
+    min-width: 1000px;
 }
 
 .expense-form-container {
@@ -179,6 +184,10 @@ td img {
     padding-right: 10px;
     padding-left: 10px;
     cursor: pointer;
+}
+
+.table-wrapper table{
+    width: 100%;
 }
 
 /* dialog.css */
@@ -261,3 +270,58 @@ td img {
     color: #4FB477;
 }
 
+.sort-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.sort-controls span {
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.sort-controls label {
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 14px; /* Ensure all labels have the same font size */
+}
+
+.sort-controls input[type="radio"] {
+    margin-right: 5px;
+    transform: scale(1); /* Ensure the radio buttons are the same size */
+}
+
+.sort-controls button {
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px; /* Ensure the button text is the same size as the labels */
+    width: 100px;
+}
+
+.sort-controls button:hover {
+    background-color: #45a049;
+}
+
+.sort-controls .sort-radio {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.category-filter {
+    margin-left: 20px;
+}
+
+.sort-select-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
