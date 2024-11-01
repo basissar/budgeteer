@@ -1,4 +1,4 @@
-.container {
+.avatar-overview-container {
     display: flex;
     justify-content: space-between;
     align-items: flex-start; /* Align items at the top */
