@@ -1,10 +1,11 @@
-import { AVATAR_REPOSITORY, CATEGORY_REPOSITORY } from "../config/macros.ts";
+import { AVATAR_REPOSITORY, CATEGORY_REPOSITORY, ITEM_REPOSITORY } from "../config/macros.ts";
 import { container } from "./container.ts";
 import { Category } from "../model/Category.ts";
 import { Avatar } from "../model/Avatar.ts";
 import { Item } from "../model/Item.ts";
 import { CategoryRepository } from "../repository/categoryRepository.ts";
 import { AvatarRepository } from "../repository/avatarRepository.ts";
+import { ItemRepository } from "../repository/itemRepository.ts";
 
 const categoriesData = [
     { name: "Unclassified", color: "#8A817C" },
@@ -42,6 +43,7 @@ const itemData = [
 export async function insertData(){
     let catRep = container.resolve(CATEGORY_REPOSITORY);
     let avRepo = container.resolve(AVATAR_REPOSITORY);
+    let itemRepo = container.resolve(ITEM_REPOSITORY);
 
     // await Category.drop();
 
@@ -51,8 +53,13 @@ export async function insertData(){
     }
 
     if (avRepo == null) {
-        avRepo = new AvatarRepository;
+        avRepo = new AvatarRepository();
         container.register(AVATAR_REPOSITORY, avRepo);
+    }
+
+    if(itemRepo == null){
+        itemRepo = new ItemRepository();
+        container.register(ITEM_REPOSITORY, itemRepo);
     }
 
 
@@ -87,7 +94,13 @@ export async function insertData(){
 
     for (const item of itemData){
         const toSave = new Item(item);
-        await toSave.save();
-        console.log(`Item ${item.name} for ${item.price} credits with ${item.rarity} saved successfuly`);
+
+        const exists = await itemRepo.existsByName(toSave.name);
+
+        if(!exists) {
+            await toSave.save();
+            console.log(`Item ${item.name} for ${item.price} credits with ${item.rarity} saved successfuly`);
+        }
+        
     }
 }

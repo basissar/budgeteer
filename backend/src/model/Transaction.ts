@@ -1,5 +1,5 @@
 
-import { Table, Column, Model, ForeignKey } from 'npm:sequelize-typescript';
+import { Table, Column, Model, ForeignKey, DataType } from 'npm:sequelize-typescript';
 import { Category } from './Category.ts';
 import { Wallet } from './Wallet.ts';
 
@@ -22,7 +22,7 @@ export class Transaction extends Model {
     @Column({ allowNull: false })
     public sourceCategoryId!: number;
 
-    @Column({ allowNull: false })
+    @Column({ allowNull: false , type: DataType.DOUBLE})
     public amount!: number;
 }
 

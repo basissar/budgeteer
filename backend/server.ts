@@ -51,7 +51,10 @@ container.register(ACHIEVEMENT_REPOSITORY, new AchievementRepositroy());
 const server = new Application();
 const router = new Router();
 
-server.use(oakCors());
+server.use(oakCors({
+  credentials: true,
+  origin: /^.+localhost:(3000|4200|8080)$/
+}));
 
 const userController = new UserController();
 

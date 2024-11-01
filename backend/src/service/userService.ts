@@ -43,10 +43,17 @@ export class UserService {
     }
 
     async register(user: User) {
-        try{
-            const existsByUsername = await this.existsByUsername(user.username);
+            let existsByEmail;
+            let existsByUsername;
 
-            const existsByEmail = await this.existsByEmail(user.email);
+            try {
+                existsByUsername = await this.existsByUsername(user.username);
+
+                existsByEmail = await this.existsByEmail(user.email);
+            } catch (err) {
+                throw new ServiceError(`User service error: ${err.message}`);
+            }
+            
 
             if(existsByUsername || existsByEmail) {
                 throw new DuplicateError(`User with provided credentials already exists`);
@@ -57,9 +64,6 @@ export class UserService {
             user.password = hashedPassword;
 
             return await this.repository.save(user);
-        } catch (error) {
-            throw new ServiceError("User service error: " + error.stack);
-        }
     }
 
     async login(username: string, password: string) {
