@@ -9,7 +9,7 @@ import './dashboard.css'
 export function Dashboard(){
 
     return (
-        <div className="container">
+        <div className="dash-container">
             <ExpenseSummary months={5} />
             <Account/>
         </div>
