@@ -135,6 +135,8 @@ router.post("/budgeteer/user/register", userController.register.bind(userControl
 
 router.post("/budgeteer/user", userController.createUser.bind(userController));
 
+router.post("/budgeteer/user/logout", userController.logout.bind(userController));
+
 router.use(authorizationMiddleware.handle.bind(authorizationMiddleware));
 
 router.get("/budgeteer/users", userController.getAllUsers.bind(userController));
@@ -234,7 +236,7 @@ server.use(async (ctx, next) => {
     await next();
   } catch (err) {
     console.error(err);
-    ctx.response.body = "Internal Server Error";
+    ctx.response.body = { message: "Internal Server Error: " + err };
     ctx.response.status = 500;
   }
 });

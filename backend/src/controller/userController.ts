@@ -1,7 +1,17 @@
 import { RouterContext } from '@oak/oak';
 import { UserService } from "../service/userService.ts";
 import { User } from "../model/User.ts";
-import { BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, NOT_FOUND, CONFLICT, USER_SERVICE } from "../config/macros.ts";
+import {
+    BAD_REQUEST,
+    CREATED,
+    INTERNAL_ERROR,
+    OK,
+    UNAUTHORIZED,
+    NOT_FOUND,
+    CONFLICT,
+    USER_SERVICE,
+    BLUE, RESET_COLOR
+} from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { verify } from 'https://deno.land/x/djwt@v2.4/mod.ts';
 import { key } from "../utils/apiKey.ts";
@@ -78,8 +88,25 @@ export class UserController {
             return;
         }
 
+
+        ctx.cookies.set("jwt_token", result.token,{
+            httpOnly: true,
+            // secure: true, //if used on https
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7
+        })
+
         ctx.response.status = OK;
-        ctx.response.body = { message: "Login successful", username: username, id: result.id, token: result.token };
+        // ctx.response.body = { message: "Login successful", username: username, id: result.id, token: result.token };
+        ctx.response.body = { message: "Login successful", username: username, id: result.id};
+    }
+
+    logout(ctx: RouterContext<string>) {
+        ctx.cookies.delete("jwt_token");
+
+        ctx.response.status = OK;
+        ctx.response.body = { message: "Logout successful"};
+        return;
     }
 
     async createUser(ctx: RouterContext<string>) {

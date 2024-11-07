@@ -5,7 +5,8 @@ import { FORBIDDEN, UNAUTHORIZED } from '../config/macros.ts';
 
 export class AuthorizationMiddleware {
     async handle(ctx: RouterContext<string>, next: () => Promise<any>) {
-        const token = ctx.request.headers.get('Authorization')?.split(' ')[1];
+
+        const token = await ctx.cookies.get("jwt_token");
 
         if (!token) {
             ctx.response.status = UNAUTHORIZED;
