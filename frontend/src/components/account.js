@@ -7,6 +7,7 @@ import credit from '../assets/credit.svg';
 
 import av1 from '../assets/avatars/1.png';
 import av2 from '../assets/avatars/2.png';
+import {useUserContext} from "./security/userProvider";
 
 
 const avatarImages = [
@@ -20,23 +21,18 @@ export function Account(){
     const [username, setUsername] = useState('');
     const [percentage, setPercentage] = useState(0);
 
+    const {user} = useUserContext();
+
     useEffect(() => {
         const fetchData = async () => {
+            if (!user) {
+                return;
+            }
+
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(INFO,{
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
 
-                setUserId(userResponse.data.user.id);
-                setUsername(userResponse.data.user.username);
-
-                const accountResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/account`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                const accountResponse = await axios.get(`${API_BASE_URL}/${user.id}/account`, {
+                    withCredentials: true
                 });
 
                 setAccount(accountResponse.data.account);
@@ -56,7 +52,7 @@ export function Account(){
         }
 
         fetchData();
-    }, []);
+    }, [user]);
 
     return (
         <div className="account_container">

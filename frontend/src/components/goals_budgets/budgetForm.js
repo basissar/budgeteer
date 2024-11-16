@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {API_BASE_URL} from "../../utils/macros";
+import {useUserContext} from "../security/userProvider";
 
 const BudgetForm = ({ userId, currentWalletId, budgets, setBudgets, onBudgetAddition}) => {
     const [newBudgetName, setNewBudgetName] = useState('');
@@ -10,12 +12,13 @@ const BudgetForm = ({ userId, currentWalletId, budgets, setBudgets, onBudgetAddi
     const [categories, setCategories] = useState([]);
     const [showDialog, setShowDialog] = useState(false);
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`http://localhost:8000/budgeteer/${userId}/categories/${currentWalletId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const response = await axios.get(`${API_BASE_URL}/${user.id}/categories/${currentWalletId}`, {
+                    withCredentials: true
                 });
 
                 setCategories(response.data.categories);
@@ -26,14 +29,13 @@ const BudgetForm = ({ userId, currentWalletId, budgets, setBudgets, onBudgetAddi
         };
 
         fetchCategories();
-    }, [userId, currentWalletId]);
+    }, [user, userId, currentWalletId]);
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`http://localhost:8000/budgeteer/${userId}/budgets/${currentWalletId}/`,
+            const response = await axios.post(`${API_BASE_URL}/${userId}/budgets/${currentWalletId}/`,
                 {
                     limit: newBudgetLimit,
                     currentAmount: 0,
@@ -43,7 +45,7 @@ const BudgetForm = ({ userId, currentWalletId, budgets, setBudgets, onBudgetAddi
                     name: newBudgetName
                 },
                 {
-                    headers: { Authorization: `Bearer ${token}` }
+                    withCredentials: true
                 });
 
             // Show the dialog

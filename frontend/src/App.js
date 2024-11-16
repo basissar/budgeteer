@@ -16,40 +16,47 @@ import Analytics from './components/analytics/analytics.js';
 import Avatars from './components/avatarOverview/avatars.js';
 import { Dashboard } from './components/dashboard/dashboard.js';
 import { AvatarOverview } from './components/avatarOverview/avatarOverview.js';
+import {UserProvider} from "./components/security/userProvider";
+import PrivateRoute from "./components/security/privateRoute";
+import {UserAccountOverview} from "./components/account/userAccountOverview";
 
 //TODO handle routes for dashboard better
 
 function App() {
 	return (
-		<div className="wrapper">
-			
-			<Router>
-				<Header />
+		<UserProvider>
+			<div className="wrapper">
 
-				<Routes>
-					<Route path='/' element={<Dashboard />}>
-					</Route>
-					<Route path="/login" element={<Login />}>
-					</Route>
-					<Route path="/register" element={<Register />}>
-					</Route>
-					<Route path="/profile/:username" element={<UserProfile />}>
-					</Route>
-					<Route path="/wallets" element={<Wallets />}>
-					</Route>
-					<Route path="/expenses" element={<Expenses />}>
-					</Route>
-					<Route path="/budgets_and_goals" element={<BudgetGoalOverview />}>
-					</Route>
-					<Route path='/analytics' element={<Analytics />}>
-					</Route>
-					<Route path='/avatars' element={<Avatars />}>
-					</Route>
-					<Route path='/avatarOverview' element={<AvatarOverview />}>
-					</Route>
-				</Routes>
-			</Router>
-		</div>
+				<Router>
+					<Header/>
+
+					<Routes>
+						<Route path='/' element={<PrivateRoute><Dashboard/></PrivateRoute>}>
+						</Route>
+						<Route path="/login" element={<Login/>}>
+						</Route>
+						<Route path="/register" element={<Register/>}>
+						</Route>
+						<Route path="/profile/:username" element={<PrivateRoute><UserProfile/></PrivateRoute>}>
+						</Route>
+						<Route path="/wallets" element={<PrivateRoute><Wallets/></PrivateRoute>}>
+						</Route>
+						<Route path="/expenses" element={<PrivateRoute><Expenses/></PrivateRoute>}>
+						</Route>
+						<Route path="/budgets_and_goals" element={<PrivateRoute><BudgetGoalOverview/></PrivateRoute>}>
+						</Route>
+						<Route path='/analytics' element={<PrivateRoute><Analytics/></PrivateRoute>}>
+						</Route>
+						<Route path='/avatars' element={<PrivateRoute><Avatars/></PrivateRoute>}>
+						</Route>
+						<Route path='/avatarOverview' element={<PrivateRoute><AvatarOverview/></PrivateRoute>}>
+						</Route>
+						<Route path='/account' element={<PrivateRoute><UserAccountOverview/></PrivateRoute>}>
+						</Route>
+					</Routes>
+				</Router>
+			</div>
+		</UserProvider>
 	);
 }
 

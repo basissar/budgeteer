@@ -6,18 +6,18 @@ import './achievements.css';
 import star from '../../assets/star_icon.svg';
 import credit from "../../assets/credit.svg";
 import XP from "../../assets/XP.svg";
+import {useUserContext} from "../security/userProvider";
 
 const Achievements = ({ userId }) => {
   const [userAchievements, setUserAchievements] = useState([]);
 
+  const { user } = useUserContext();
+
   useEffect(() => {
     const fetchUserAchievements = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const userAchievementsResponse = await axios.get(`${API_BASE_URL}/achievements/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const userAchievementsResponse = await axios.get(`${API_BASE_URL}/achievements/${user.id}`, {
+          withCredentials: true
         });
 
 
@@ -28,15 +28,12 @@ const Achievements = ({ userId }) => {
     };
 
     fetchUserAchievements();
-  }, [userId]);
+  }, [user, userId]);
 
   const claimAchievement = async (achievementId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_BASE_URL}/achievements/${userId}/${achievementId}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await axios.post(`${API_BASE_URL}/achievements/${user.id}/${achievementId}`, {}, {
+        withCredentials: true
       });
 
       alert(response.data.message);

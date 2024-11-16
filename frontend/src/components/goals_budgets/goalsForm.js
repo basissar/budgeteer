@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../utils/macros.js';
+import {useUserContext} from "../security/userProvider";
 
 export default function GoalsForm({ userId, currentWalletId, goals, setGoals, onGoalAddition }) {
     const [goalName, setGoalName] = useState('');
@@ -10,12 +11,13 @@ export default function GoalsForm({ userId, currentWalletId, goals, setGoals, on
     const [errorMessage, setErrorMessage] = useState('');
     const [newGoalCategory, setNewGoalCategory] = useState(null);
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`${API_BASE_URL}/${userId}/categories/${currentWalletId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const response = await axios.get(`${API_BASE_URL}/${user.id}/categories/${currentWalletId}`, {
+                    withCredentials: true
                 });
 
                 setCategories(response.data.categories);
@@ -26,13 +28,12 @@ export default function GoalsForm({ userId, currentWalletId, goals, setGoals, on
         };
 
         fetchCategories();
-    }, [userId, currentWalletId]);
+    }, [user, userId, currentWalletId]);
 
     const handleAddGoal = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/goals/${currentWalletId}`, {
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/goals/${currentWalletId}`, {
                 name: goalName,
                 targetAmount: targetAmount,
                 currentAmount: currentAmount,
@@ -40,7 +41,7 @@ export default function GoalsForm({ userId, currentWalletId, goals, setGoals, on
                 walletId: currentWalletId
 
             }, {
-                headers: { Authorization: `Bearer ${token}` }
+                withCredentials: true
             });
 
             const newGoal = response.data.goal;

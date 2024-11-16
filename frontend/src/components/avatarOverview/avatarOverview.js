@@ -13,6 +13,7 @@ import greenHat from '../../assets/items/green_hat.png';
 import purpleFly from '../../assets/items/purple_fly.png';
 import redHat from '../../assets/items/red_hat.png';
 import Achievements from "./achievements";
+import {useUserContext} from "../security/userProvider";
 
 const itemImages = {
     'blue_fly': blueFly,
@@ -33,31 +34,20 @@ export function AvatarOverview(){
     const [ownedItems, setOwnedItems] = useState([]);
     const [equippedItems, setEquippedItems] = useState({ hat: null, neck: null });
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(INFO, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
-
-                setUserId(userResponse.data.user.id);
-
-                const accountResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/account`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                const accountResponse = await axios.get(`${API_BASE_URL}/${user.id}/account`, {
+                    withCredentials: true
                 });
 
                 const avatarId = Number(accountResponse.data.account.avatar.id);
                 setAvatar(avatarId);
 
                 const itemResponse = await axios.get(`${API_BASE_URL}/avatars/${avatarId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    withCredentials: true
                 });
 
                 const items = itemResponse.data.items;
@@ -84,11 +74,8 @@ export function AvatarOverview(){
 
     const handleBuyItem = async (itemId) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/buy/${itemId}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/buy/${itemId}`, {}, {
+                withCredentials: true
             });
 
             // Find the bought item
@@ -111,11 +98,8 @@ export function AvatarOverview(){
 
     const handleEquipItem = async (item) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/equip/${item.id}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/equip/${item.id}`, {}, {
+                withCredentials: true
             });
 
             const newEquippedItems = { ...equippedItems, [item.type]: item };
@@ -130,11 +114,8 @@ export function AvatarOverview(){
 
     const handleUnequipItem = async (item) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/unequip/${item.id}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/unequip/${item.id}`, {}, {
+                withCredentials: true
             });
 
             const newEquippedItems = { ...equippedItems, [item.type]: null };
