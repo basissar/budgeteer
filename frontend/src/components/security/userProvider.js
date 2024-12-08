@@ -19,6 +19,7 @@ export const UserProvider = ({ children }) => {
             const user = {
                 id: response.data.id,
                 username: response.data.username,
+                email: response.data.email,
             }
 
             const accountResponse = await axios.get(`${API_BASE_URL}/${user.id}/account`, { withCredentials: true });

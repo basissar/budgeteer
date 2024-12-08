@@ -31,6 +31,8 @@ export function UserAccountOverview() {
     return (
         <div>
             <h2>Account Overview</h2>
+            <div> {user && user.username}</div>
+            <div> {user && user.email}</div>
             <button onClick={handleLogout}>Logout</button>
             <button onClick={handleEdit}>Edit Profile</button>
             <button onClick={handleDelete}>Delete Profile</button>

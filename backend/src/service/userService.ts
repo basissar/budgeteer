@@ -87,7 +87,7 @@ export class UserService {
 
         const jwt = await create({ alg: "HS512", typ: "JWT" }, { payload }, key);
 
-        return {token: jwt, id: user.id};
+        return {token: jwt, user: user};
     }
 
     async getAllUsers(): Promise<User[] | null> {

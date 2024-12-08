@@ -98,7 +98,7 @@ export class UserController {
 
         ctx.response.status = OK;
         // ctx.response.body = { message: "Login successful", username: username, id: result.id, token: result.token };
-        ctx.response.body = { message: "Login successful", username: username, id: result.id};
+        ctx.response.body = { message: "Login successful", username: result.user.username, id: result.user.id, email: result.user.email };
     }
 
     logout(ctx: RouterContext<string>) {
