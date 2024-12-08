@@ -55,14 +55,22 @@ export class ItemService {
     }
 
     async equipItem(itemId: number, userId: string) {
-        const foundAccount = await this.accountService.findByUserNoItem(userId);
+        const result = await this.accountService.findByUser(userId);
         const wantedItem = await this.itemRepository.findById(itemId);
 
-        if (foundAccount == null || wantedItem == null){
+        if (result == null || wantedItem == null || result.account == null){
             return false;
         }
+        //TODO handle removal of equipped item of the same type
 
-        await foundAccount.$add('equippedItems', wantedItem);
+        const equippedItems = result.account.equippedItems;
+
+        for (const item of equippedItems) {
+            if(item.type == wantedItem.type){
+               await result.account.$remove('equippedItems', item);
+               await result.account.$add('equippedItems', wantedItem);
+            }
+        }
 
         return wantedItem;
     }
@@ -84,7 +92,7 @@ export class ItemService {
         try {
             return await this.itemRepository.findByAvatar(avatarId);
         } catch (err) {
-            throw new ServiceError(`Item service error: ${err.message}`);
+            throw new ServiceError(`Item service error: ${err}`);
         }
     }
 

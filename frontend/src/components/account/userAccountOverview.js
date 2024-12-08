@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import axios from "axios";
 
 export function UserAccountOverview() {
-    const { setUser } = useUserContext();
+    const { user,setUser } = useUserContext();
     const navigate = useNavigate();
 
     const endpoint = 'http://localhost:8000/budgeteer/user/logout'

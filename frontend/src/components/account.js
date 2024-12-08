@@ -5,20 +5,12 @@ import  './avatarOverview/avatar.css';
 import {ProgressBar} from './custom/progressBar.js';
 import credit from '../assets/credit.svg';
 
-import av1 from '../assets/avatars/1.png';
-import av2 from '../assets/avatars/2.png';
 import {useUserContext} from "./security/userProvider";
-
-
-const avatarImages = [
-    av1, av2
-]
+import {AvatarWindow} from "./avatarOverview/avatarWindow";
 
 export function Account(){
     const [account, setAccount] = useState(null);
     const [nextLevelXP, setXP] = useState(0);
-    const [userId, setUserId] = useState('');
-    const [username, setUsername] = useState('');
     const [percentage, setPercentage] = useState(0);
 
     const {user} = useUserContext();
@@ -57,12 +49,10 @@ export function Account(){
     return (
         <div className="account_container">
             <div className="accountInfo">
-            <div className="image_container">
-                <img src={account && avatarImages[account.avatar.id - 1]} alt={account && account.avatar.name} />
-            </div>
-            {account ? (
-                <>
-                    <div id="username">{username}</div>
+                <AvatarWindow/>
+                {account ? (
+                    <>
+                        <div id="username">{user && user.username}</div>
                     <div className="creds"><p>{account.credits}</p> <img src={credit} alt="credit_icon"/></div>
                 </>
             ) : (
