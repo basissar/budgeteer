@@ -16,6 +16,7 @@ import { container } from "../utils/container.ts";
 import { verify } from 'https://deno.land/x/djwt@v2.4/mod.ts';
 import { key } from "../utils/apiKey.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
+import {UserUpdatePayload} from "../model/UserUpdatePayload.ts";
 
 export class UserController {
 
@@ -94,7 +95,13 @@ export class UserController {
             // secure: true, //if used on https
             sameSite: "lax",
             maxAge: 60 * 60 * 24 * 7
-        })
+        });
+
+        ctx.cookies.set("user_id", result.user.id, {
+            httpOnly: true,
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7
+        });
 
         ctx.response.status = OK;
         // ctx.response.body = { message: "Login successful", username: username, id: result.id, token: result.token };
@@ -158,16 +165,13 @@ export class UserController {
         }
     }
 
-    async deleteUserByUsername(ctx: RouterContext<string>) {
-        const { username } = ctx.params;
+    async deleteUser(ctx: RouterContext<string>) {
+        const id = await ctx.cookies.get("user_id");
 
-        if (!username) {
-            ctx.response.status = BAD_REQUEST;
-            ctx.response.body = { message: "Username is required" };
-            return;
-        }
+        const deletedUser = await this.userService.deleteUser(id!);
 
-        const deletedUser = await this.userService.deleteUser(username);
+        ctx.cookies.delete("jwt_token");
+        ctx.cookies.delete("user_id");
 
         if (deletedUser) {
             ctx.response.status = OK;
@@ -178,35 +182,30 @@ export class UserController {
         }
     }
 
-    async getUserInfo(ctx: RouterContext<string>) {
-        const token = ctx.request.headers.get('Authorization');
+    async updateUser(ctx: RouterContext<string>) {
+        const requestBody = await ctx.request.body.json();
 
-        if (!token) {
-            ctx.response.status = UNAUTHORIZED;
-            ctx.response.body = { message: "Unauthorized: Token Missing" };
+        const id = await ctx.cookies.get("user_id");
+
+        const updatePayload = new UserUpdatePayload();
+        updatePayload.id = id!;
+        updatePayload.username = requestBody.username;
+        updatePayload.email = requestBody.email;
+
+        console.log(BLUE, "INSIDE UPDATE", RESET_COLOR);
+        console.log(updatePayload);
+
+        try {
+            const updatedUser = await this.userService.updateUser(updatePayload);
+
+            ctx.response.status = OK;
+            ctx.response.body = { message: "User updated", user: updatedUser};
             return;
-        }
-
-        const isValid = await this.userService.verifyToken(token.split(" ")[1]);
-
-        if (!isValid) {
-            ctx.response.status = UNAUTHORIZED;
-            ctx.response.body = { message: "Unauthorized: Invalid Token" };
+        } catch (error) {
+            ctx.response.status = BAD_REQUEST;
+            ctx.response.body = { message: error}
             return;
-        }
-
-        const payload = await verify(token.split(" ")[1], key);
-
-        const userId = (payload as { payload: { id: string } }).payload.id;
-        const username = (payload as { payload: { username: string } }).payload.username;
-
-
-        ctx.response.status = OK;
-        ctx.response.body = {
-            user: {
-                id: userId,
-                username: username
-            }
         }
     }
+
 }

@@ -139,13 +139,15 @@ router.post("/budgeteer/user/logout", userController.logout.bind(userController)
 
 router.use(authorizationMiddleware.handle.bind(authorizationMiddleware));
 
+router.post("/budgeteer/user/update", userController.updateUser.bind(userController));
+
 router.get("/budgeteer/users", userController.getAllUsers.bind(userController));
 
 router.get("/budgeteer/users/:username", userController.getUserByUsername.bind(userController));
 
-router.delete("/budgeteer/users/:username", userController.deleteUserByUsername.bind(userController));
+router.delete("/budgeteer/users", userController.deleteUser.bind(userController));
 
-router.get("/userinfo", userController.getUserInfo.bind(userController));
+// router.get("/userinfo", userController.getUserInfo.bind(userController));
 
 // router.post("/budgeteer/categories", createCategory);
 

@@ -58,7 +58,7 @@ export default function Login() {
                             onChange={handleInputChange(setPassword)}
                         />
                     </div>
-                    {errorMessage && <p>{errorMessage}</p>}
+                    {error && <p className={styles.errorMessage}>{error}</p>} {/* Show error message */}
                     <button type="submit">Login</button>
                     <div className={styles.log_redirect}>
                         <p>Don't have an account yet?</p>

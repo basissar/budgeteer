@@ -14,7 +14,8 @@ export default function Register() {
 	const [email, setEmail] = useState('');
 	const [errorMessage, setErrorMessage] = useState('');
 
-	const {login, error} = useUserContext();
+	// const {login, error} = useUserContext();
+	const {user,setUser} = useUserContext();
 
 	const handleRegister = async () => {
 		try {
@@ -26,20 +27,31 @@ export default function Register() {
 				// alert(`User ${username} registered!`);
 
 				try {
-					await login(username, password);
-					
-					if (!error) {
+					// await login(username, password);
+					const loginResponse = await axios.post(`${API_BASE_URL}/user/login`, {username, password}, {withCredentials: true });
+
+					console.log(loginResponse);
+
+					console.log(loginResponse.status);
+
+					if (loginResponse.status.valueOf() === 200) {
+						console.log("navigate status")
+
+						const user = {
+							id: loginResponse.data.id,
+							username: loginResponse.data.username,
+							email: loginResponse.data.email,
+						}
+
+						setUser(user);
+
 						navigate('/avatars');
-					} else {
-						console.error(error);
 					}
+
 
 				} catch (err) {
 					console.error(err.message);
 				}
-
-				//redirection to login page
-				// navigate('/login');
 			}
 		} catch (e) {
 			if (e.response.status === 400) {

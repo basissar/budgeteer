@@ -12,9 +12,12 @@ export const UserProvider = ({ children }) => {
 
     const login = async (username, password) => {
         setLoading(true);
+        setError(null);
 
         try {
             const response = await axios.post(`${API_BASE_URL}/user/login`, {username, password}, {withCredentials: true });
+
+            console.log(response);
 
             const user = {
                 id: response.data.id,
@@ -33,7 +36,8 @@ export const UserProvider = ({ children }) => {
 
             setUser(user);
         } catch (error) {
-            setError(error.response.data.error || "Login failed");
+            // console.log(error.response.data.message);
+            setError(error.response.data.message || "Login failed");
         } finally {
             setLoading(false);
         }

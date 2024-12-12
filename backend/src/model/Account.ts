@@ -47,7 +47,7 @@ export class Account extends Model {
     @Column({allowNull: false, defaultValue: 0})
     declare stayedWithinBudget: number;
 
-    @BelongsTo(() => User)
+    @BelongsTo(() => User, {onDelete: "CASCADE"})
     declare user: User;
 
     @BelongsTo(() => Avatar, { foreignKey: 'avatarId', as: 'avatar' })

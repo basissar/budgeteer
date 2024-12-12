@@ -56,20 +56,26 @@ export class UserRepository implements BaseRepository<User, string> {
     }
 
     async existsByEmail(email: string) {
-        const result = await User.findOne({where: {email: email}});
+        const result = await User.findOne({
+            where: {
+                email: email,
+                deletedAt: null
+            }
+        });
         return !!result;
     }
 
+    //this should be deleted as it causes problems and cascade is not really applicable
     async deleteById(id: string) {
         return await User.destroy({
             where: {id}
         });
     }
 
-    async deleteByUsername(username: string) {
-        return await User.destroy({
-            where: {username: username}
-        });
+    async setDeleted(id: string) {
+        const deletedAt = new Date();
+
+        return await User.update({deletedAt}, {where: {id}});
     }
 
     async getForCron(timezones: string[], recurrence: string){

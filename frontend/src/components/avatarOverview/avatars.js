@@ -15,6 +15,7 @@ const avatarImages = [
 export default function Avatars() {
     const [avatars, setAvatars] = useState([]);
     const [account, setAccount] = useState('');
+    const navigate = useNavigate();
 
     const { user } = useUserContext();
 
@@ -46,6 +47,8 @@ export default function Avatars() {
 
             console.log(accountResponse.data.account);
             setAccount(accountResponse.data.account);
+
+            navigate("/");
 
         } catch (err) {
             console.error(err);
