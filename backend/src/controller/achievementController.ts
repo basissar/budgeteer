@@ -1,4 +1,4 @@
-import { RouterContext } from "https://deno.land/x/oak@v12.6.1/mod.ts";
+import { RouterContext } from "@oak/oak";
 import { ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, NOT_FOUND, OK } from "../config/macros.ts";
 import { AccountService } from "../service/accountService.ts";
 import { AchievementService } from "../service/achievementService.ts";

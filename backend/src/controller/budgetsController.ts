@@ -1,4 +1,4 @@
-import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
+import { RouterContext } from "@oak/oak";
 import { BUDGET_SERVICE, CREATED, EXPENSE_SERVICE, NO_CONTENT, INTERNAL_ERROR, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE, NOT_FOUND } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { BudgetService } from "../service/budgetService.ts";
@@ -57,13 +57,11 @@ export class BudgetController {
 
 
     async createBudget(ctx: RouterContext<string>) {
-            const requestBody = await ctx.request.body().value;
+            const requestBody = await ctx.request.body.json();
 
             const { userId } = ctx.params;
 
-            const passedBudget = requestBody.valueOf();
-
-            const newBudget = new Budget(passedBudget);
+            const newBudget = new Budget(requestBody);
 
             const serviceResponse = await this.budgetService.createBudget(userId, newBudget);
 

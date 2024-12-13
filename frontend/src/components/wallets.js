@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './wallets.css';
 import icon from "../assets/card-icon.svg";
+import {API_BASE_URL} from "../utils/macros";
+import {useUserContext} from "./security/userProvider";
 
 export default function Wallets() {
     const navigate = useNavigate();
@@ -12,21 +14,14 @@ export default function Wallets() {
     const [currency, setCurrency] = useState('CZK'); // Default currency
     const [initialAmount, setInitialAmount] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const endpoint = 'http://localhost:8000/userinfo';
+
+    const { user } = useUserContext();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(endpoint, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setUserId(userResponse.data.user.id);
-
-                const walletResponse = await axios.get(`http://localhost:8000/budgeteer/${userResponse.data.user.id}/wallets`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const walletResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets`, {
+                    withCredentials: true,
                 });
                 setWallets(walletResponse.data.wallets);
             } catch (error) {
@@ -35,19 +30,17 @@ export default function Wallets() {
         };
 
         fetchData();
-    }, []);
+    }, [user]);
 
     const handleCreateWallet = async (e) => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
             const response = await axios.post(
-                `http://localhost:8000/budgeteer/${userId}/wallets`,
-                { userId: userId, name: newWalletName, currency: currency, initialAmount: initialAmount },
+                `${API_BASE_URL}/${user.id}/wallets`,
+                { userId: user.id, name: newWalletName, currency: currency, initialAmount: initialAmount },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    withCredentials: true
                 }
             );
 

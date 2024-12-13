@@ -5,6 +5,7 @@ import axios from 'axios';
 import styles from './registration.module.css';
 import logo from '../../assets/budget_logo.svg';
 import { API_BASE_URL } from '../../utils/macros';
+import { useUserContext } from '../security/userProvider';
 
 export default function Register() {
 	const navigate = useNavigate();
@@ -12,6 +13,9 @@ export default function Register() {
 	const [password, setPassword] = useState('');
 	const [email, setEmail] = useState('');
 	const [errorMessage, setErrorMessage] = useState('');
+
+	// const {login, error} = useUserContext();
+	const {user,setUser} = useUserContext();
 
 	const handleRegister = async () => {
 		try {
@@ -23,23 +27,31 @@ export default function Register() {
 				// alert(`User ${username} registered!`);
 
 				try {
-					const response = await axios.post(`${API_BASE_URL}/user/login`,{
-						username, password
-					});
+					// await login(username, password);
+					const loginResponse = await axios.post(`${API_BASE_URL}/user/login`, {username, password}, {withCredentials: true });
 
-					if (response.status === 200) {
-						localStorage.setItem('token', response.data.token);
+					console.log(loginResponse);
 
-						//TODO navigate to avatar choice
-						// navigate(`profile/${username}`);
-						navigate('/avatars')
+					console.log(loginResponse.status);
+
+					if (loginResponse.status.valueOf() === 200) {
+						console.log("navigate status")
+
+						const user = {
+							id: loginResponse.data.id,
+							username: loginResponse.data.username,
+							email: loginResponse.data.email,
+						}
+
+						setUser(user);
+
+						navigate('/avatars');
 					}
+
+
 				} catch (err) {
 					console.error(err.message);
 				}
-
-				//redirection to login page
-				// navigate('/login');
 			}
 		} catch (e) {
 			if (e.response.status === 400) {

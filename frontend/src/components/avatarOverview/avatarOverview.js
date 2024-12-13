@@ -13,6 +13,7 @@ import greenHat from '../../assets/items/green_hat.png';
 import purpleFly from '../../assets/items/purple_fly.png';
 import redHat from '../../assets/items/red_hat.png';
 import Achievements from "./achievements";
+import {useUserContext} from "../security/userProvider";
 
 const itemImages = {
     'blue_fly': blueFly,
@@ -23,72 +24,55 @@ const itemImages = {
     'purple_fly': purpleFly,
     'red_hat': redHat,
 };
-
-console.log('Item Images:', itemImages); // Log the item images paths
-
 export function AvatarOverview(){
     const [items, setItems] = useState([]);
     const [userId, setUserId] = useState('');
     const [avatarId, setAvatar] = useState(null);
     const [ownedItems, setOwnedItems] = useState([]);
-    const [equippedItems, setEquippedItems] = useState({ hat: null, neck: null });
+
+    const { user, updateEquippedItems, equippedItems} = useUserContext();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(INFO, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
-
-                setUserId(userResponse.data.user.id);
-
-                const accountResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/account`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                const accountResponse = await axios.get(`${API_BASE_URL}/${user.id}/account`, {
+                    withCredentials: true
                 });
 
                 const avatarId = Number(accountResponse.data.account.avatar.id);
                 setAvatar(avatarId);
 
                 const itemResponse = await axios.get(`${API_BASE_URL}/avatars/${avatarId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    withCredentials: true
                 });
 
                 const items = itemResponse.data.items;
                 const ownedItems = accountResponse.data.account.ownedItems;
-                const equippedItems = accountResponse.data.account.equippedItems.reduce((acc, item) => {
-                    acc[item.type] = item;
-                    return acc;
-                }, { hat: null, neck: null });
 
-                // Filter items into owned and available
                 const ownedItemIds = ownedItems.map(item => item.id);
                 const availableItems = items.filter(item => !ownedItemIds.includes(item.id));
 
                 setItems(availableItems);
                 setOwnedItems(ownedItems);
-                setEquippedItems(equippedItems);
+
+                updateEquippedItems(
+                    accountResponse.data.account.equippedItems.reduce((acc, item) => {
+                        acc[item.type] = item;
+                        return acc;
+                    }, { hat: null, neck: null })
+                );
             } catch (err) {
                 console.error(err);
             }
         };
 
         fetchData();
-    }, []);
+    }, [user]);
 
     const handleBuyItem = async (itemId) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/buy/${itemId}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/buy/${itemId}`, {}, {
+                withCredentials: true
             });
 
             // Find the bought item
@@ -97,8 +81,6 @@ export function AvatarOverview(){
             // Update the state
             setItems(prevItems => prevItems.filter(item => item.id !== itemId));
             setOwnedItems(prevOwnedItems => [...prevOwnedItems, boughtItem]);
-
-            // alert(response.data.message);
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 alert("You do not have enough credits to buy this item");
@@ -111,17 +93,13 @@ export function AvatarOverview(){
 
     const handleEquipItem = async (item) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/equip/${item.id}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/equip/${item.id}`, {}, {
+                withCredentials: true
             });
 
             const newEquippedItems = { ...equippedItems, [item.type]: item };
-            setEquippedItems(newEquippedItems);
 
-            // alert(response.data.message);
+            updateEquippedItems(newEquippedItems);
         } catch (err) {
             console.error(err);
             alert("An error occurred while equipping the item");
@@ -130,17 +108,13 @@ export function AvatarOverview(){
 
     const handleUnequipItem = async (item) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/unequip/${item.id}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/unequip/${item.id}`, {}, {
+                withCredentials: true
             });
 
             const newEquippedItems = { ...equippedItems, [item.type]: null };
-            setEquippedItems(newEquippedItems);
 
-            // alert(response.data.message);
+            updateEquippedItems(newEquippedItems);
         } catch (err) {
             console.error(err);
             alert("An error occurred while unequipping the item");
@@ -162,8 +136,6 @@ export function AvatarOverview(){
             <div className="avatar-container">
                 <div className="avatar">
                     <Account />
-                    {equippedItems.hat && <img className="equipped-item hat" src={itemImages[equippedItems.hat.item_img]} alt={equippedItems.hat.name} />}
-                    {equippedItems.neck && <img className="equipped-item neck" src={itemImages[equippedItems.neck.item_img]} alt={equippedItems.neck.name} />}
                 </div>
                 <div>
                     <Achievements userId={userId}/>

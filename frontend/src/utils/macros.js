@@ -1,2 +1,2 @@
-export const API_BASE_URL = "http://localhost:8000/budgeteer";
+export const API_BASE_URL = process.env.REACT_APP_API_URL;
 export const INFO = "http://localhost:8000/userinfo";

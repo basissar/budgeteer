@@ -14,7 +14,7 @@ export class AccountRepository implements BaseRepository<Account, string> {
 
             return result;
         } catch (err) {
-            throw new RepositoryError(`Acocunt repository error: ${err.message}`);
+            throw new RepositoryError(`Acocunt repository error: ${(err as Error).message}`);
         }
     }
     

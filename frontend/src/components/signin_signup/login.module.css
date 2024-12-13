@@ -86,3 +86,9 @@ input, label {
     display: flex;
     justify-content: center; /* Horizontally center the content */
   }
+
+.errorMessage {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}

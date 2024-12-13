@@ -7,6 +7,7 @@ import { CustomCardSelect } from '../custom/customCardSelect.js';
 import deleteIcon from "../../assets/delete.svg";
 import editIcon from "../../assets/edit.svg";
 import { ProgressBar } from '../custom/progressBar.js';
+import {useUserContext} from "../security/userProvider";
 
 const categoryIcons = [
     { name: 'Unclassified', icon: require("../../assets/categories/cat-1.svg").default },
@@ -27,12 +28,13 @@ export default function Budgets({ currentWalletId, currentWalletCurrency, userId
     const [budgets, setBudgets] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchBudgets = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const budgetsResponse = await axios.get(`${API_BASE_URL}/${userId}/budgets/${currentWalletId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const budgetsResponse = await axios.get(`${API_BASE_URL}/${user.id}/budgets/${currentWalletId}`, {
+                    withCredentials: true
                 });
                 setBudgets(budgetsResponse.data.budgets);
             } catch (error) {
@@ -56,9 +58,8 @@ export default function Budgets({ currentWalletId, currentWalletCurrency, userId
 
     const handleDeleteBudget = async (budgetId) => {
         try {
-            const token = localStorage.getItem('token');
             const response = await axios.delete(`${API_BASE_URL}/${userId}/budgets/${budgetId}`, {
-                headers: { Authorization: `Bearer ${token}` }
+                withCredentials: true
             });
 
             setBudgets(budgets.filter(budget => budget.id !== budgetId));

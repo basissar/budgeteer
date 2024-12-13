@@ -5,6 +5,7 @@ import Goals from './goals';
 import { API_BASE_URL, INFO } from '../../utils/macros';
 import { CustomCardSelect } from '../custom/customCardSelect';
 import './budgets.css';
+import {useUserContext} from "../security/userProvider";
 
 export default function BudgetGoalOverview() {
     const [currentWalletId, setCurrentWalletId] = useState('');
@@ -13,20 +14,13 @@ export default function BudgetGoalOverview() {
     const [userId, setUserId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(`${INFO}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
-
-                setUserId(userResponse.data.user.id);
-
-                const walletResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/wallets`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const walletResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets`, {
+                    withCredentials: true
                 });
                 setWallets(walletResponse.data.wallets);
 
@@ -42,7 +36,7 @@ export default function BudgetGoalOverview() {
         };
 
         fetchData();
-    }, []);
+    }, [user]);
 
     const handleWalletChange = (selectedOption) => {
         setCurrentWalletId(selectedOption.value);

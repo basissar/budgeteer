@@ -5,38 +5,26 @@ import  './avatarOverview/avatar.css';
 import {ProgressBar} from './custom/progressBar.js';
 import credit from '../assets/credit.svg';
 
-import av1 from '../assets/avatars/1.png';
-import av2 from '../assets/avatars/2.png';
-
-
-const avatarImages = [
-    av1, av2
-]
+import {useUserContext} from "./security/userProvider";
+import {AvatarWindow} from "./avatarOverview/avatarWindow";
 
 export function Account(){
     const [account, setAccount] = useState(null);
     const [nextLevelXP, setXP] = useState(0);
-    const [userId, setUserId] = useState('');
-    const [username, setUsername] = useState('');
     const [percentage, setPercentage] = useState(0);
+
+    const {user} = useUserContext();
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!user) {
+                return;
+            }
+
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(INFO,{
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
 
-                setUserId(userResponse.data.user.id);
-                setUsername(userResponse.data.user.username);
-
-                const accountResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/account`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                const accountResponse = await axios.get(`${API_BASE_URL}/${user.id}/account`, {
+                    withCredentials: true
                 });
 
                 setAccount(accountResponse.data.account);
@@ -56,17 +44,15 @@ export function Account(){
         }
 
         fetchData();
-    }, []);
+    }, [user]);
 
     return (
         <div className="account_container">
             <div className="accountInfo">
-            <div className="image_container">
-                <img src={account && avatarImages[account.avatar.id - 1]} alt={account && account.avatar.name} />
-            </div>
-            {account ? (
-                <>
-                    <div id="username">{username}</div>
+                <AvatarWindow/>
+                {account ? (
+                    <>
+                        <div id="username">{user && user.username}</div>
                     <div className="creds"><p>{account.credits}</p> <img src={credit} alt="credit_icon"/></div>
                 </>
             ) : (

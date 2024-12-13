@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL, INFO } from '../../utils/macros.js';
 import CustomDialog from '../custom/customDialog.js'
+import {useUserContext} from "../security/userProvider";
 
 const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
     const [newExpenseName, setNewExpenseName] = useState('');
@@ -14,12 +15,13 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
     const [eventResult, setEventResult] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get(`${API_BASE_URL}/${userId}/categories/${currentWalletId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const response = await axios.get(`${API_BASE_URL}/${user.id}/categories/${currentWalletId}`, {
+                    withCredentials: true
                 });
 
                 setCategories(response.data.categories);
@@ -30,7 +32,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
         };
 
         fetchCategories();
-    }, [userId, currentWalletId]);
+    }, [user, userId, currentWalletId]);
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
@@ -42,7 +44,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_BASE_URL}/${userId}/wallets/${currentWalletId}/expenses`,
+            const response = await axios.post(`${API_BASE_URL}/${user.id}/wallets/${currentWalletId}/expenses`,
                 {
                     name: newExpenseName,
                     amount: newExpenseAmount,
@@ -52,7 +54,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses }) => {
                     walletId: currentWalletId
                 },
                 {
-                    headers: { Authorization: `Bearer ${token}` }
+                    withCredentials: true
                 });
 
             // alert("Expense created successfully!");

@@ -7,6 +7,7 @@ import { CustomCardSelect } from '../custom/customCardSelect.js';
 import deleteIcon from "../../assets/delete.svg";
 import editIcon from "../../assets/edit.svg";
 import { API_BASE_URL, INFO } from '../../utils/macros.js';
+import {useUserContext} from "../security/userProvider";
 
 // Define the array of category icons
 const categoryIcons = [
@@ -37,20 +38,17 @@ export default function Expenses() {
 
     const [categoryFilter, setCategoryFilter] = useState('');
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchData = async () => {
+            if (!user) return;
+
+            setUserId(user.id);
+
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(INFO, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
-
-                setUserId(userResponse.data.user.id);
-
-                const walletResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/wallets`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const walletResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets`, {
+                    withCredentials: true,
                 });
                 setWallets(walletResponse.data.wallets);
 
@@ -59,8 +57,8 @@ export default function Expenses() {
                     setCurrentWalletId(firstWalletId);
                     setCurrentWalletCurrency(walletResponse.data.wallets[0].currency);
 
-                    const expensesResponse = await axios.get(`${API_BASE_URL}/${userResponse.data.user.id}/wallets/${firstWalletId}/expenses`, {
-                        headers: { Authorization: `Bearer ${token}` }
+                    const expensesResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets/${firstWalletId}/expenses`, {
+                        withCredentials: true,
                     });
                     setExpenses(expensesResponse.data.expenses);
                 }
@@ -71,7 +69,7 @@ export default function Expenses() {
         };
 
         fetchData();
-    }, []);
+    }, [user]);
 
     const handleWalletChange = async (selectedOption) => {
         setCurrentWalletId(selectedOption.value);
@@ -81,7 +79,7 @@ export default function Expenses() {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(`${API_BASE_URL}/${userId}/wallets/${selectedOption.value}/expenses`, {
-                headers: { Authorization: `Bearer ${token}` }
+                withCredentials: true,
             });
             setExpenses(response.data.expenses);
         } catch (error) {
@@ -95,16 +93,15 @@ export default function Expenses() {
 
     const handleDeleteExpense = async (expenseId) => {
         try {
-            const token = localStorage.getItem('token');
-            const reponse = await axios.delete(`${API_BASE_URL}/${userId}/expenses/${expenseId}`, {
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await axios.delete(`${API_BASE_URL}/${userId}/expenses/${expenseId}`, {
+                withCredentials: true,
             });
 
-            console.log(reponse);
+            console.log(response);
 
             setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== expenseId));
         } catch (error) {
-            setErrorMessage(`An error occured while deleting an expense`);
+            setErrorMessage(`An error occurred while deleting an expense`);
             console.error(error.message);
         }
     }

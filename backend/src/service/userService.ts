@@ -7,6 +7,8 @@ import {UserRepository} from "../repository/userRepository.ts"
 import { compare, hash} from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { create, getNumericDate, verify } from "https://deno.land/x/djwt@v2.4/mod.ts";
 import { key } from "../utils/apiKey.ts";
+import {UserUpdatePayload} from "../model/UserUpdatePayload.ts";
+import {ValidationError} from "../errors/ValidationError.ts";
 
 // import { Injectable } from "https://deno.land/x/inject@v0.1.2/mod.ts";
 
@@ -37,8 +39,8 @@ export class UserService {
 
             return await this.repository.save(user);
         } catch (error) {
-            console.error(error.stack);
-            throw new Error(error.message);
+            console.error((error as Error).stack);
+            throw new Error((error as Error).message);
         }   
     }
 
@@ -51,7 +53,7 @@ export class UserService {
 
                 existsByEmail = await this.existsByEmail(user.email);
             } catch (err) {
-                throw new ServiceError(`User service error: ${err.message}`);
+                throw new ServiceError(`User service error: ${(err as Error).message}`);
             }
             
 
@@ -87,14 +89,35 @@ export class UserService {
 
         const jwt = await create({ alg: "HS512", typ: "JWT" }, { payload }, key);
 
-        return {token: jwt, id: user.id};
+        return {token: jwt, user: user};
+    }
+
+    async updateUser(userUpdatePayload: UserUpdatePayload) {
+        const foundUser = await this.repository.findById(userUpdatePayload.id);
+
+        if(!foundUser) {
+            return null;
+        }
+
+        const isValid = await this.existingUserCheck(userUpdatePayload, foundUser.username, foundUser.email);
+
+        if (!isValid) {
+            throw new ValidationError(`User with provided credentials already exists`);
+        }
+
+        foundUser.set({
+            username: userUpdatePayload.username,
+            email: userUpdatePayload.email,
+        });
+
+        return await foundUser.save();
     }
 
     async getAllUsers(): Promise<User[] | null> {
        try {
            return await this.repository.findAll();
        } catch (e) {
-           throw new ServiceError(`User service error: ${e.message}`);
+           throw new ServiceError(`User service error: ${(e as Error).message}`);
        }
     }
 
@@ -102,7 +125,7 @@ export class UserService {
         try {
             return await this.repository.findByUsername(username);
         } catch (err) {
-            throw new ServiceError(`User service error: ${err.message}`)
+            throw new ServiceError(`User service error: ${(err as Error).message}`)
         }
         
     }
@@ -111,8 +134,10 @@ export class UserService {
         return await this.repository.findById(id);
     }
 
-    async deleteUser(username: string): Promise<boolean> {
-        return  await this.repository.deleteByUsername(username) != 0;
+    async deleteUser(id: string): Promise<boolean> {
+        return  await this.repository.deleteById(id) != 0;
+        // const result = await this.repository.setDeleted(id);
+        // return result[0] > 0;
     }
 
     async exists(identifier: string): Promise<boolean>{
@@ -127,7 +152,7 @@ export class UserService {
         try{
             return await this.repository.existsByUsername(username);
         } catch (error) {
-            throw new ServiceError('User service error: ' + error.message);
+            throw new ServiceError('User service error: ' + (error as Error).message);
         }
     }
 
@@ -135,7 +160,7 @@ export class UserService {
         try{
             return await this.repository.existsByEmail(email);
         } catch (error) {
-            throw new ServiceError('User service error: ' + error.message);
+            throw new ServiceError('User service error: ' + (error as Error).message);
         }
     }
 
@@ -148,19 +173,6 @@ export class UserService {
         }
     }
 
-    async getCurrentUserId(token: string): Promise<string | null> {
-        try {
-            const result = await verify(token, key);
-
-            const id = (result as { payload: { id: string } }).payload.id;
-
-            return id;
-        } catch (error) {
-            console.error('Error verifying token: ' + error);
-            return null;
-        }
-    }
-
     async getUsersForCron(timezones: string[], recurrence: string){
         try {
             return await this.repository.getForCron(timezones, recurrence);
@@ -168,5 +180,27 @@ export class UserService {
             console.error('Error getting users: ' + error);
             return null;
         }
+    }
+
+    private async existingUserCheck(payloadCheck: UserUpdatePayload, username?: string, email?: string){
+        if (payloadCheck.username !== username) {
+            //username is not the same as current username, and we want to change it
+            const existsByNewUsername = await this.repository.existsByUsername(payloadCheck.username);
+
+            if (existsByNewUsername) {
+                return false;
+            }
+        }
+
+        if (payloadCheck.email !== email) {
+            //email is not the same as current email and we want to change it
+            const existsByEmail = await this.repository.existsByEmail(payloadCheck.email);
+
+            if (existsByEmail) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

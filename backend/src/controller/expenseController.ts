@@ -1,4 +1,4 @@
-import { RouterContext } from 'https://deno.land/x/oak@v12.6.1/router.ts';
+import { RouterContext } from "@oak/oak";
 import { CREATED, INTERNAL_ERROR, WALLET_SERVICE, EXPENSE_SERVICE, USER_SERVICE, OK, NOT_FOUND } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { Expense } from "../model/Expense.ts";
@@ -46,13 +46,11 @@ export class ExpenseController {
     }
 
     async createExpense(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
         const { userId } = ctx.params;
 
-        const passedExpense = requestBody.valueOf();
-
-        const newExpense = new Expense(passedExpense);
+        const newExpense = new Expense(requestBody);
 
         const serviceResponse = await this.expenseService.createExpense(newExpense, userId);
 

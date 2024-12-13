@@ -1,11 +1,22 @@
-import { RouterContext } from 'https://deno.land/x/oak@v12.6.1/router.ts';
+import { RouterContext } from '@oak/oak';
 import { UserService } from "../service/userService.ts";
 import { User } from "../model/User.ts";
-import { BAD_REQUEST, CREATED, INTERNAL_ERROR, OK, UNAUTHORIZED, NOT_FOUND, CONFLICT, USER_SERVICE } from "../config/macros.ts";
+import {
+    BAD_REQUEST,
+    CREATED,
+    INTERNAL_ERROR,
+    OK,
+    UNAUTHORIZED,
+    NOT_FOUND,
+    CONFLICT,
+    USER_SERVICE,
+    BLUE, RESET_COLOR
+} from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { verify } from 'https://deno.land/x/djwt@v2.4/mod.ts';
 import { key } from "../utils/apiKey.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
+import {UserUpdatePayload} from "../model/UserUpdatePayload.ts";
 
 export class UserController {
 
@@ -24,9 +35,9 @@ export class UserController {
     }
 
     async register(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const user = new User(requestBody.valueOf());
+        const user = new User(requestBody);
 
         try {
             const createdUser = await this.userService.register(user);
@@ -54,11 +65,11 @@ export class UserController {
     }
 
     async login(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const username = requestBody.valueOf().username;
+        const username = requestBody.username;
 
-        const password = requestBody.valueOf().password;
+        const password = requestBody.password;
 
         if (!username || !password) {
             ctx.response.status = BAD_REQUEST;
@@ -78,18 +89,37 @@ export class UserController {
             return;
         }
 
+
+        ctx.cookies.set("jwt_token", result.token,{
+            httpOnly: true,
+            // secure: true, //if used on https
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7
+        });
+
+        ctx.cookies.set("user_id", result.user.id, {
+            httpOnly: true,
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7
+        });
+
         ctx.response.status = OK;
-        ctx.response.body = { message: "Login successful", username: username, id: result.id, token: result.token };
+        // ctx.response.body = { message: "Login successful", username: username, id: result.id, token: result.token };
+        ctx.response.body = { message: "Login successful", username: result.user.username, id: result.user.id, email: result.user.email };
+    }
+
+    logout(ctx: RouterContext<string>) {
+        ctx.cookies.delete("jwt_token");
+
+        ctx.response.status = OK;
+        ctx.response.body = { message: "Logout successful"};
+        return;
     }
 
     async createUser(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        console.log(requestBody);
-
-        const passedUser = requestBody.valueOf();
-
-        const passedUserName = passedUser.username;
+        const passedUserName = requestBody.username;
 
         if (!passedUserName) {
             ctx.response.status = BAD_REQUEST; 
@@ -97,7 +127,7 @@ export class UserController {
             return;
         }
 
-        const toCreate = new User(passedUser);
+        const toCreate = new User(requestBody);
 
         const createdUser = await this.userService.createUser(toCreate);
 
@@ -135,16 +165,13 @@ export class UserController {
         }
     }
 
-    async deleteUserByUsername(ctx: RouterContext<string>) {
-        const { username } = ctx.params;
+    async deleteUser(ctx: RouterContext<string>) {
+        const id = await ctx.cookies.get("user_id");
 
-        if (!username) {
-            ctx.response.status = BAD_REQUEST;
-            ctx.response.body = { message: "Username is required" };
-            return;
-        }
+        const deletedUser = await this.userService.deleteUser(id!);
 
-        const deletedUser = await this.userService.deleteUser(username);
+        ctx.cookies.delete("jwt_token");
+        ctx.cookies.delete("user_id");
 
         if (deletedUser) {
             ctx.response.status = OK;
@@ -155,35 +182,30 @@ export class UserController {
         }
     }
 
-    async getUserInfo(ctx: RouterContext<string>) {
-        const token = ctx.request.headers.get('Authorization');
+    async updateUser(ctx: RouterContext<string>) {
+        const requestBody = await ctx.request.body.json();
 
-        if (!token) {
-            ctx.response.status = UNAUTHORIZED;
-            ctx.response.body = { message: "Unauthorized: Token Missing" };
+        const id = await ctx.cookies.get("user_id");
+
+        const updatePayload = new UserUpdatePayload();
+        updatePayload.id = id!;
+        updatePayload.username = requestBody.username;
+        updatePayload.email = requestBody.email;
+
+        console.log(BLUE, "INSIDE UPDATE", RESET_COLOR);
+        console.log(updatePayload);
+
+        try {
+            const updatedUser = await this.userService.updateUser(updatePayload);
+
+            ctx.response.status = OK;
+            ctx.response.body = { message: "User updated", user: updatedUser};
             return;
-        }
-
-        const isValid = await this.userService.verifyToken(token.split(" ")[1]);
-
-        if (!isValid) {
-            ctx.response.status = UNAUTHORIZED;
-            ctx.response.body = { message: "Unauthorized: Invalid Token" };
+        } catch (error) {
+            ctx.response.status = BAD_REQUEST;
+            ctx.response.body = { message: error}
             return;
-        }
-
-        const payload = await verify(token.split(" ")[1], key);
-
-        const userId = (payload as { payload: { id: string } }).payload.id;
-        const username = (payload as { payload: { username: string } }).payload.username;
-
-
-        ctx.response.status = OK;
-        ctx.response.body = {
-            user: {
-                id: userId,
-                username: username
-            }
         }
     }
+
 }

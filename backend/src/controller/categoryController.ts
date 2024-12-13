@@ -1,6 +1,6 @@
 //todo
 
-import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
+import { RouterContext } from "@oak/oak";
 import { BAD_REQUEST, CATEGORY_SERVICE, INTERNAL_ERROR, OK, UNAUTHORIZED, WALLET_SERVICE } from "../config/macros.ts";
 import { USER_SERVICE } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
@@ -76,11 +76,9 @@ export class CategoryController {
                 return;
             }
 
-            const requestBody = await ctx.request.body().value;
+            const requestBody = await ctx.request.body.json();
 
-            const passedCategory = requestBody.valueOf();
-
-            const toCreate = new Category(passedCategory);
+            const toCreate = new Category(requestBody);
 
             const createdCategory = await this.categoryService.createCategory(toCreate);
 
@@ -95,7 +93,7 @@ export class CategoryController {
             }
         } catch (err) {
             ctx.response.status = INTERNAL_ERROR,
-            ctx.response.body = {message: err.message};
+            ctx.response.body = {message: (err as Error).message};
         }
     }
 
@@ -142,7 +140,7 @@ export class CategoryController {
             }
         } catch (err) {
             ctx.response.status = INTERNAL_ERROR;
-            ctx.response.body = { mesage: err.message };
+            ctx.response.body = { mesage: (err as Error).message };
         }
     }
 }

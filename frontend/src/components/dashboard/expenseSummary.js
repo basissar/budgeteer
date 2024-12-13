@@ -5,6 +5,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './expenseSummary.css'
 import {CustomCardSelect} from "../custom/customCardSelect.js";
+import {useUserContext} from "../security/userProvider";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -18,22 +19,20 @@ export function ExpenseSummary({ months }) {
     const [currentWalletId, setCurrentWalletId] = useState('');
     const [currentCurrency, setCurrentCurrency] = useState('');
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchUserAndWallets = async () => {
+            if (!user) return;
+
+            setUserId(user.id);
+
             try {
-                const token = localStorage.getItem('token');
-                const userResponse = await axios.get(INFO, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
+
+                const walletResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets`, {
+                    withCredentials: true,
                 });
 
-                const receivedId = userResponse.data.user.id;
-                setUserId(receivedId);
-
-                const walletResponse = await axios.get(`${API_BASE_URL}/${receivedId}/wallets`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
                 setWallets(walletResponse.data.wallets);
 
                 if (walletResponse.data.wallets.length > 0) {
@@ -48,7 +47,7 @@ export function ExpenseSummary({ months }) {
         };
 
         fetchUserAndWallets();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const fetchSums = async () => {
@@ -65,10 +64,10 @@ export function ExpenseSummary({ months }) {
                     const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
                     monthsArray.push(date);
                     promises.push(axios.post(`${API_BASE_URL}/analytics/${userId}/${currentWalletId}/sumNegative`, { date: date.toISOString(), walletId: currentWalletId }, {
-                        headers: { Authorization: `Bearer ${token}` }
+                        withCredentials: true,
                     }));
                     promises.push(axios.post(`${API_BASE_URL}/analytics/${userId}/${currentWalletId}/sumPositive`, { date: date.toISOString(), walletId: currentWalletId }, {
-                        headers: { Authorization: `Bearer ${token}` }
+                        withCredentials: true,
                     }));
                 }
 

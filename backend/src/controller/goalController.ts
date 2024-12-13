@@ -1,10 +1,19 @@
-import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
-import { BAD_REQUEST, CREATED, INTERNAL_ERROR, NOT_FOUND, NO_CONTENT, OK, SAVINGS_SERVICE, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
-import { GoalService } from "../service/goalService.ts";
-import { UserService } from "../service/userService.ts";
-import { WalletService } from "../service/walletService.ts";
-import { container } from "../utils/container.ts";
-import { Goal } from "../model/Goal.ts";
+import {RouterContext} from "@oak/oak";
+import {
+    BAD_REQUEST,
+    CREATED,
+    NOT_FOUND,
+    OK,
+    SAVINGS_SERVICE,
+    UNAUTHORIZED,
+    USER_SERVICE,
+    WALLET_SERVICE
+} from "../config/macros.ts";
+import {GoalService} from "../service/goalService.ts";
+import {UserService} from "../service/userService.ts";
+import {WalletService} from "../service/walletService.ts";
+import {container} from "../utils/container.ts";
+import {Goal} from "../model/Goal.ts";
 
 
 export class GoalController {
@@ -46,13 +55,11 @@ export class GoalController {
 
 
     async createGoal(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
         const { userId } = ctx.params;
 
-        const passedGoal = requestBody.valueOf();
-
-        const newGoal = new Goal(passedGoal);
+        const newGoal = new Goal(requestBody);
 
         const serviceResponse = await this.goalService.createGoal(newGoal, userId);
 
@@ -65,13 +72,11 @@ export class GoalController {
     }
 
     async updateMoney(ctx: RouterContext<string>) {
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
         const { userId, goalId } = ctx.params;
 
-        const updateAmount = requestBody.valueOf();
-
-        const serviceResponse = await this.goalService.updateMoney(Number(goalId), updateAmount, userId);
+        const serviceResponse = await this.goalService.updateMoney(Number(goalId), requestBody, userId);
 
         ctx.response.status = OK;
 

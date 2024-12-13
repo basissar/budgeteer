@@ -1,4 +1,3 @@
-import { Account } from "./Account.ts";
 import {
     Table,
     Column,
@@ -10,6 +9,8 @@ import {
     BelongsToMany
 } from 'npm:sequelize-typescript'
 import { Wallet } from "./Wallet.ts";
+import { Account } from "./Account.ts";
+import {IsEmail} from "sequelize-typescript";
 
 @Table({tableName: "users", createdAt: false, updatedAt: false})
 export class User extends Model {
@@ -24,6 +25,7 @@ export class User extends Model {
     @Column({allowNull: false, unique: true})
     declare username: string;
 
+    @IsEmail
     @Column({allowNull: true, unique: true})
     declare email: string;
 
@@ -39,7 +41,10 @@ export class User extends Model {
     @Column({allowNull: false})
     declare timezone: string;
 
-    @HasMany(() => Wallet)
+    @Column({allowNull: true})
+    declare deletedAt: Date;
+
+    @HasMany(() => Wallet, { onDelete: 'CASCADE' })
     public wallets!: Wallet[];
 }
   

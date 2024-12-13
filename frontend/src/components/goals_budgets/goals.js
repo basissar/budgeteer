@@ -8,6 +8,7 @@ import { CustomCardSelect } from '../custom/customCardSelect.js';
 import deleteIcon from "../../assets/delete.svg";
 import editIcon from "../../assets/edit.svg";
 import { ProgressBar } from '../custom/progressBar.js';
+import {useUserContext} from "../security/userProvider";
 
 const categoryIcons = [
     { name: 'Unclassified', icon: require("../../assets/categories/cat-1.svg").default },
@@ -27,12 +28,13 @@ export default function Goals({ currentWalletId, currentWalletCurrency, userId }
     const [goals, setGoals] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
 
+    const { user } = useUserContext();
+
     useEffect(() => {
         const fetchGoals = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const goalsResponse = await axios.get(`${API_BASE_URL}/${userId}/goals/${currentWalletId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const goalsResponse = await axios.get(`${API_BASE_URL}/${user.id}/goals/${currentWalletId}`, {
+                    withCredentials: true
                 });
                 setGoals(goalsResponse.data.goals);
             } catch (error) {
@@ -44,7 +46,7 @@ export default function Goals({ currentWalletId, currentWalletCurrency, userId }
         if (currentWalletId) {
             fetchGoals();
         }
-    }, [currentWalletId, userId]);
+    }, [user, currentWalletId, userId]);
 
     const handleGoalAddition = (newGoal) => {
         setGoals([...goals, newGoal]);
@@ -56,9 +58,8 @@ export default function Goals({ currentWalletId, currentWalletCurrency, userId }
 
     const handleDeleteGoal = async (goalId) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.delete(`${API_BASE_URL}/${userId}/goals/${goalId}`, {
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await axios.delete(`${API_BASE_URL}/${user.id}/goals/${goalId}`, {
+                withCredentials: true
             });
 
             setGoals(goals.filter(goal => goal.id !== goalId));

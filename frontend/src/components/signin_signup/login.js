@@ -3,6 +3,7 @@ import axios from 'axios'; // Import axios for making HTTP requests
 import { useNavigate } from 'react-router-dom';
 import styles from './login.module.css';
 import logo from '../../assets/budget_logo.svg';
+import {useUserContext} from "../security/userProvider";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -11,34 +12,15 @@ export default function Login() {
     const [errorMessage, setErrorMessage] = useState('');
     const endpoint = 'http://localhost:8000/budgeteer/user/login'
 
+    const {login, error, loading} = useUserContext();
+
     const handleLogin = async () => {
-        try {
-            const response = await axios.post(endpoint, { username, password });
+        await login(username, password);
 
-            if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);
-                setErrorMessage('');
-
-                // Redirect to the profile page with the username
-                // navigate(`/profile/${username}`);
-
-                navigate('/');
-            }
-
-
-        } catch (error) {
-            if (error.response.status === 400) {
-                // Bad request
-                setErrorMessage(error.response.data.message);
-            } else if (error.response.status === 401) {
-                // Unauthorized
-                setErrorMessage(error.response.data.message);
-            } else {
-                // Internal server error or unexpected error
-                setErrorMessage('An unexpected error occurred. Please try again later.');
-            }
+        if (!error) {
+            navigate('/');
         }
-    }
+    };
 
     const handleInputChange = (setter) => (e) => {
         setter(e.target.value);
@@ -76,7 +58,7 @@ export default function Login() {
                             onChange={handleInputChange(setPassword)}
                         />
                     </div>
-                    {errorMessage && <p>{errorMessage}</p>}
+                    {error && <p className={styles.errorMessage}>{error}</p>} {/* Show error message */}
                     <button type="submit">Login</button>
                     <div className={styles.log_redirect}>
                         <p>Don't have an account yet?</p>

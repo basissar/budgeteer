@@ -1,4 +1,4 @@
-import { RouterContext } from "https://deno.land/x/oak@v12.6.1/router.ts";
+import { RouterContext } from "@oak/oak";
 import { ANALYTICS_SERVICE, OK } from "../config/macros.ts";
 import { AnalyticsService } from "../service/analyticsService.ts";
 import { container } from "../utils/container.ts";
@@ -19,9 +19,9 @@ export class AnalyticsController {
     async getSumNegativeForMonth(ctx: RouterContext<string>){
         const { userId , walletId } = ctx.params;
 
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const date = requestBody.valueOf().date;
+        const date = requestBody.date;
 
         const passedDate = new Date(date);
 
@@ -38,9 +38,9 @@ export class AnalyticsController {
     async getSumPositiveForMonth(ctx: RouterContext<string>){
         const { userId , walletId} = ctx.params;
 
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const date = requestBody.valueOf().date;
+        const date = requestBody.date;
 
         const passedDate = new Date(date);
 
@@ -57,11 +57,11 @@ export class AnalyticsController {
     async getSumNegativeForRange(ctx: RouterContext<string>){
         const { userId } = ctx.params;
 
-        const requestBody = await ctx.request.body().value;
+        const requestBody = await ctx.request.body.json();
 
-        const startDate = requestBody.valueOf().startDate;
-        const endDate = requestBody.valueOf().endDate;
-        const categoryId = requestBody.valueOf().categoryId;
+        const startDate = requestBody.startDate;
+        const endDate = requestBody.endDate;
+        const categoryId = requestBody.categoryId;
 
         const passedStart = new Date(startDate);
         const passedEnd = new Date(endDate);
