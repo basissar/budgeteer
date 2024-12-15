@@ -3,6 +3,7 @@
 /backend/.vscode/
 /backend/node_modules/
 /backend/info
+/backend/.idea/
 
 ## Frontend ##
 /frontend/node_modules
@@ -18,6 +19,7 @@
 /frontend/npm-debug.log*
 /frontend/yarn-debug.log*
 /frontend/yarn-error.log*
+/frontend/.idea/
 
 # User-specific stuff
 .idea/**/workspace.xml
@@ -52,3 +54,5 @@
 # Sonarlint plugin
 # https://plugins.jetbrains.com/plugin/7973-sonarlint
 .idea/**/sonarlint/
+
+.vscode/
