@@ -21,11 +21,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "dev": "env-cmd -f .env.dev react-scripts start"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject",
+    "dev": "env-cmd -f .env.dev react-app-rewired start"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +46,11 @@
     ]
   },
   "devDependencies": {
-    "env-cmd": "^10.1.0"
+    "customize-cra": "^1.0.0",
+    "customize-cra-less-loader": "^2.0.0",
+    "env-cmd": "^10.1.0",
+    "less": "^4.2.1",
+    "less-loader": "^12.2.0",
+    "react-app-rewired": "^2.2.1"
   }
 }
