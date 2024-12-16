@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "pg": "^8.13.1",
-    "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.5",
-    "sequelize-typescript": "^2.1.6",
-    "timezones.json": "^1.7.1"
-  }
-}
