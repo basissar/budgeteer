@@ -10,7 +10,7 @@ import {
 } from 'npm:sequelize-typescript'
 import { Wallet } from "./Wallet.ts";
 import { Account } from "./Account.ts";
-import {IsEmail} from "sequelize-typescript";
+import {IsEmail} from 'npm:sequelize-typescript';
 
 @Table({tableName: "users", createdAt: false, updatedAt: false})
 export class User extends Model {
