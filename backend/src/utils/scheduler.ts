@@ -1,7 +1,7 @@
 import { Cron } from "https://deno.land/x/croner@5.1.0/src/croner.js";
 import { BudgetService } from "../service/budgetService.ts";
 import { UserService } from "../service/userService.ts";
-import  DateTime  from "https://cdn.skypack.dev/luxon";
+import  {DateTime}  from "https://cdn.skypack.dev/luxon";
 import { Budget } from "../model/Budget.ts";
 import timezonesJson from 'npm:timezones.json';
 import { Timezone } from "../model/Timezone.ts";

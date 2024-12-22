@@ -3,9 +3,9 @@ import axios from 'axios';
 import Budgets from './budgets';
 import Goals from './goals';
 import { API_BASE_URL, INFO } from '../../utils/macros';
-import { CustomCardSelect } from '../custom/customCardSelect';
 import './budgets.css';
-import {useUserContext} from "../security/userProvider";
+import { useUserContext } from "../security/userProvider";
+import WalletSelect from '../custom/walletSelect';
 
 export default function BudgetGoalOverview() {
     const [currentWalletId, setCurrentWalletId] = useState('');
@@ -48,12 +48,8 @@ export default function BudgetGoalOverview() {
         <div className="budgets_goals_container">
             {errorMessage && <p>{errorMessage}</p>}
 
-            <div className="select-container">
-                <CustomCardSelect
-                    options={wallets}
-                    value={currentWalletId}
-                    onChange={handleWalletChange}
-                />
+            <div className="w-40">
+                <WalletSelect wallets={wallets} handleWalletChange={handleWalletChange} currentWalletId={currentWalletId} />
             </div>
 
             <div className="forms-tables-container">

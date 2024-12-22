@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import styles from './registration.module.css';
 import logo from '../../assets/budget_logo.svg';
 import { API_BASE_URL } from '../../utils/macros';
 import { useUserContext } from '../security/userProvider';
+import { TextInput, Button } from 'flowbite-react';
 
 export default function Register() {
 	const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function Register() {
 	const [errorMessage, setErrorMessage] = useState('');
 
 	// const {login, error} = useUserContext();
-	const {user,setUser} = useUserContext();
+	const { user, setUser } = useUserContext();
 
 	const handleRegister = async () => {
 		try {
@@ -28,7 +28,7 @@ export default function Register() {
 
 				try {
 					// await login(username, password);
-					const loginResponse = await axios.post(`${API_BASE_URL}/user/login`, {username, password}, {withCredentials: true });
+					const loginResponse = await axios.post(`${API_BASE_URL}/user/login`, { username, password }, { withCredentials: true });
 
 					console.log(loginResponse);
 
@@ -65,53 +65,38 @@ export default function Register() {
 
 	return (
 		<div>
-			<div className={styles.logo}>
-				<img src={logo} alt="Logo"/>
+			<div className="logo">
+				<img src={logo} alt="Logo" />
 			</div>
 
-			<p className={styles.reg_levelup}>Level up your money game!</p>
+			<p className="levelup">Level up your money game!</p>
 
-			<div className={styles.reg_container}>
+			<div class="container login-signup">
 
-			<h2>Create an account!</h2>
+				<h2>Create an account!</h2>
 
-			<form className="registration-form" onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
-				<div>
-					<label htmlFor="username">Username:</label>
-					<input
-						type="text"
-						id="username"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-					/>
-				</div>
-				<div>
-					<label htmlFor="email">Email:</label>
-					<input
-						type="email"
-						id="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-					/>
-				</div>
-				<div>
-					<label htmlFor="password">Password:</label>
-					<input
-						type="password"
-						id="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-					/>
-				</div>
-				{errorMessage && <p>{errorMessage}</p>}
-				<button type="submit">Register</button>
-				<div className={styles.reg_redirect}>
-					<p>Already have an acccount?</p>
-					<a href="/login">Sign In</a>
-				</div>
-			</form>
+				<form onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
+					<div>
+						<label htmlFor="username">Username:</label>
+						<TextInput id='username' class="focus:border-green-500 focus:ring-green-500" type='text' value={username} onChange={(e) => setUsername(e.target.value)}/>
+					</div>
+					<div>
+						<label htmlFor="email">Email:</label>
+						<TextInput id='email' class="focus:border-green-500 focus:ring-green-500" placeholder='example@email.com' type='email' value={email} onChange={(e) => setEmail(e.target.value)}/>
+					</div>
+					<div>
+						<label htmlFor="password">Password:</label>
+						<TextInput id='password' class="focus:border-green-500 focus:ring-green-500" type='password' value={password} onChange={(e) => setPassword(e.target.value)}/>
+					</div>
+					{errorMessage && <p>{errorMessage}</p>}
+					<Button class="self-center flex items-center justify-center text-white rounded-lg w-1/2" type='submit'>Register</Button>
+					<div className="redirect">
+						<p>Already have an acccount?</p>
+						<a href="/login">Sign In</a>
+					</div>
+				</form>
+			</div>
 		</div>
-		</div>
-		
+
 	);
 }

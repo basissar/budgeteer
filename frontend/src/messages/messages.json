@@ -1,0 +1,8 @@
+{
+  "errorMessages": {
+    "default": "Unknown error occurred.",
+    "credentials.missing": "Credentials missing.",
+    "username.missing": "Username is missing.",
+    "password.missing": "Password is missing."
+  }
+}

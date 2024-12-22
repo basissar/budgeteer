@@ -30,12 +30,12 @@ h2 {
     border-bottom: 1px solid black;
 }
 
-.item-list {
+/* .item-list {
     display: flex;
     flex-wrap: wrap;
-    /* justify-content: space-between; */
+    justify-content: space-between;
     gap: 10px;
-}
+} */
 
 .item {
     position: relative; /* Ensure the div can contain absolutely positioned elements */

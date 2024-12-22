@@ -27,8 +27,8 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
     async findById(id: number): Promise<Expense | null> {
         return await Expense.findByPk(id, {
             include: [
-                { model: Category, as: 'sourceCategory', attributes: ['name', 'color'] },
-                { model: Category, as: 'targetCategory', attributes: ['name', 'color'] }
+                { model: Category, as: 'sourceCategory', attributes: ['id','name', 'color'] },
+                { model: Category, as: 'targetCategory', attributes: ['id','name', 'color'] }
             ]
         });
     }
@@ -70,8 +70,8 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 walletId: id
             },
             include: [
-                { model: Category, as: 'sourceCategory', attributes: ['name', 'color'] },
-                { model: Category, as: 'targetCategory', attributes: ['name', 'color'] }
+                { model: Category, as: 'sourceCategory', attributes: ['id','name', 'color'] },
+                { model: Category, as: 'targetCategory', attributes: ['id','name', 'color'] }
             ],
             order: [['date', 'DESC']]
         })

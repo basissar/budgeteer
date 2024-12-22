@@ -1,35 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import './expenses.css';
 import ExpenseForm from './expenseForm.js';
-import { CustomCardSelect } from '../custom/customCardSelect.js';
 
-import deleteIcon from "../../assets/delete.svg";
-import editIcon from "../../assets/edit.svg";
 import { API_BASE_URL, INFO } from '../../utils/macros.js';
-import {useUserContext} from "../security/userProvider";
-
-// Define the array of category icons
-const categoryIcons = [
-    { name: 'Unclassified', icon: require("../../assets/categories/cat-1.svg").default },
-    { name: 'Entertainment', icon: require("../../assets/categories/cat-2.svg").default },
-    { name: 'Food', icon: require("../../assets/categories/cat-3.svg").default },
-    { name: 'School', icon: require("../../assets/categories/cat-4.svg").default },
-    { name: 'Transport', icon: require("../../assets/categories/cat-5.svg").default },
-    { name: 'Shopping', icon: require("../../assets/categories/cat-6.svg").default },
-    { name: 'Healthcare', icon: require("../../assets/categories/cat-7.svg").default },
-    { name: 'Housing', icon: require("../../assets/categories/cat-8.svg").default },
-    { name: 'Pets', icon: require("../../assets/categories/cat-9.svg").default },
-    { name: 'Travel', icon: require("../../assets/categories/cat-10.svg").default },
-    { name: 'Subscriptions', icon: require("../../assets/categories/cat-11.svg").default }
-];
-
+import { useUserContext } from "../security/userProvider";
+import Icon from '../custom/icon.js';
+import { Dropdown, Radio, Label, Table } from 'flowbite-react';
+import UpArrow from '../custom/UpArrow.jsx';
+import DownArrow from '../custom/DownArrow.jsx';
+import ExpenseTable from './expenseTable.js';
+import WalletSelect from '../custom/walletSelect.js';
 
 export default function Expenses() {
     const [currentWalletId, setCurrentWalletId] = useState('');
     const [currentWalletCurrency, setCurrentWalletCurrency] = useState('');
     const [expenses, setExpenses] = useState([]);
     const [wallets, setWallets] = useState([]);
+
+    const [categories, setCategories] = useState([]);
+
     const [userId, setUserId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -71,14 +60,31 @@ export default function Expenses() {
         fetchData();
     }, [user]);
 
+    useEffect(() => {
+        const fetchCategories = async () => {
+            if (!user || !currentWalletId) return;
+
+            try {
+                const response = await axios.get(`${API_BASE_URL}/${user.id}/categories/${currentWalletId}`, {
+                    withCredentials: true,
+                });
+                setCategories(response.data.categories);
+            } catch (error) {
+                setErrorMessage("An error occurred while fetching categories.");
+                console.error(error);
+            }
+        };
+
+        fetchCategories();
+    }, [user, currentWalletId]);
+
     const handleWalletChange = async (selectedOption) => {
         setCurrentWalletId(selectedOption.value);
         const selectedWallet = wallets.find(wallet => wallet.id === selectedOption.value);
         setCurrentWalletCurrency(selectedWallet.currency)
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_BASE_URL}/${userId}/wallets/${selectedOption.value}/expenses`, {
+            const response = await axios.get(`${API_BASE_URL}/${user.id}/wallets/${selectedOption.value}/expenses`, {
                 withCredentials: true,
             });
             setExpenses(response.data.expenses);
@@ -115,8 +121,8 @@ export default function Expenses() {
 
             if (typeof fieldA === 'string' && typeof fieldB === 'string') {
                 return sortOrder === 'asc'
-                    ? fieldA.localeCompare(fieldB, undefined, {sensitivity: 'base'})
-                    : fieldB.localeCompare(fieldA, undefined, {sensitivity: 'base'});
+                    ? fieldA.localeCompare(fieldB, undefined, { sensitivity: 'base' })
+                    : fieldB.localeCompare(fieldA, undefined, { sensitivity: 'base' });
             }
 
             if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
@@ -128,7 +134,7 @@ export default function Expenses() {
     const filteredExpenses = useMemo(() => {
         return sortedExpenses.filter(expense => {
             if (!categoryFilter) return true;
-            return expense.sourceCategory?.name === categoryFilter || expense.targetCategory?.name === categoryFilter;
+            return expense.sourceCategory?.id === categoryFilter || expense.targetCategory?.id === categoryFilter;
         });
     }, [sortedExpenses, categoryFilter]);
 
@@ -144,137 +150,95 @@ export default function Expenses() {
         setCategoryFilter(e.target.value);
     };
 
+    const getDropdownLabel = (selectedId) => {
+        if (!selectedId) return "All categories";
+
+        const selectedCategory = categories.find((cat) => cat.id === selectedId);
+        return (
+            <div className="flex items-center gap-2 h-5">
+                <Icon id={selectedCategory.id} alt={selectedCategory.name} />
+                <span>{selectedCategory.name}</span>
+            </div>
+        );
+    };
+
     return (
-        <div className="container">
-            <div className="sort-select-container">
-                <div className="select-container">
-                    <CustomCardSelect
-                        options={wallets}
-                        value={currentWalletId}
-                        onChange={handleWalletChange}
-                    />
+        <div className="flex items-center flex-col">
+            <div className="flex items-center gap-x-5 m-2.5">
+                <div className="w-44">
+                    <WalletSelect wallets={wallets} handleWalletChange={handleWalletChange} currentWalletId={currentWalletId} />
                 </div>
 
-                <div className="sort-controls">
-                    <span>Sort by:</span>
-                    <div className="sort-radio">
-                        <label>
-                            <input
-                                type="radio"
-                                value="date"
-                                checked={sortField === 'date'}
-                                onChange={handleSortChange}
-                            />
-                            Date
-                        </label>
-                    </div>
-                    <div className="sort-radio">
-                        <label>
-                            <input
-                                type="radio"
-                                value="amount"
-                                checked={sortField === 'amount'}
-                                onChange={handleSortChange}
-                            />
-                            Amount
-                        </label>
-                    </div>
-                    <div className="sort-radio">
-                        <label>
-                            <input
-                                type="radio"
-                                value="name"
-                                checked={sortField === 'name'}
-                                onChange={handleSortChange}
-                            />
-                            Name
-                        </label>
-                    </div>
-                    <button onClick={toggleSortOrder}>
-                        {sortOrder === 'desc' ? 'Descending' : 'Ascending'}
-                    </button>
+                <div className="flex items-center gap-4">
+                    <legend>Sort by:</legend>
+                    <fieldset className="flex flex-row gap-2">
+                        <div className="flex items-center gap-2">
+                            <Radio className="radio-dg" value="date" checked={sortField === 'date'} onChange={handleSortChange} id="date" />
+                            <Label htmlFor="date">Date</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Radio className="radio-dg" value="amount" checked={sortField === 'amount'} onChange={handleSortChange} id="amount" />
+                            <Label htmlFor="amount">Amount</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Radio className="radio-dg" value="name" checked={sortField === 'name'} onChange={handleSortChange} id="name" />
+                            <Label htmlFor="name">Name</Label>
+                        </div>
+                    </fieldset>
+                </div>
 
-                    <div className="category-filter">
-                        <label>
-                            Category:
-                            <select value={categoryFilter} onChange={handleCategoryFilterChange}>
-                                <option value="">All</option>
-                                {categoryIcons.map(category => (
-                                    <option key={category.name} value={category.name}>{category.name}</option>
-                                ))}
-                            </select>
-                        </label>
-                    </div>
+
+                <button
+                    onClick={toggleSortOrder}
+                    className="flex flex-row items-center justify-center p-2 rounded-md hover:bg-gray-200 transition h-10"
+                    aria-label="Toggle Sort Order"
+                >
+                    <UpArrow color={sortOrder === "asc" ? "black" : "gray"} />
+                    <DownArrow color={sortOrder === "desc" ? "black" : "gray"} />
+                </button>
+
+
+                <div class="w-44">
+                    <Dropdown
+                        label={getDropdownLabel(categoryFilter)}
+                        color="light"
+                        theme={{ floating: { target: "w-full focus:border-green-500 justify-center focus-dg" } }}>
+
+                        <Dropdown.Item onClick={() => handleCategoryFilterChange({ target: { value: "" } })}>
+                            All categories
+                        </Dropdown.Item>
+
+                        <div className="max-h-60 overflow-y-auto">
+                            {categories.map((category) => (
+                                <Dropdown.Item
+                                    key={category.id}
+                                    onClick={() => handleCategoryFilterChange({ target: { value: category.id } })}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Icon id={category.id} alt={category.name} />
+                                        <span>{category.name}</span>
+                                    </div>
+                                </Dropdown.Item>
+                            ))}
+                        </div>
+                    </Dropdown>
+                    <input type="hidden" name="category" value={categoryFilter} />
                 </div>
             </div>
 
 
-            <div className="expenses-container">
-                <div className="expense-table">
+            <div className="flex flex-row gap-20">
+                <div >
                     <h2>Expenses</h2>
-                    <div className="table-wrapper">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Expense Name</th>
-                                <th>Source Category</th>
-                                <th>Target Category</th>
-                                <th>Amount</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {filteredExpenses.map(expense => (
-                                <tr key={expense.id}>
-                                    <td>{new Date(expense.date).toLocaleDateString()}</td>
-                                    <td>{expense.name}</td>
-                                    <td>{expense.sourceCategory ? (
-                                        <div className="category-with-icon">
-                                            <img className="category-icon"
-                                                 src={categoryIcons.find(icon => icon.name === expense.sourceCategory.name)?.icon}
-                                                 alt={expense.sourceCategory.name}/>
-                                            <div className="category-div" style={{
-                                                backgroundColor: expense.sourceCategory.color,
-                                                borderRadius: '5px',
-                                                padding: '5px'
-                                            }}>
-                                                {expense.sourceCategory.name}
-                                            </div>
-                                        </div>
-                                    ) : ''}</td>
-                                    <td>{expense.targetCategory ? (
-                                        <div className="category-with-icon">
-                                            <img className="category-icon"
-                                                 src={categoryIcons.find(icon => icon.name === expense.targetCategory.name)?.icon}
-                                                 alt={expense.targetCategory.name}/>
-                                            <div className="category-div" style={{
-                                                backgroundColor: expense.targetCategory.color,
-                                                borderRadius: '5px',
-                                                padding: '5px' }}>
-                                                    {expense.targetCategory.name}
-                                                </div>
-                                            </div>
-                                        ) : ''}</td>
-                                        <td className={expense.amount >= 0 ? 'positive-amount' : 'negative-amount'}>
-                                            {expense.amount} {currentWalletCurrency}
-                                        </td>
-                                        <td>
-                                            <img src={editIcon} alt="Edit" className="edit-icon" onClick={() => handleEditExpense(expense.id)} />
-                                            <img src={deleteIcon} alt="Delete" className="delete-icon" onClick={() => handleDeleteExpense(expense.id)} />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className='min-w-[1060px]'>
+                        <ExpenseTable expenses={filteredExpenses} currency={currentWalletCurrency} handleEditExpense={handleEditExpense} handleDeleteExpense={handleDeleteExpense} />
                     </div>
                 </div>
 
-                <div className="expense-form-container">
-                    {currentWalletId && <ExpenseForm userId={userId} currentWalletId={currentWalletId} expenses={memoizedExpenses} setExpenses={setExpenses} />}
+                <div className='flex flex-col max-w-sm'>
+                    {currentWalletId && <ExpenseForm userId={userId} currentWalletId={currentWalletId} expenses={memoizedExpenses} setExpenses={setExpenses} categories={categories} />}
                 </div>
             </div>
-
-            {errorMessage && <p>${errorMessage}</p>}
         </div>
     );
 
