@@ -1,0 +1,38 @@
+{"popup": {
+    "footer": {
+        "button": {
+            "today": "bg-dark-green text-white"
+        }
+    }
+   },
+   "views": {
+    "days": {
+        "items" :{
+            "item": {
+                "selected" : "bg-dark-green text-white"
+            }
+        }
+    },
+    "months" : {
+        "items" :{
+            "item": {
+                "selected" : "bg-dark-green text-white"
+            }
+        }
+    },
+    "years": {
+        "items" :{
+            "item": {
+                "selected" : "bg-dark-green text-white"
+            }
+        }
+    },
+    "decades" : {
+        "items" :{
+            "item": {
+                "selected" : "bg-dark-green text-white"
+            }
+        }
+    }
+   }
+}

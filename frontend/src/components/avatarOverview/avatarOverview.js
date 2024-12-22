@@ -133,18 +133,18 @@ export function AvatarOverview(){
 
     return (
         <div className="container">
-            <div className="avatar-container">
-                <div className="avatar">
+            <div className="relative">
+                <div className="relative">
                     <Account />
                 </div>
                 <div>
                     <Achievements userId={userId}/>
                 </div>
             </div>
-            <div className="items-container">
-                <div className="item-section">
+            <div className="flex flex-col w-1/2 mr-[5%]">
+                <div className="mb-[20px]">
                     <h2>Owned Items</h2>
-                    <div className="item-list">
+                    <div className="flex flex-wrap gap-2.5">
                         {ownedItems.map((item) => (
                             <div key={item.id} className={getItemClass(item)}>
                                 <img src={itemImages[item.item_img]} alt={item.name} onError={(e) => { e.target.src = 'fallback_image_path' }} />

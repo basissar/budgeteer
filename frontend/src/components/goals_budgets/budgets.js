@@ -3,7 +3,6 @@ import axios from 'axios';
 import BudgetForm from './budgetForm.js'; // Create a BudgetForm component similar to ExpenseForm.js
 import './budgets.css'; // Import the CSS file
 import { API_BASE_URL, INFO } from '../../utils/macros.js';
-import { CustomCardSelect } from '../custom/customCardSelect.js';
 import deleteIcon from "../../assets/delete.svg";
 import editIcon from "../../assets/edit.svg";
 import { ProgressBar } from '../custom/progressBar.js';

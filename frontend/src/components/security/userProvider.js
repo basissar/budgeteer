@@ -9,6 +9,9 @@ export const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [equippedItems, setEquippedItems] = useState({hat: null, neck: null});
+    const [wallets, setWallets] = useState([]);
+    const [currentWallet, setCurrentWallet] = useState(null);
+
 
     const login = async (username, password) => {
         setLoading(true);
@@ -16,13 +19,18 @@ export const UserProvider = ({ children }) => {
 
         try {
             const response = await axios.post(`${API_BASE_URL}/user/login`, {username, password}, {withCredentials: true });
-
-            console.log(response);
-
+            
             const user = {
                 id: response.data.id,
                 username: response.data.username,
                 email: response.data.email,
+            }
+
+            const walletResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets`, { withCredentials: true });
+            setWallets(walletResponse.data.wallets);
+
+            if (walletResponse.data.wallets.length > 0) {
+                setCurrentWallet(walletResponse.data.wallets[0]);
             }
 
             const accountResponse = await axios.get(`${API_BASE_URL}/${user.id}/account`, { withCredentials: true });
@@ -47,18 +55,13 @@ export const UserProvider = ({ children }) => {
         setEquippedItems(newEquippedItems);
     }
 
-    const value = {
-        user,
-        login,
-        setUser,
-        loading,
-        error,
-        updateEquippedItems,
-        equippedItems,
+    const handleWalletChange = (selectedWalletId) => {
+        const selectedWallet = wallets.find(wallet => wallet.id === selectedWalletId);
+        setCurrentWallet(selectedWallet);
     };
 
     return (
-        <UserContext.Provider value={{ user, setUser, equippedItems, updateEquippedItems, loading, login }}>
+        <UserContext.Provider value={{ user, setUser, equippedItems, updateEquippedItems, loading, login, error, setError, handleWalletChange, wallets, currentWallet }}>
             {children}
         </UserContext.Provider>
     );

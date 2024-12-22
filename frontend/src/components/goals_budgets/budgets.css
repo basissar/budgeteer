@@ -5,11 +5,11 @@
     margin: 20px;
 }
 
-.select-container {
+/* .select-container {
     width: 100%;
-    /*max-width: 300px;*/
+    max-width: 300px;
     margin-bottom: 20px;
-}
+} */
 
 .budget-table, .goal-table {
     width: 80%;

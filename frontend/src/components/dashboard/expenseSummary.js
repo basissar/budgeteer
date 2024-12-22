@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import { API_BASE_URL, INFO } from "../../utils/macros";
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import './expenseSummary.css'
-import {CustomCardSelect} from "../custom/customCardSelect.js";
 import {useUserContext} from "../security/userProvider";
+import WalletSelect from "../custom/walletSelect.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -55,13 +54,12 @@ export function ExpenseSummary({ months }) {
 
             setLoading(true);
             try {
-                const token = localStorage.getItem('token');
                 const currentDate = new Date();
                 const promises = [];
                 const monthsArray = [];
 
                 for (let i = 0; i < months; i++) {
-                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+                    const date = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() - i, 1));
                     monthsArray.push(date);
                     promises.push(axios.post(`${API_BASE_URL}/analytics/${userId}/${currentWalletId}/sumNegative`, { date: date.toISOString(), walletId: currentWalletId }, {
                         withCredentials: true,
@@ -150,15 +148,15 @@ export function ExpenseSummary({ months }) {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="month_graph">
-            <CustomCardSelect
-                    options={wallets}
-                    value={currentWalletId}
-                    onChange={handleWalletChange}
-                />
-
-            <h2>Expense Summary for the Last {months} Months</h2>
-            <Line data={chartData} options={chartOptions} />
+        <div className="summary_overview">
+            <div className="w-40">
+            <WalletSelect wallets={wallets} handleWalletChange={handleWalletChange} currentWalletId={currentWalletId}/>
+            </div>
+            <div class="container graph">
+                <h2>Expense Summary for the Last {months} Months</h2>
+                <Line data={chartData} options={chartOptions} />
+            </div>
+            
         </div>
     );
 }

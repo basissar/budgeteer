@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import '../dialog.css';
+import React from 'react';
 import icon from "../../assets/credit.svg";
 
 export default function CustomDialog ({ show, onClose, message, earnedCredits, earnedXP }) {

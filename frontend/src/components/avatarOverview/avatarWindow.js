@@ -43,11 +43,11 @@ export function AvatarWindow() {
     };
 
     return (
-        <div className="avatar-container">
-                    <div className="image_container">
+        <div className="relative">
+                    <div className="rounded-xl bg-[#F6F4F4] mb-[10px] border-solid border-2 border-[#A3A3A3]">
                         <img src={avatarId && getAvatarImage(avatarId)} alt={avatarName} />
-                        {equippedItems.hat && <img className="equipped-item hat" src={equippedItems.hat.item_img && getItemImage(equippedItems.hat.item_img)} alt={equippedItems.hat.name} />}
-                        {equippedItems.neck && <img className="equipped-item neck" src={equippedItems.neck.item_img && getItemImage(equippedItems.neck.item_img)} alt={equippedItems.neck.name} />}
+                        {equippedItems.hat && <img className="absolute top-1 left-1/2 -translate-x-1/2" src={equippedItems.hat.item_img && getItemImage(equippedItems.hat.item_img)} alt={equippedItems.hat.name} />}
+                        {equippedItems.neck && <img className="absolute top-1 left-1/2 -translate-x-1/2" src={equippedItems.neck.item_img && getItemImage(equippedItems.neck.item_img)} alt={equippedItems.neck.name} />}
                     </div>
         </div>
     )
