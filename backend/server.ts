@@ -1,5 +1,7 @@
 import { Application, RouterContext, Router } from "@oak/oak";
 
+import "jsr:@std/dotenv/load";
+
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 
 import { OAuth2Client } from "https://deno.land/x/oauth2@v0.2.6/mod.ts";
@@ -22,9 +24,7 @@ import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
 import { AuthorizationMiddleware} from "./src/controller/authorization.ts";
 import { CategoryRepository } from "./src/repository/categoryRepository.ts";
 import { BudgetRepository } from "./src/repository/budgetRepository.ts";
-import { insertData } from "./src/utils/dataInitialization.ts";
 import { Scheduler } from "./src/utils/scheduler.ts";
-import { AccountService } from "./src/service/accountService.ts";
 import { ItemRepository } from "./src/repository/itemRepository.ts";
 import { AvatarRepository } from "./src/repository/avatarRepository.ts";
 import { AccountController } from "./src/controller/accountController.ts";
@@ -137,6 +137,8 @@ router.post("/budgeteer/user", userController.createUser.bind(userController));
 
 router.post("/budgeteer/user/logout", userController.logout.bind(userController));
 
+// router.get("/budgeteer/user/refresh", userController.restoreSession.bind(userController));
+
 router.use(authorizationMiddleware.handle.bind(authorizationMiddleware));
 
 router.post("/budgeteer/user/update", userController.updateUser.bind(userController));
@@ -243,23 +245,23 @@ server.use(async (ctx, next) => {
   }
 });
 
-const port = 8000;
+const port = Number(Deno.env.get("PORT"));
 
-server.listen({ port });
+server.listen({port});
 
-initializeDatabase().then(() => {
-  insertData().then(() => {
-    console.log(GREEN, "Data created successfully.", RESET_COLOR);
-  }).catch((error) => {
-    console.error("Failed to save data:", error);
+initializeDatabase()
+  .then(() => {
+    const scheduler = new Scheduler(
+      container.resolve(USER_SERVICE),
+      container.resolve(BUDGET_SERVICE),
+      container.resolve(ACCOUNT_SERVICE),
+      container.resolve(ACHIEVEMENT_SERVICE)
+    );
+    scheduler.start();
+  })
+  .catch((error) => {
+    console.error("Database initialization failed:", error);
   });
-}).catch((error) => {
-  console.error("Database initialization failed:", error);
-}).then(() => {
-  // Start the scheduler...
-  const scheduler = new Scheduler(container.resolve(USER_SERVICE), container.resolve(BUDGET_SERVICE), container.resolve(ACCOUNT_SERVICE), container.resolve(ACHIEVEMENT_SERVICE));
-  scheduler.start();
-});
 
 
 
