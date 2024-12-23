@@ -4,15 +4,10 @@ import {
     CREATED,
     NOT_FOUND,
     OK,
-    SAVINGS_SERVICE,
-    UNAUTHORIZED,
-    USER_SERVICE,
-    WALLET_SERVICE
+    UNAUTHORIZED
 } from "../config/macros.ts";
 import {GoalService} from "../service/goalService.ts";
-import {UserService} from "../service/userService.ts";
 import {WalletService} from "../service/walletService.ts";
-import {container} from "../utils/container.ts";
 import {Goal} from "../model/Goal.ts";
 
 
@@ -21,36 +16,9 @@ export class GoalController {
 
     private walletService: WalletService;
 
-    private userService: UserService;
-
-    constructor() {
-        const goalSer = container.resolve(SAVINGS_SERVICE);
-        const walletSer = container.resolve(WALLET_SERVICE);
-        const userSer = container.resolve(USER_SERVICE);
-
-        if (goalSer == null) {
-            const newGoalSer = new GoalService();
-            container.register(SAVINGS_SERVICE, newGoalSer);
-            this.goalService = newGoalSer;
-        } else {
-            this.goalService = goalSer;
-        }
-
-        if (walletSer == null) {
-            const newWalletSer = new WalletService();
-            container.register(WALLET_SERVICE, newWalletSer);
-            this.walletService = newWalletSer;
-        } else {
-            this.walletService = walletSer;
-        }
-
-        if (userSer == null) {
-            const newUserSer = new UserService();
-            container.register(USER_SERVICE, newUserSer);
-            this.userService = newUserSer;
-        } else {
-            this.userService = userSer;
-        }
+    constructor(goalService: GoalService, walletService: WalletService) {
+        this.goalService = goalService;
+        this.walletService = walletService;
     }
 
 

@@ -1,8 +1,7 @@
 import { RouterContext } from "@oak/oak";
-import { ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, NOT_FOUND, OK } from "../config/macros.ts";
+import { NOT_FOUND, OK } from "../config/macros.ts";
 import { AccountService } from "../service/accountService.ts";
 import { AchievementService } from "../service/achievementService.ts";
-import { container } from "../utils/container.ts";
 import { EventType } from "../model/EventType.ts";
 
 export class AchievementController {
@@ -10,21 +9,9 @@ export class AchievementController {
     private achievementService: AchievementService;
     private accountService: AccountService;
 
-    constructor() {
-        this.accountService = container.resolve(ACCOUNT_SERVICE);
-        this.achievementService = container.resolve(ACHIEVEMENT_SERVICE);
-
-        if (!this.accountService){
-            const newAccountSer = new AccountService();
-            container.register(ACCOUNT_SERVICE, newAccountSer);
-            this.accountService = newAccountSer;
-        }
-
-        if (!this.achievementService){
-            const newAchievementSer = new AchievementService();
-            container.register(ACHIEVEMENT_SERVICE, newAchievementSer);
-            this.achievementService = newAchievementSer;
-        }
+    constructor(achievementService: AchievementService, accountService: AccountService) {
+        this.achievementService = achievementService;
+        this.accountService = accountService;
     }
 
     async getAllAchievements(ctx: RouterContext<string>) {
@@ -38,7 +25,7 @@ export class AchievementController {
     }
 
     async getAllAchievementsForUser(ctx: RouterContext<string>) {
-        const {userId} = ctx.params;
+        const { userId } = ctx.params;
 
         const account = await this.accountService.getIdForUser(userId);
 
@@ -51,8 +38,8 @@ export class AchievementController {
         }
     }
 
-    async claimAchievement(ctx: RouterContext<string>){
-        const {userId, achievementId} = ctx.params;
+    async claimAchievement(ctx: RouterContext<string>) {
+        const { userId, achievementId } = ctx.params;
 
         const account = await this.accountService.getIdForUser(userId);
 
@@ -65,7 +52,7 @@ export class AchievementController {
             }
             return;
         }
-        
+
         const serviceResponse = await this.accountService.handleEvent(EventType.ACHIEVEMENT, userId, achievement);
 
         const result = {

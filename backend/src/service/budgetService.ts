@@ -24,52 +24,16 @@ export class BudgetService {
 
     private accountService: AccountService;
 
-    constructor() {
-        const budgetRepo = container.resolve(BUDGET_REPOSITORY);
-        const walletRepo = container.resolve(WALLET_REPOSITORY);
-        const expenseRepo = container.resolve(EXPENSE_REPOSITORY);
-        const userRepo = container.resolve(USER_REPOSITORY);
-        const accountSer = container.resolve(ACCOUNT_SERVICE);
-
-        if (budgetRepo == null) {
-            const newBudgetRepo = new BudgetRepository();
-            container.register(BUDGET_REPOSITORY, newBudgetRepo);
-            this.budgetRepository = newBudgetRepo;
-        } else {
-            this.budgetRepository = budgetRepo;
-        }
-
-        if (walletRepo == null) {
-            const newWalletRepo = new WalletRepository();
-            container.register(WALLET_REPOSITORY, newWalletRepo);
-            this.walletRepository = newWalletRepo;
-        } else {
-            this.walletRepository = walletRepo;
-        }
-
-        if (expenseRepo == null) {
-            const newExpenseRepo = new ExpenseRepository();
-            container.register(EXPENSE_REPOSITORY, newExpenseRepo);
-            this.expenseRepository = newExpenseRepo;
-        } else {
-            this.expenseRepository = expenseRepo;
-        }
-
-        if (userRepo == null) {
-            const newUserRepo = new UserRepository();
-            container.register(USER_REPOSITORY, newUserRepo);
-            this.userRepository = newUserRepo;
-        } else {
-            this.userRepository = userRepo;
-        }
-
-        if (accountSer == null){
-            const newAccountSer = new AccountService();
-            container.register(ACCOUNT_SERVICE, newAccountSer);
-            this.accountService = newAccountSer;
-        } else {
-            this.accountService = accountSer;
-        }
+    constructor(budgetRepository: BudgetRepository,
+        walletRepository: WalletRepository,
+        expenseRepository: ExpenseRepository,
+        userRepository: UserRepository,
+        accountService: AccountService) {
+            this.budgetRepository = budgetRepository;
+            this.walletRepository = walletRepository;
+            this.expenseRepository = expenseRepository;
+            this.userRepository = userRepository;
+            this.accountService = accountService;
     }
 
     async createBudget(userId: string, budget: Budget) {

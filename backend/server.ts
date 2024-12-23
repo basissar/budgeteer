@@ -5,48 +5,18 @@ import "jsr:@std/dotenv/load";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 
 import { OAuth2Client } from "https://deno.land/x/oauth2@v0.2.6/mod.ts";
-import { UserController } from "./src/controller/userController.ts";
-import { UserRepository } from "./src/repository/userRepository.ts";
-import { WalletRepository } from "./src/repository/walletRepository.ts";
-import { WalletController } from "./src/controller/walletController.ts";
-import { ExpenseController } from "./src/controller/expenseController.ts";
-import { CategoryController } from "./src/controller/categoryController.ts";
-import { BudgetController } from "./src/controller/budgetsController.ts";
-import { GoalController } from "./src/controller/goalController.ts";
 
 import { initializeDatabase } from "./src/database/database.ts";
 import { container } from "./src/utils/container.ts";
 
-import { ACCOUNT_REPOSITORY, ACCOUNT_SERVICE, ACHIEVEMENT_REPOSITORY, ACHIEVEMENT_SERVICE, AVATAR_REPOSITORY, BUDGET_REPOSITORY, BUDGET_SERVICE, CATEGORY_REPOSITORY, GREEN, ITEM_REPOSITORY, RESET_COLOR, SAVINGS_REPOSITORY, USER_REPOSITORY, USER_SERVICE } from "./src/config/macros.ts";
-import { WALLET_REPOSITORY } from "./src/config/macros.ts";
-import { EXPENSE_REPOSITORY } from "./src/config/macros.ts";
-import { ExpenseRepository } from "./src/repository/expenseRepository.ts";
-import { AuthorizationMiddleware} from "./src/controller/authorization.ts";
-import { CategoryRepository } from "./src/repository/categoryRepository.ts";
-import { BudgetRepository } from "./src/repository/budgetRepository.ts";
+import { ACCOUNT_CONTROLLER, ACCOUNT_SERVICE, ACHIEVEMENT_CONTROLLER, ACHIEVEMENT_SERVICE, ANALYTICS_CONTROLLER, AUTH_MW, BUDGET_CONTROLLER, BUDGET_SERVICE, CATEGORY_CONTROLLER, EXPENSE_CONTROLLER, GOAL_CONTROLLER, USER_CONTROLLER, USER_SERVICE, WALLET_CONTROLLER } from "./src/config/macros.ts";
+
 import { Scheduler } from "./src/utils/scheduler.ts";
-import { ItemRepository } from "./src/repository/itemRepository.ts";
-import { AvatarRepository } from "./src/repository/avatarRepository.ts";
-import { AccountController } from "./src/controller/accountController.ts";
-import { GoalRepository } from "./src/repository/goalRepository.ts";
-import { AchievementRepositroy } from "./src/repository/achievementRepository.ts";
-import { AnalyticsController } from "./src/controller/analyticsController.ts";
-import { AccountRepository } from "./src/repository/accountRepository.ts";
-import { AchievementController } from "./src/controller/achievementController.ts";
+import { configureDI } from "./src/config/injectionConfiguration.ts";
 
-container.register(USER_REPOSITORY, new UserRepository());
-container.register(WALLET_REPOSITORY, new WalletRepository());
-container.register(EXPENSE_REPOSITORY, new ExpenseRepository());
-container.register(CATEGORY_REPOSITORY, new CategoryRepository());
-container.register(BUDGET_REPOSITORY, new BudgetRepository());
-container.register(ACCOUNT_REPOSITORY, new AccountRepository);
-// container.register(ACCOUNT_SERVICE, new AccountService());
-container.register(ITEM_REPOSITORY, new ItemRepository());
-container.register(AVATAR_REPOSITORY, new AvatarRepository());
-container.register(SAVINGS_REPOSITORY, new GoalRepository());
-container.register(ACHIEVEMENT_REPOSITORY, new AchievementRepositroy());
+configureDI();
 
-const authorizationMiddleware = new AuthorizationMiddleware();
+const authorizationMiddleware = container.resolve(AUTH_MW);
 
 const server = new Application();
 const router = new Router();
@@ -56,23 +26,23 @@ server.use(oakCors({
   origin: /^.+localhost:(3000|4200|8080)$/
 }));
 
-const userController = new UserController();
+const userController = container.resolve(USER_CONTROLLER);
 
-const walletController = new WalletController();
+const walletController = container.resolve(WALLET_CONTROLLER);
 
-const expenseController = new ExpenseController();
+const expenseController = container.resolve(EXPENSE_CONTROLLER);
 
-const categoryController = new CategoryController();
+const categoryController = container.resolve(CATEGORY_CONTROLLER);
 
-const budgetController = new BudgetController();
+const budgetController = container.resolve(BUDGET_CONTROLLER);
 
-const accountController = new AccountController();
+const accountController = container.resolve(ACCOUNT_CONTROLLER);
 
-const savingsController = new GoalController();
+const savingsController = container.resolve(GOAL_CONTROLLER);
 
-const analyticsController = new AnalyticsController();
+const analyticsController = container.resolve(ANALYTICS_CONTROLLER);
 
-const achievementController = new AchievementController();
+const achievementController = container.resolve(ACHIEVEMENT_CONTROLLER);
 
 const oauth2Client = new OAuth2Client({
   clientId: "464adeab29b6617d357a",
@@ -100,32 +70,6 @@ router.get("/budgeteer/login", (ctx) => {
     oauth2Client.code.getAuthorizationUri(),
   );
 });
-
-/*
-router.get("/oauth2/callback", async (ctx) => {
-    try {
-      // Exchange the authorization code for an access token
-      const tokens = await oauth2Client.code.getToken(ctx.request.url);
-  
-      // Use the access token to make an authenticated API request to GitHub
-      const userResponse = await fetch("https://api.github.com/user", {
-        headers: {
-          Authorization: `token ${tokens.accessToken}`,
-        },
-      });
-  
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        ctx.response.body = `Hello, ${userData.name}!`;
-      } else {
-        ctx.response.body = "Failed to fetch user data from GitHub.";
-      }
-    } catch (error) {
-      ctx.response.body = "Error occurred during OAuth2 callback.";
-      console.error(error);
-    }
-  });
-*/
 
 //USER
 
@@ -247,7 +191,7 @@ server.use(async (ctx, next) => {
 
 const port = Number(Deno.env.get("PORT"));
 
-server.listen({port});
+server.listen({ port });
 
 initializeDatabase()
   .then(() => {

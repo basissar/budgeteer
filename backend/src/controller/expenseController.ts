@@ -15,34 +15,10 @@ export class ExpenseController {
 
     public userService: UserService;
 
-    constructor() {
-        const expenseSer = container.resolve(EXPENSE_SERVICE);
-        const walletSer = container.resolve(WALLET_SERVICE);
-        const userSer = container.resolve(USER_SERVICE);
-
-        if (expenseSer == null) {
-            const newExpenseSer = new ExpenseService();
-            container.register(EXPENSE_SERVICE, newExpenseSer);
-            this.expenseService = newExpenseSer;
-        } else {
-            this.expenseService = expenseSer;
-        }
-
-        if (walletSer == null) {
-            const newWalletSer = new WalletService();
-            container.register(WALLET_SERVICE, newWalletSer);
-            this.walletService = newWalletSer;
-        } else {
-            this.walletService = walletSer;
-        }
-
-        if (userSer == null) {
-            const newUserSer = new UserService();
-            container.register(USER_SERVICE, newUserSer);
-            this.userService = newUserSer;
-        } else {
-            this.userService = userSer;
-        }
+    constructor(expenseService: ExpenseService, walletService: WalletService, userService: UserService) {
+        this.expenseService = expenseService;
+        this.walletService = walletService;
+        this.userService = userService;
     }
 
     async createExpense(ctx: RouterContext<string>) {

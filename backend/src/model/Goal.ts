@@ -3,7 +3,7 @@ import { Wallet } from './Wallet.ts'
 import { Category } from "./Category.ts";
 
 @Table({tableName: "goals", createdAt: false, updatedAt: false})
-export class Goal extends Model{
+export class Goal extends Model<Goal>{
 
     @Column({allowNull: false})
     declare name: string;
@@ -30,5 +30,5 @@ export class Goal extends Model{
     declare walletId: string;
 
     @BelongsTo(() => Category, { foreignKey: 'categoryId', as: 'category' })
-    declare category: Category;
+    declare category: ReturnType<() => Category>;
 }

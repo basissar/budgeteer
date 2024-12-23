@@ -3,7 +3,7 @@ import { AccountAchievement } from "../model/AccountAchievement.ts";
 import { Achievement } from "../model/Achievement.ts";
 import { BaseRepository } from "./baseRepository.ts";
 
-export class AchievementRepositroy implements BaseRepository<Achievement, number> {
+export class AchievementRepository implements BaseRepository<Achievement, number> {
     
     async save(achievement: Achievement): Promise<Achievement | null> {
         try {

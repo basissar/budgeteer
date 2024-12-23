@@ -1,11 +1,9 @@
-import { ACCOUNT_REPOSITORY, ACHIEVEMENT_SERVICE } from "../config/macros.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { Account } from "../model/Account.ts";
 import { Achievement } from "../model/Achievement.ts";
 import { EventResult } from "../model/EventResult.ts";
 import { EventType } from "../model/EventType.ts";
 import { AccountRepository } from "../repository/accountRepository.ts";
-import { container } from "../utils/container.ts";
 
 
 export class AccountService {
@@ -38,16 +36,8 @@ export class AccountService {
       [EventType.ACHIEVEMENT]: 0
     }
 
-    constructor(){
-        const accountRepo = container.resolve(ACCOUNT_REPOSITORY);
-
-        if (accountRepo == null) {
-            const newAccountRepo = new AccountRepository();
-            container.register(ACCOUNT_REPOSITORY, newAccountRepo);
-            this.accountRepository = newAccountRepo;
-        } else {
-            this.accountRepository = accountRepo;
-        }
+    constructor(accountRepository: AccountRepository){
+        this.accountRepository = accountRepository;
     }
 
 
@@ -98,7 +88,7 @@ export class AccountService {
             return result;
 
         } catch (err) {
-            throw new ServiceError(`Account service error: ${err.message}`);
+            throw new ServiceError(`Account service error: ${err}`);
         }
     }
 
@@ -114,7 +104,7 @@ export class AccountService {
 
             return await this.accountRepository.save(newAccount);
         } catch (err) {
-            throw new ServiceError(`Account service error: ${err.message}`);
+            throw new ServiceError(`Account service error: ${err}`);
         }
     }
 
@@ -122,7 +112,7 @@ export class AccountService {
         try {
             return await this.accountRepository.save(account);
         } catch (err) {
-            throw new ServiceError(`Account service error: ${err.message}`);
+            throw new ServiceError(`Account service error: ${err}`);
         }
     }
 
@@ -130,7 +120,7 @@ export class AccountService {
         try {
             return await this.accountRepository.findById(accountId);
         } catch (err) {
-            throw new ServiceError(`Account service error: ${err.message}`);
+            throw new ServiceError(`Account service error: ${err}`);
         }
     }
 
@@ -147,7 +137,7 @@ export class AccountService {
             // return await this.accountRepository.findByUser(userId);
             return result;
         } catch (err){
-            throw new ServiceError(`Account service error: ${err.message}`);
+            throw new ServiceError(`Account service error: ${err}`);
         }
     }
 
@@ -155,7 +145,7 @@ export class AccountService {
         try {
             return await this.accountRepository.findByUserNoItem(userId);
         } catch (err) {
-            throw new ServiceError(`Account service error: ${err.message}`);
+            throw new ServiceError(`Account service error: ${err}`);
         }
     }
 
@@ -163,7 +153,7 @@ export class AccountService {
         try {
             return await this.accountRepository.getItemsOwnedForAccount(accountId);
         } catch (err) {
-            throw new ServiceError(`Account service error: ${err.message}`);
+            throw new ServiceError(`Account service error: ${err}`);
         }
     }
 

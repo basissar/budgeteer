@@ -32,66 +32,19 @@ export class ExpenseService {
 
     private achievementService: AchievementService;
 
-    constructor() {
-        const expRepo = container.resolve(EXPENSE_REPOSITORY);
-
-        const wallSer = container.resolve(WALLET_SERVICE);
-
-        const budgetSer = container.resolve(BUDGET_SERVICE);
-
-        const userRepo = container.resolve(USER_REPOSITORY);
-
-        const accountSer = container.resolve(ACCOUNT_SERVICE);
-
-        const achievementSer = container.resolve(ACHIEVEMENT_SERVICE);
-
-        if (expRepo == null) {
-            const newExpRepo = new ExpenseRepository();
-            container.register(EXPENSE_REPOSITORY, newExpRepo);
-            this.expenseRepository = newExpRepo;
-        } else {
-            this.expenseRepository = expRepo;
-        }
-
-        if (wallSer == null) {
-            const newWallSer = new WalletService();
-            container.register(WALLET_SERVICE, newWallSer);
-            this.walletService = newWallSer;
-        } else {
-            this.walletService = wallSer;
-        }
-
-        if (budgetSer == null) {
-            const newBudgetRepo = new BudgetService();
-            container.register(BUDGET_SERVICE, newBudgetRepo);
-            this.budgetService = newBudgetRepo;
-        } else {
-            this.budgetService = budgetSer;
-        }
-
-        if (userRepo == null) {
-            const newUserRepo = new UserRepository();
-            container.register(USER_REPOSITORY, newUserRepo);
-            this.userRepository = newUserRepo;
-        } else {
-            this.userRepository = userRepo;
-        }
-
-        if (accountSer == null) {
-            const newAccountSer = new AccountService();
-            container.register(ACCOUNT_SERVICE, newAccountSer);
-            this.accountService = newAccountSer;
-        } else {
-            this.accountService = accountSer;
-        }
-
-        if (achievementSer == null){
-            const newAchievementSer = new AchievementService();
-            container.register(ACHIEVEMENT_SERVICE, newAchievementSer);
-            this.achievementService = newAchievementSer;
-        } else {
-            this.achievementService = achievementSer;
-        }
+    constructor(expenseRepository: ExpenseRepository,
+        walletService: WalletService,
+        budgetService: BudgetService,
+        userRepository: UserRepository,
+        accountService: AccountService,
+        achievementService: AchievementService
+    ) {
+        this.expenseRepository = expenseRepository;
+        this.walletService = walletService;
+        this.budgetService = budgetService;
+        this.userRepository = userRepository;
+        this.accountService = accountService;
+        this.achievementService = achievementService;
     }
 
     async createExpense(expense: Expense, userId: string) {

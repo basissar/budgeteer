@@ -1,9 +1,8 @@
 import {WalletService} from "../service/walletService.ts";
 import {RouterContext} from "@oak/oak";
-import {BAD_REQUEST, CREATED, NOT_FOUND, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE} from "../config/macros.ts";
+import {BAD_REQUEST, CREATED, NOT_FOUND, OK, UNAUTHORIZED,} from "../config/macros.ts";
 import {Wallet} from "../model/Wallet.ts";
 import {UserService} from "../service/userService.ts";
-import {container} from "../utils/container.ts";
 
 export class WalletController {
 
@@ -11,25 +10,9 @@ export class WalletController {
 
     public walletService: WalletService;
 
-    constructor() {
-        const userSer = container.resolve(USER_SERVICE);
-        const walletSer = container.resolve(WALLET_SERVICE);
-
-        if (userSer == null) {
-            const newUserSer = new UserService();
-            container.register(USER_SERVICE, newUserSer);
-            this.userService = newUserSer;
-        } else {
-            this.userService = userSer;
-        }
-
-        if (walletSer == null) {
-            const newWalletSer = new WalletService();
-            container.register(WALLET_SERVICE, newWalletSer);
-            this.walletService = newWalletSer;
-        } else {
-            this.walletService = walletSer;
-        }
+    constructor(userService: UserService, walletService: WalletService) {
+        this.userService = userService; 
+        this.walletService = walletService;
     }
 
     async createWallet(ctx: RouterContext<string>) {

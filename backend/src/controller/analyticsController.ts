@@ -6,14 +6,8 @@ import { container } from "../utils/container.ts";
 export class AnalyticsController {
     private analyticsService: AnalyticsService;
 
-    constructor(){
-        this.analyticsService = container.resolve(ANALYTICS_SERVICE);
-
-        if (this.analyticsService == null){
-            const newAnalyticsService = new AnalyticsService();
-            container.register(ANALYTICS_SERVICE, newAnalyticsService)
-            this.analyticsService = newAnalyticsService;
-        }
+    constructor(analyticsService: AnalyticsService){
+        this.analyticsService = analyticsService;
     }
 
     async getSumNegativeForMonth(ctx: RouterContext<string>){

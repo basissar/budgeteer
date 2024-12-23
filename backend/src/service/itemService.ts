@@ -11,25 +11,9 @@ export class ItemService {
 
     private accountService: AccountService;
 
-    constructor() {
-        const itemRepo = container.resolve(ITEM_REPOSITORY);
-        const accountSer = container.resolve(ACCOUNT_SERVICE);
-
-        if (itemRepo == null){
-            const newItemRepo = new ItemRepository();
-            container.register(ITEM_REPOSITORY, newItemRepo);
-            this.itemRepository = newItemRepo;
-        } else {
-            this.itemRepository = itemRepo;
-        }
-
-        if (accountSer == null) {
-            const newAccountSer = new AccountService();
-            container.register(ACCOUNT_SERVICE, newAccountSer);
-            this.accountService = newAccountSer;
-        } else {
-            this.accountService = accountSer;
-        }
+    constructor(itemRepository: ItemRepository, accountService: AccountService) {
+        this.itemRepository = itemRepository;
+        this.accountService = accountService;
     }
 
     async buyItem(itemId: number, userId: string){
