@@ -1,4 +1,4 @@
-import { ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, SAVINGS_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
+import { ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
 import { GoalRepository } from "../repository/goalRepository.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
@@ -20,43 +20,15 @@ export class GoalService {
 
     private achievementService: AchievementService;
 
-    constructor(){
-        const goalRepo = container.resolve(SAVINGS_REPOSITORY);
-        const walletSer = container.resolve(WALLET_SERVICE);
-        const accSer = container.resolve(ACCOUNT_SERVICE);
-        const achievSer = container.resolve(ACHIEVEMENT_SERVICE);
-
-        if (goalRepo == null){
-            const newGoalRepo = new GoalRepository();
-            container.register(SAVINGS_REPOSITORY, newGoalRepo);
-            this.goalRepository = newGoalRepo;
-        } else {
-            this.goalRepository = goalRepo;
-        }
-
-        if (walletSer == null){
-            const newWalletSer = new WalletService();
-            container.register(WALLET_SERVICE, newWalletSer);
-            this.walletService= newWalletSer;
-        } else {
-            this.walletService = walletSer;
-        }
-
-        if (accSer == null){
-            const newAccountSer = new AccountService();
-            container.register(ACCOUNT_SERVICE, newAccountSer);
-            this.accountService = newAccountSer;
-        } else {
-            this.accountService = accSer;
-        }
-
-        if (achievSer == null){
-            const newAchievementSer = new AchievementService();
-            container.register(ACHIEVEMENT_SERVICE, newAchievementSer);
-            this.achievementService = newAchievementSer;
-        } else {
-            this.achievementService = achievSer;
-        }
+    constructor(goalRepository: GoalRepository,
+        walletService: WalletService,
+        accountService: AccountService,
+        achievementService: AchievementService
+    ){
+        this.goalRepository = goalRepository;
+        this.walletService = walletService;
+        this.accountService = accountService;
+        this.achievementService = achievementService;
     }
 
 

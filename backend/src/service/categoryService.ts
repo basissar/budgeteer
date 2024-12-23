@@ -15,38 +15,10 @@ export class CategoryService {
 
     private walletService: WalletService;
 
-    constructor(){
-        const catRep = container.resolve(CATEGORY_REPOSITORY);
-
-        const userRep = container.resolve(USER_REPOSITORY);
-
-        const wallSer = container.resolve(WALLET_SERVICE);
-        
-        if(catRep == null){
-            const newCatRep = new CategoryRepository();
-            container.register(newCatRep, CATEGORY_REPOSITORY);
-            this.categoryRepo = newCatRep;
-        } else {
-            this.categoryRepo = catRep;
-        }
-
-        if (userRep == null) {
-            const newUserRep = new UserRepository();
-            container.register(newUserRep, USER_REPOSITORY);
-            this.userRepo = newUserRep;
-        } else {
-            this.userRepo = userRep;
-        }
-
-        if(wallSer == null) {
-            const newWallSer = new WalletService();
-            container.register(newWallSer, WALLET_SERVICE);
-            this.walletService = newWallSer;
-        } else {
-            this.walletService = wallSer;
-        }
-
-        console.log("Category service initialized.")
+    constructor(categoryRepository: CategoryRepository, userRepository: UserRepository, walletService: WalletService){
+        this.categoryRepo = categoryRepository;
+        this.userRepo = userRepository;
+        this.walletService = walletService;
     }
 
     async createCategory(category: Category): Promise<Category | null> {

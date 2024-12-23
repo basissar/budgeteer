@@ -3,9 +3,6 @@ import { WalletRepository } from "../repository/walletRepository.ts";
 import { UserRepository } from "../repository/userRepository.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
-import { container } from "../utils/container.ts";
-import { USER_REPOSITORY, WALLET_REPOSITORY, EXPENSE_SERVICE, EXPENSE_REPOSITORY } from "../config/macros.ts";
-import { ExpenseService } from "../service/expenseService.ts";
 import { Expense } from "../model/Expense.ts";
 import { ExpenseRepository } from "../repository/expenseRepository.ts";
 
@@ -17,35 +14,10 @@ export class WalletService {
 
     public expenseRepository: ExpenseRepository;;
 
-    constructor() {
-        const userRepo = container.resolve(USER_REPOSITORY);
-        const walletRepo = container.resolve(WALLET_REPOSITORY);
-        const expRepo = container.resolve(EXPENSE_REPOSITORY);
-
-        if (userRepo == null) {
-            const newUserRepo = new UserRepository();
-            container.register(USER_REPOSITORY, newUserRepo);
-            this.userRepository = newUserRepo;
-        } else {
-            this.userRepository = userRepo;
-        }
-
-        if (walletRepo == null) {
-            const newWalletRepo = new WalletRepository();
-            container.register(WALLET_REPOSITORY, newWalletRepo);
-            this.walletRepository = newWalletRepo;
-        } else {
-            this.walletRepository = walletRepo;
-        }
-
-        if (expRepo == null) {
-            const newExpRepo = new ExpenseRepository();
-            container.register(EXPENSE_REPOSITORY, newExpRepo);
-            this.expenseRepository = newExpRepo;
-        } else {
-            this.expenseRepository = expRepo;
-        }
-
+    constructor(walletRepository: WalletRepository, userRepository: UserRepository, expenseRepository: ExpenseRepository) {
+        this.walletRepository = walletRepository;
+        this.userRepository = userRepository;
+        this.expenseRepository = expenseRepository;
     }
 
     async createWallet(wallet: Wallet, initialAmount: number): Promise<Wallet | null> {

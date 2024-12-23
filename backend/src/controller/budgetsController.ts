@@ -16,43 +16,11 @@ export class BudgetController {
 
     public expenseService: ExpenseService;
 
-    constructor(){
-        const budgetSer = container.resolve(BUDGET_SERVICE);
-        const userSer = container.resolve(USER_SERVICE);
-        const walletSer = container.resolve(WALLET_SERVICE);
-        const expenseSer = container.resolve(EXPENSE_SERVICE);
-
-        if (budgetSer == null) {
-            const newBudgetSer = new BudgetService();
-            container.register(BUDGET_SERVICE, newBudgetSer);
-            this.budgetService = newBudgetSer;
-        } else {
-            this.budgetService = budgetSer;
-        }
-
-        if (userSer == null) {
-            const newUserService = new UserService();
-            container.register(USER_SERVICE, newUserService);
-            this.userService = newUserService;
-        } else {
-            this.userService = userSer;
-        }
-
-        if (walletSer == null) {
-            const newWalletService = new WalletService();
-            container.register(WALLET_SERVICE, newWalletService);
-            this.walletService = newWalletService;
-        } else {
-            this.walletService = walletSer;
-        }
-
-        if (expenseSer == null) {
-            const newExpenseService = new ExpenseService();
-            container.register(EXPENSE_SERVICE, newExpenseService);
-            this.expenseService = newExpenseService;
-        } else {
-            this.expenseService = expenseSer;
-        }
+    constructor(budgetService: BudgetService, userService: UserService, walletService: WalletService, expenseService: ExpenseService){
+        this.budgetService = budgetService;
+        this.userService = userService;
+        this.walletService = walletService;
+        this.expenseService = expenseService;
     }
 
 

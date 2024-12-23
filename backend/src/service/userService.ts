@@ -17,16 +17,8 @@ export class UserService {
 
     public repository: UserRepository;
 
-    constructor() {
-        const contResult = container.resolve("UserRepository");
-
-        if (contResult == null) {
-            this.repository = new UserRepository();
-        } else {
-            this.repository = contResult;
-        }
-        
-        console.log("User service initialized");
+    constructor(userRepository: UserRepository) {
+        this.repository = userRepository;
     }
 
     async createUser(user: User): Promise<User | null> {

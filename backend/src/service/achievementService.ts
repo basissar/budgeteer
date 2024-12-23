@@ -1,35 +1,23 @@
-import { ACHIEVEMENT_REPOSITORY } from "../config/macros.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { UnknownTypeError } from "../errors/UnknownTypeError.ts";
 import { AccountAchievement } from "../model/AccountAchievement.ts";
-import { Achievement } from "../model/Achievement.ts";
 import { AchievementType } from "../model/AchievementType.ts";
-import { AchievementRepositroy } from "../repository/achievementRepository.ts";
+import { AchievementRepository } from "../repository/achievementRepository.ts";
 import { AchievementContext } from "../strategy/achievementContext.ts";
 import { BudgetStrategy } from "../strategy/budgetStrategy.ts";
 import { ExpenseStrategy } from "../strategy/expenseStrategy.ts";
 import { GoalCompletionStrategy } from "../strategy/goalStrategy.ts";
-import { container } from "../utils/container.ts";
 
 
 export class AchievementService {
 
     private achievementContext: AchievementContext;
 
-    private achievementRepository: AchievementRepositroy;
+    private achievementRepository: AchievementRepository;
 
-    constructor(){
+    constructor(achieachievementRepository: AchievementRepository){
         this.achievementContext = new AchievementContext();
-
-        const achievementRepo = container.resolve(ACHIEVEMENT_REPOSITORY);
-
-        if (achievementRepo == null) {
-            const newAchievementRepo = new AchievementRepositroy();
-            container.register(ACHIEVEMENT_REPOSITORY, newAchievementRepo);
-            this.achievementRepository = newAchievementRepo;
-        } else {
-            this.achievementRepository = achievementRepo;
-        }
+        this.achievementRepository = achieachievementRepository;
     }
 
     async getAllAchievements() {
@@ -38,7 +26,7 @@ export class AchievementService {
 
             return result;
         } catch (err) {
-            throw new ServiceError(`Achievement service error: ${err.message}`);
+            throw new ServiceError(`Achievement service error: ${err}`);
         }
     }
 
@@ -48,7 +36,7 @@ export class AchievementService {
 
             return result;
         } catch (err) {
-            throw new ServiceError(`Achievement service error: ${err.message}`);
+            throw new ServiceError(`Achievement service error: ${err}`);
         }
     }
 

@@ -1,8 +1,7 @@
 import { RouterContext } from "@oak/oak";
-import { ACCOUNT_SERVICE, AVATAR_SERVICE, CONFLICT, CREATED, ITEM_SERVICE, OK } from "../config/macros.ts";
+import {  CONFLICT, CREATED, OK } from "../config/macros.ts";
 import { AccountService } from "../service/accountService.ts";
 import { ItemService } from "../service/itemService.ts";
-import { container } from "../utils/container.ts";
 import { NOT_FOUND } from "../config/macros.ts";
 import { NotEnoughCreditsError } from "../errors/NotEnoughCreditsError.ts";
 import { AvatarService } from "../service/avatarService.ts";
@@ -16,34 +15,10 @@ export class AccountController {
 
     private avatarService: AvatarService;
 
-    constructor() {
-        const accountSer = container.resolve(ACCOUNT_SERVICE);
-        const itemSer = container.resolve(ITEM_SERVICE);
-        const avatarSer = container.resolve(AVATAR_SERVICE);
-
-        if (accountSer == null) {
-            const newAccountSer = new AccountService();
-            container.register(ACCOUNT_SERVICE, newAccountSer);
-            this.accountService = newAccountSer;
-        } else {
-            this.accountService = accountSer;
-        }
-
-        if (itemSer == null){
-            const newItemSer = new ItemService();
-            container.register(ITEM_SERVICE, newItemSer);
-            this.itemService = newItemSer;
-        } else {
-            this.itemService = itemSer;
-        }
-
-        if(avatarSer == null){
-            const newAvatarSer = new AvatarService();
-            container.register(AVATAR_SERVICE, newAvatarSer);
-            this.avatarService = newAvatarSer;
-        } else {
-            this.avatarService = avatarSer;
-        }
+    constructor(accountService: AccountService, itemService: ItemService, avatarService: AvatarService) {
+        this.accountService = accountService;
+        this.itemService = itemService;
+        this.avatarService = avatarService;
     }
 
     async createAccount(ctx: RouterContext<string>) {

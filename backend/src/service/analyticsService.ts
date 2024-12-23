@@ -11,21 +11,9 @@ export class AnalyticsService {
 
     private categoryRepository: CategoryRepository;
 
-    constructor() {
-        this.expenseRepository = container.resolve(EXPENSE_REPOSITORY);
-        this.categoryRepository = container.resolve(CATEGORY_REPOSITORY);
-
-        if (this.expenseRepository == null) {
-            const newExpenseRepo = new ExpenseRepository();
-            container.register(EXPENSE_REPOSITORY, newExpenseRepo);
-            this.expenseRepository = newExpenseRepo;
-        }
-
-        if (this.categoryRepository == null){
-            const newCatRepo = new CategoryRepository();
-            container.register(CATEGORY_REPOSITORY, newCatRepo);
-            this.categoryRepository = newCatRepo;
-        }
+    constructor(expenseRepository: ExpenseRepository, categoryRepository: CategoryRepository) {
+        this.expenseRepository = expenseRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     async getSumNegativeForMonth(userId: string, date: Date, walletId: string) {
@@ -37,7 +25,7 @@ export class AnalyticsService {
 
             return resultSum;
         } catch (err) {
-            throw new ServiceError(`Analytics service error: ${err.message}`);
+            throw new ServiceError(`Analytics service error: ${err}`);
         }
     }
 
@@ -50,7 +38,7 @@ export class AnalyticsService {
 
             return resultSum;
         } catch (err) {
-            throw new ServiceError(`Analytics service error: ${err.message}`);
+            throw new ServiceError(`Analytics service error: ${err}`);
         }
     }
 
@@ -60,7 +48,7 @@ export class AnalyticsService {
 
             return resultSum;
         } catch (err) {
-            throw new ServiceError(`Analytics service error: ${err.message}`);
+            throw new ServiceError(`Analytics service error: ${err}`);
         }
     }
 
@@ -78,7 +66,7 @@ export class AnalyticsService {
 
             return balanceMap;
         } catch (err) {
-            throw new ServiceError(`Analytics service error: ${err.message}`);
+            throw new ServiceError(`Analytics service error: ${err}`);
         }
     }
     

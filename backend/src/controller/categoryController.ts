@@ -2,8 +2,6 @@
 
 import { RouterContext } from "@oak/oak";
 import { BAD_REQUEST, CATEGORY_SERVICE, INTERNAL_ERROR, OK, UNAUTHORIZED, WALLET_SERVICE } from "../config/macros.ts";
-import { USER_SERVICE } from "../config/macros.ts";
-import { container } from "../utils/container.ts";
 import { CategoryService } from "../service/categoryService.ts";
 import { UserService } from "../service/userService.ts";
 import { WalletService } from "../service/walletService.ts";
@@ -17,34 +15,10 @@ export class CategoryController {
 
     public walletService: WalletService;
 
-    constructor(){
-        const userSer = container.resolve(USER_SERVICE);
-        const catSer = container.resolve(CATEGORY_SERVICE);
-        const walletSer = container.resolve(WALLET_SERVICE);
-
-        if (userSer == null) {
-            const newUserSer = new UserService();
-            container.register(USER_SERVICE, newUserSer);
-            this.userService = newUserSer;
-        } else {
-            this.userService = userSer;
-        }
-
-        if (catSer == null) {
-            const newCatSer = new CategoryService();
-            container.register(CATEGORY_SERVICE, newCatSer);
-            this.categoryService = newCatSer;
-        } else {
-            this.categoryService = catSer;
-        }
-
-        if (walletSer == null) {
-            const newWalletSer = new WalletService();
-            container.register(WALLET_SERVICE, newWalletSer);
-            this.walletService = newWalletSer;
-        } else {
-            this.walletService = walletSer;
-        }
+    constructor(userService: UserService, categoryService: CategoryService, walletService: WalletService){
+        this.userService = userService;
+        this.categoryService = categoryService;
+        this.walletService = walletService;
     }
 
 

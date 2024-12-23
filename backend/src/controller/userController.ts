@@ -4,15 +4,12 @@ import { User } from "../model/User.ts";
 import {
     BAD_REQUEST,
     CREATED,
-    INTERNAL_ERROR,
     OK,
     UNAUTHORIZED,
     NOT_FOUND,
     CONFLICT,
-    USER_SERVICE,
     BLUE, RESET_COLOR
 } from "../config/macros.ts";
-import { container } from "../utils/container.ts";
 import { verify } from 'https://deno.land/x/djwt@v2.4/mod.ts';
 import { key } from "../utils/apiKey.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
@@ -22,16 +19,8 @@ export class UserController {
 
     public userService: UserService;
 
-    constructor() {
-        const contResult = container.resolve(USER_SERVICE);
-
-        if (contResult == null) {
-            const newUserSer = new UserService();
-            container.register(USER_SERVICE, newUserSer);
-            this.userService = newUserSer;
-        } else {
-            this.userService = contResult;
-        }
+    constructor(userService: UserService) {
+        this.userService = userService;
     }
 
     async register(ctx: RouterContext<string>) {
@@ -116,6 +105,39 @@ export class UserController {
         return;
     }
 
+    async restoreSession(ctx: RouterContext<string>) {
+        const jwt_token = await ctx.cookies.get("jwt_token");
+
+        if (!jwt_token) {
+            ctx.response.status = UNAUTHORIZED;
+            ctx.response.body = {
+                message: "No active session"
+            };
+            return;
+        }
+
+        const result = await verify(jwt_token,key);
+
+        if (!result) {
+            ctx.response.status = UNAUTHORIZED;
+            ctx.response.body = {message: 'Invalid token or expired'};
+            return;
+        }
+
+        const userIdFromToken = (result as { payload: { id: string } }).payload.id;
+
+        const user = await this.userService.getUserInfo(userIdFromToken);
+
+        if (!user) {
+            ctx.response.status = NOT_FOUND;
+            ctx.response.body = { message: "User not found" };
+            return;
+          }
+
+        ctx.response.status = 200;
+        ctx.response.body = { user: user };
+    }
+
     async createUser(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body.json();
 
@@ -168,7 +190,10 @@ export class UserController {
     async deleteUser(ctx: RouterContext<string>) {
         const id = await ctx.cookies.get("user_id");
 
-        const deletedUser = await this.userService.deleteUser(id!);
+        const {userId} = ctx.params;
+
+        // const deletedUser = await this.userService.deleteUser(id!);
+        const deletedUser = await this.userService.deleteUser(userId);
 
         ctx.cookies.delete("jwt_token");
         ctx.cookies.delete("user_id");
@@ -185,10 +210,13 @@ export class UserController {
     async updateUser(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body.json();
 
+        const {userId} = ctx.params;
+
         const id = await ctx.cookies.get("user_id");
 
         const updatePayload = new UserUpdatePayload();
-        updatePayload.id = id!;
+        // updatePayload.id = id!;
+        updatePayload.id = userId;
         updatePayload.username = requestBody.username;
         updatePayload.email = requestBody.email;
 

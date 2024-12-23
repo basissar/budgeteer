@@ -31,8 +31,8 @@ export class Expense extends Model{
     declare walletId: string;
 
     @BelongsTo(() => Category, { foreignKey: 'sourceCategoryId', as: 'sourceCategory' })
-    declare sourceCategory: Category;
+    declare sourceCategory: ReturnType<() => Category>;
 
     @BelongsTo(() => Category, { foreignKey: 'targetCategoryId', as: 'targetCategory' })
-    declare targetCategory: Category;
+    declare targetCategory: ReturnType<() => Category>;
 }
