@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/budget_logo.svg';
+import { useUserContext } from './security/userProvider';
+import WalletSelect from './custom/walletSelect';
 
 const Header = () => {
 
@@ -18,6 +20,10 @@ const Header = () => {
         <header>
             <div>
                 <img src={logo} alt="Logo" />
+            </div>
+
+            <div className="w-44">
+                <WalletSelect/>
             </div>
 
             <nav>

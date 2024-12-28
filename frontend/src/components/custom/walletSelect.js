@@ -1,25 +1,27 @@
 import { Dropdown } from "flowbite-react";
+import { useUserContext } from "../security/userProvider";
 
-const WalletSelect = ({ wallets, handleWalletChange, currentWalletId }) => {
+const WalletSelect = () => {
+    const { wallets, currentWallet, handleWalletChange } = useUserContext();
+
     return (
         <Dropdown
-            label={wallets.length > 0 ? wallets.find(wallet => wallet.id === currentWalletId)?.name : "Select Wallet"}
+            label={wallets.length > 0 ? currentWallet?.name : "Select Wallet"}
             color="light"
             theme={{ floating: { target: "w-full focus:border-green-500 justify-center focus-dg" } }}
-            onChange={handleWalletChange}
+            onChange={(e) => handleWalletChange(e.target.value)}
         >
             <div>
                 {wallets.map(wallet => (
                     <Dropdown.Item
                         key={wallet.id}
-                        onClick={() => handleWalletChange({ value: wallet.id })}
+                        onClick={() => handleWalletChange(wallet.id)}
                         className="w-full text-center"
                     >
                         {wallet.name} ({wallet.currency})
                     </Dropdown.Item>
                 ))}
             </div>
-
         </Dropdown>
     );
 }

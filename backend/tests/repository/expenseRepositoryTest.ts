@@ -55,7 +55,7 @@ Deno.test("Expense repository sum tests", async (t) => {
         await sequelize.drop();
     });
 
-    await t.step("ExpenseRepository.sumNegativeExpensesForDateRange - sums negative expenses for date range and category", async () => {
+    await t.step("ExpenseRepository.totalNegativeSumPerCategory - sums negative expenses for date range and category", async () => {
         await sequelize.sync({ force: true });
     
         // const expenseRepo = new ExpenseRepository();
@@ -72,7 +72,7 @@ Deno.test("Expense repository sum tests", async (t) => {
         await Expense.create({ name: "test expense", walletId: wallet.id, amount: -50, date: new Date("2024-05-15"), targetCategoryId: targetCategoryId });
         await Expense.create({ name: "test expense", walletId: wallet.id, amount: 200, date: new Date("2024-05-20"), targetCategoryId: targetCategoryId });
     
-        const result = await expenseRepo.sumNegativeExpensesForDateRange(userId, startDate, endDate, targetCategoryId);
+        const result = await expenseRepo.totalNegativeSumPerCategory(userId, startDate, endDate, targetCategoryId);
     
         assert(result == -150);
     

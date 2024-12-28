@@ -1,48 +1,27 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { API_BASE_URL, INFO } from "../../utils/macros";
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import {useUserContext} from "../security/userProvider";
-import WalletSelect from "../custom/walletSelect.js";
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+import { useUserContext } from "../security/userProvider";
+import LineChart from "../custom/lineChart.js";
+import { Spinner } from "flowbite-react";
 
 
-export function ExpenseSummary({ months }) {
+export function ExpenseSummary({ months, height, width }) {
     const [userId, setUserId] = useState('');
     const [sums, setSums] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [wallets, setWallets] = useState([]);
     const [currentWalletId, setCurrentWalletId] = useState('');
     const [currentCurrency, setCurrentCurrency] = useState('');
+    const [walletBallance, setWalletBallance] = useState(null);
 
-    const { user } = useUserContext();
+    const { user, currentWallet, wallets } = useUserContext();
 
     useEffect(() => {
         const fetchUserAndWallets = async () => {
             if (!user) return;
 
             setUserId(user.id);
-
-            try {
-
-                const walletResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets`, {
-                    withCredentials: true,
-                });
-
-                setWallets(walletResponse.data.wallets);
-
-                if (walletResponse.data.wallets.length > 0) {
-                    const firstWallet = walletResponse.data.wallets[0];
-                    setCurrentWalletId(firstWallet.id);
-                    setCurrentCurrency(firstWallet.currency);
-                }
-            } catch (error) {
-                setError("An error occurred while fetching user data");
-                console.error(error);
-            }
         };
 
         fetchUserAndWallets();
@@ -80,7 +59,13 @@ export function ExpenseSummary({ months }) {
                     };
                 });
 
-                setSums(newSums.reverse()); 
+                const balanceResponse = await axios.get(`${API_BASE_URL}/analytics/${currentWalletId}`,
+                    { withCredentials: true }
+                );
+
+                setWalletBallance(balanceResponse.data.sum);
+
+                setSums(newSums.reverse());
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -91,72 +76,32 @@ export function ExpenseSummary({ months }) {
         fetchSums();
     }, [months, currentWalletId, userId]);
 
-    const handleWalletChange = (selectedOption) => {
-        setCurrentWalletId(selectedOption.value);
-        const selectedWallet = wallets.find(wallet => wallet.id === selectedOption.value);
+    useEffect(() => {
+        const handleChange = async () => {
+            if (!currentWallet) return;
+            handleWalletChange(currentWallet.id);
+        };
+
+        handleChange();
+    }, [currentWallet])
+
+    const handleWalletChange = (walletId) => {
+        setCurrentWalletId(walletId);
+        const selectedWallet = wallets.find(wallet => wallet.id === walletId);
         setCurrentCurrency(selectedWallet.currency);
     };
 
-    const chartData = {
-        labels: sums.map(sum => sum.date),
-        datasets: [
-            {
-                label: `Total Income ${currentCurrency}`,
-                data: sums.map(sum => sum.positiveSum),
-                borderColor: 'green',
-                backgroundColor: 'rgba(0, 255, 0, 0.5)',
-                fill: false,
-                tension: 0.1
-            },
-            {
-                label: `Total Expenses ${currentCurrency}`,
-                data: sums.map(sum => sum.negativeSum),
-                borderColor: 'red',
-                backgroundColor: 'rgba(255, 0, 0, 0.5)',
-                fill: false,
-                tension: 0.1
-            }
-        ]
-    };
 
-    const chartOptions = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            // title: {
-            //     display: true,
-            //     text: 'Expense Summary for the Last Months',
-            // },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        return context.raw + ` ${currentCurrency}`;
-                    }
-                }
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-            },
-        },
-    };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return (
+        <div className="text-center">
+            <Spinner color="success" aria-label="Extra large spinner example" size="xl" />
+        </div>
+    )
+
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="summary_overview">
-            <div className="w-40">
-            <WalletSelect wallets={wallets} handleWalletChange={handleWalletChange} currentWalletId={currentWalletId}/>
-            </div>
-            <div class="container graph">
-                <h2>Expense Summary for the Last {months} Months</h2>
-                <Line data={chartData} options={chartOptions} />
-            </div>
-            
-        </div>
+        <LineChart totalWallet={walletBallance} sums={sums} currency={currentCurrency} height={height} width={width} />
     );
 }

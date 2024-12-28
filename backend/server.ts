@@ -170,6 +170,10 @@ router.post("/budgeteer/analytics/:userId/sumNegativeRange", analyticsController
 
 router.get("/budgeteer/analytics/:userId/:walletId", analyticsController.getCurrentWalletBalance.bind(analyticsController));
 
+router.get("/budgeteer/analytics/:walletId", analyticsController.getTotalWalletBalance.bind(analyticsController));
+
+router.get("/budgeteer/analytics/:walletId/:startDate/:endDate", analyticsController.getSumsForDateRange.bind(analyticsController));
+
 server.use(router.routes());
 server.use(router.allowedMethods());
 
