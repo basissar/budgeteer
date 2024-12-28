@@ -60,7 +60,7 @@ export class AnalyticsController {
         const passedStart = new Date(startDate);
         const passedEnd = new Date(endDate);
 
-        const sumNegative = await this.analyticsService.getSumNegativeForDateRange(userId, passedStart, passedEnd, categoryId);
+        const sumNegative = await this.analyticsService.getTotalNegativeSumPerCategory(userId, passedStart, passedEnd, categoryId);
 
         ctx.response.status = OK;
         ctx.response.body = {
@@ -71,6 +71,7 @@ export class AnalyticsController {
         }        
     }
 
+    //TODO rename to getBallancePerCategory
     async getCurrentWalletBalance(ctx: RouterContext<string>){
         const { userId, walletId } = ctx.params;
 
@@ -85,5 +86,36 @@ export class AnalyticsController {
         }
     }
 
+    async getTotalWalletBalance(ctx: RouterContext<string>){
+        const {walletId} = ctx.params;
+
+        const totalSum = await this.analyticsService.getTotalWalletBalance(walletId);
+        
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Total wallet balance retrieved",
+            sum: totalSum
+        }
+    }
+
+    async getSumsForDateRange(ctx: RouterContext<string>){
+        const {walletId, startDate, endDate} = ctx.params;
+
+        const userId = await ctx.cookies.get("user_id");
+        
+        const serviceMaps = await this.analyticsService.getSumsForDateRange(userId!, walletId, new Date(startDate), new Date(endDate));
+        
+        const positiveSumMap = Object.fromEntries(serviceMaps.positiveSumMap);
+        const negativeSumMap = Object.fromEntries(serviceMaps.negativeSumMap);
+
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Sums for date range retrieved",
+            sumMaps: {
+                positiveSumMap,
+                negativeSumMap
+            }
+        }
+    }
 
 }

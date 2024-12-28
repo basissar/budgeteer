@@ -15,9 +15,9 @@ export class AchievementService {
 
     private achievementRepository: AchievementRepository;
 
-    constructor(achieachievementRepository: AchievementRepository){
+    constructor(achievementRepository: AchievementRepository){
         this.achievementContext = new AchievementContext();
-        this.achievementRepository = achieachievementRepository;
+        this.achievementRepository = achievementRepository;
     }
 
     async getAllAchievements() {

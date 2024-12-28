@@ -192,7 +192,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         }
     }
 
-    async findByDateRange(walletId: string, startDay: Date, endDay: Date, category: number) {
+    async findByDateRangeWithCategory(walletId: string, startDay: Date, endDay: Date, category: number) {
         try {
             return await Expense.findAll({
                 attributes: ['name', 'amount', 'targetCategoryId'],
@@ -265,7 +265,51 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         }
     }
 
-    async sumNegativeExpensesForDateRange(userId: string, startDate: Date, endDate: Date, targetCategoryId: number): Promise<number> {
+    async sumPositiveExpensesForDateRange(walletId: string, startDate: Date, endDate: Date, targetCategoryId: number): Promise<number> {
+        try {
+            const result = await Expense.sum('amount', {
+                where: {
+                    walletId: walletId,
+                    amount: {
+                        [Op.gt] : 0
+                    },
+                    date: {
+                        [Op.between]: [startDate, endDate]
+                    },
+                    sourceCategoryId: null,
+                    targetCategoryId: targetCategoryId
+                }
+            });
+
+            return result || 0;
+        } catch (err) {
+            throw new RepositoryError(`Expense repository error: ${err}`);
+        }
+    }
+
+    async sumNegativeExpensesForDateRange(walletId: string, startDate:Date, endDate: Date, targetCategoryId: number){
+        try {
+            const result = await Expense.sum('amount', {
+                where: {
+                    walletId: walletId,
+                    amount: {
+                        [Op.lt] : 0
+                    },
+                    date: {
+                        [Op.between]: [startDate, endDate]
+                    },
+                    sourceCategoryId: null,
+                    targetCategoryId: targetCategoryId
+                }
+            });
+
+            return result || 0;
+        } catch (err) {
+            throw new RepositoryError(`Expense repository error: ${err}`);
+        }
+    }
+
+    async totalNegativeSumPerCategory(userId: string, startDate: Date, endDate: Date, targetCategoryId: number): Promise<number> {
         try {
             const userWallets = await Wallet.findAll({
                 where: { userId: userId },
@@ -314,5 +358,16 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
     
         const currentBalance = positiveTargetCategorySum - (sourceCategorySum || 0);
         return currentBalance || 0;
+    }
+
+    async getBalanceTotal(walletId: string){
+        const totalSum = await Expense.sum('amount', {
+            where: {
+                walletId: walletId,
+                sourceCategoryId: null
+            }
+        });
+
+        return totalSum || 0;
     }
 }

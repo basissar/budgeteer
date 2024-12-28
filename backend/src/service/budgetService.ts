@@ -67,7 +67,7 @@ export class BudgetService {
                 }
 
                 if (startDate && endDate) {
-                    expenses = await this.expenseRepository.findByDateRange(budget.walletId, startDate, endDate, budget.categoryId);
+                    expenses = await this.expenseRepository.findByDateRangeWithCategory(budget.walletId, startDate, endDate, budget.categoryId);
                 }
 
                 if (expenses != null) {

@@ -13,9 +13,8 @@ import WalletSelect from '../custom/walletSelect.js';
 
 export default function Expenses() {
     const [currentWalletId, setCurrentWalletId] = useState('');
-    const [currentWalletCurrency, setCurrentWalletCurrency] = useState('');
+    const [currentWalletCurrency, setCurrentCurrency] = useState('');
     const [expenses, setExpenses] = useState([]);
-    const [wallets, setWallets] = useState([]);
 
     const [categories, setCategories] = useState([]);
 
@@ -27,30 +26,19 @@ export default function Expenses() {
 
     const [categoryFilter, setCategoryFilter] = useState('');
 
-    const { user } = useUserContext();
+    const { user, currentWallet, wallets } = useUserContext();
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!user) return;
+            if (!user, !currentWalletId) return;
 
             setUserId(user.id);
 
             try {
-                const walletResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets`, {
+                const expensesResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets/${currentWalletId}/expenses`, {
                     withCredentials: true,
                 });
-                setWallets(walletResponse.data.wallets);
-
-                if (walletResponse.data.wallets.length > 0) {
-                    const firstWalletId = walletResponse.data.wallets[0].id;
-                    setCurrentWalletId(firstWalletId);
-                    setCurrentWalletCurrency(walletResponse.data.wallets[0].currency);
-
-                    const expensesResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets/${firstWalletId}/expenses`, {
-                        withCredentials: true,
-                    });
-                    setExpenses(expensesResponse.data.expenses);
-                }
+                setExpenses(expensesResponse.data.expenses);
             } catch (error) {
                 setErrorMessage("An error occured while fetching data");
                 console.error(error);
@@ -58,7 +46,7 @@ export default function Expenses() {
         };
 
         fetchData();
-    }, [user]);
+    }, [user, currentWalletId]);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -78,20 +66,26 @@ export default function Expenses() {
         fetchCategories();
     }, [user, currentWalletId]);
 
-    const handleWalletChange = async (selectedOption) => {
-        setCurrentWalletId(selectedOption.value);
-        const selectedWallet = wallets.find(wallet => wallet.id === selectedOption.value);
-        setCurrentWalletCurrency(selectedWallet.currency)
-
-        try {
-            const response = await axios.get(`${API_BASE_URL}/${user.id}/wallets/${selectedOption.value}/expenses`, {
-                withCredentials: true,
-            });
-            setExpenses(response.data.expenses);
-        } catch (error) {
-            setErrorMessage(`An error occurred while fetching expenses`);
-            console.error(error.message);
+    useEffect(() => {
+        if (currentWallet) {
+            setCurrentWalletId(currentWallet.id);
+            setCurrentCurrency(currentWallet.currency);
         }
+    }, [currentWallet])
+
+    useEffect(() => {
+        const handleChange = async () => {
+            if (!currentWallet) return;
+            handleWalletChange(currentWallet.id);
+        };
+
+        handleChange();
+    }, [currentWallet])
+
+    const handleWalletChange = async (walletId) => {
+        setCurrentWalletId(walletId);
+        const selectedWallet = wallets.find(wallet => wallet.id === walletId);
+        setCurrentCurrency(selectedWallet.currency);
     }
 
     //TODO add handleEditExpense
@@ -165,10 +159,6 @@ export default function Expenses() {
     return (
         <div className="flex items-center flex-col">
             <div className="flex items-center gap-x-5 m-2.5">
-                <div className="w-44">
-                    <WalletSelect wallets={wallets} handleWalletChange={handleWalletChange} currentWalletId={currentWalletId} />
-                </div>
-
                 <div className="flex items-center gap-4">
                     <legend>Sort by:</legend>
                     <fieldset className="flex flex-row gap-2">

@@ -42,14 +42,42 @@ export class AnalyticsService {
         }
     }
 
-    async getSumNegativeForDateRange(userId: string, startDate: Date, endDate: Date, targetCategoryId: number) {
+    async getTotalNegativeSumPerCategory(userId: string, startDate: Date, endDate: Date, targetCategoryId: number) {
         try {
-            const resultSum = await this.expenseRepository.sumNegativeExpensesForDateRange(userId, startDate, endDate, targetCategoryId);
+            const resultSum = await this.expenseRepository.totalNegativeSumPerCategory(userId, startDate, endDate, targetCategoryId);
 
             return resultSum;
         } catch (err) {
             throw new ServiceError(`Analytics service error: ${err}`);
         }
+    }
+
+    /**
+     * Retrieves map of positive and map of negative sums per category.
+     * @param userId - needed for category retrieval
+     * @param walletId 
+     * @param startDate  
+     * @param endDate 
+     */
+    async getSumsForDateRange(userId: string, walletId: string, startDate: Date, endDate: Date) {
+        const categories = await this.categoryRepository.getAllforUserInWallet(userId, walletId);
+        
+        const positiveSums = new Map();
+        const negativeSums = new Map();
+
+
+        for (const cat of categories) {
+            const posCatSum = await this.expenseRepository.sumPositiveExpensesForDateRange(walletId, startDate, endDate, cat.id);
+            const negCatSum = await this.expenseRepository.sumNegativeExpensesForDateRange(walletId, startDate, endDate, cat.id);
+
+            positiveSums.set(cat.id, posCatSum);
+            negativeSums.set(cat.id, negCatSum);
+        }
+
+        return {
+            positiveSumMap: positiveSums,
+            negativeSumMap: negativeSums,
+        };
     }
 
     async getCurrentWalletBalance(userId: string, walletId: string) {
@@ -60,12 +88,26 @@ export class AnalyticsService {
 
             for (const id of categoryIds){
                 const resultSum = await this.expenseRepository.getCurrentWalletBalance(walletId, id);
-                console.log(RED, resultSum, RESET_COLOR);
                 balanceMap.set(id,resultSum);
             }
 
             return balanceMap;
         } catch (err) {
+            throw new ServiceError(`Analytics service error: ${err}`);
+        }
+    }
+
+    /**
+     * Retrieves total wallet balance
+     * @param walletId target wallet
+     * @returns total sum of all expenses
+     */
+    async getTotalWalletBalance(walletId: string){
+        try {
+            const totalSum = await this.expenseRepository.getBalanceTotal(walletId);
+
+            return totalSum;
+        } catch (err){
             throw new ServiceError(`Analytics service error: ${err}`);
         }
     }

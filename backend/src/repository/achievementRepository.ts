@@ -1,6 +1,7 @@
 import { RepositoryError } from "../errors/RepositoryError.ts";
 import { AccountAchievement } from "../model/AccountAchievement.ts";
 import { Achievement } from "../model/Achievement.ts";
+import { AchievementType } from "../model/AchievementType.ts";
 import { BaseRepository } from "./baseRepository.ts";
 
 export class AchievementRepository implements BaseRepository<Achievement, number> {
@@ -61,7 +62,7 @@ export class AchievementRepository implements BaseRepository<Achievement, number
         return !!result;
     }
 
-    async findByType(type: string){
+    async findByType(type: AchievementType){
         return await Achievement.findAll({
             where: {
                 type: type

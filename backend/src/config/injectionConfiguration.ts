@@ -63,7 +63,7 @@ export function configureDI() {
     ));
 
     container.register(ACHIEVEMENT_SERVICE, new AchievementService(
-        container.resolve(ACCOUNT_REPOSITORY)
+        container.resolve(ACHIEVEMENT_REPOSITORY)
     ));
 
     container.register(WALLET_SERVICE, new WalletService(
