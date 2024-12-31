@@ -11,6 +11,7 @@ export class Category extends Model {
     @Column({ allowNull: false })
     declare color: string;
 
+    //TODO remove as user mapping is useless - we already have wallet mapping
     @ForeignKey(() => User)
     @Column({
         allowNull: true,

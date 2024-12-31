@@ -119,7 +119,7 @@ router.get("/budgeteer/:userId/expenses", expenseController.getAllForUser.bind(e
 
 router.delete("/budgeteer/:userId/expenses/:expenseId", expenseController.deleteExpense.bind(expenseController));
 
-router.get("/budgeteer/:userId/categories/:walletId", categoryController.getAllByWallet.bind(categoryController));
+router.get("/budgeteer/categories/:walletId", categoryController.getAllByWallet.bind(categoryController));
 
 //GOALS
 router.post("/budgeteer/:userId/goals/:walletId", savingsController.createGoal.bind(savingsController));
@@ -162,24 +162,22 @@ router.get("/budgeteer/achievements", achievementController.getAllAchievements.b
 router.post("/budgeteer/achievements/:userId/:achievementId", achievementController.claimAchievement.bind(achievementController));
 
 //ANALYTICS
-router.post("/budgeteer/analytics/:userId/:walletId/sumNegative", analyticsController.getSumNegativeForMonth.bind(analyticsController))
+router.get("/budgeteer/analytics/:walletId/categories", analyticsController.getBallancePerCategory.bind(analyticsController));
 
-router.post("/budgeteer/analytics/:userId/:walletId/sumPositive", analyticsController.getSumPositiveForMonth.bind(analyticsController))
+router.get("/budgeteer/analytics/:walletId/balance", analyticsController.getTotalWalletBalance.bind(analyticsController));
 
-router.post("/budgeteer/analytics/:userId/sumNegativeRange", analyticsController.getSumNegativeForRange.bind(analyticsController));
+router.get("/budgeteer/analytics/:walletId/sums", analyticsController.getSumsForDateRange.bind(analyticsController));
 
-router.get("/budgeteer/analytics/:userId/:walletId", analyticsController.getCurrentWalletBalance.bind(analyticsController));
+router.get("/budgeteer/analytics/:walletId/sumAction", analyticsController.sumAction.bind(analyticsController));
 
-router.get("/budgeteer/analytics/:walletId", analyticsController.getTotalWalletBalance.bind(analyticsController));
-
-router.get("/budgeteer/analytics/:walletId/:startDate/:endDate", analyticsController.getSumsForDateRange.bind(analyticsController));
 
 server.use(router.routes());
 server.use(router.allowedMethods());
 
-server.addEventListener("listen", ({ port, secure }) => {
+server.addEventListener("listen", ({ hostname, port, secure }) => {
+  const resolvedHostname = hostname || "localhost";
   console.log(
-    `Server started on ${secure ? "https://" : "http://"}localhost:${port}`
+    `Server started on ${secure ? "https://" : "http://"}${resolvedHostname}:${port}`
   );
 });
 

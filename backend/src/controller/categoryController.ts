@@ -21,7 +21,11 @@ export class CategoryController {
         this.walletService = walletService;
     }
 
-
+    /**
+     * Creates a new category in wallet
+     * @param ctx 
+     * @returns 
+     */
     async createCategory(ctx: RouterContext<string>){
         try {
             const { userId: receivedUserId, walletId: receivedWalletId } = ctx.params;
@@ -71,33 +75,18 @@ export class CategoryController {
         }
     }
 
+    /**
+     * Retrieves all categories for wallet
+     * @param ctx 
+     * @returns 
+     */
     async getAllByWallet(ctx: RouterContext<string>) {
         try {
-            const {userId, walletId} = ctx.params;
+            const {walletId} = ctx.params;
 
-            if (!userId || !walletId) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: "User ID and wallet ID are required"};
-                return;
-            }
+            const userId = await ctx.cookies.get("user_id");
 
-            const userExists = await this.userService.exists(userId);
-
-            if (!userExists) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: "Cannot get category for nonexisting user"};
-                return;
-            }
-
-            const walletExists = await this.walletService.exists(walletId);
-
-            if (!walletExists) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: `Wallet with id: ${walletId} does not exist` };
-                return;
-            }
-
-            const categories = await this.categoryService.getAllForUserInWallet(userId, walletId);
+            const categories = await this.categoryService.getAllForUserInWallet(userId!, walletId);
 
             if(categories.length == 0){
                 //default categories are expected at least

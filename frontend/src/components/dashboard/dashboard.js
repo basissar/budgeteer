@@ -25,7 +25,7 @@ export function Dashboard() {
             <div class="container">
                 <div class="row_container dashboard">
                     <div className="mr-[200px]">
-                        <ExpenseSummary months={5} height={250} width={600} />
+                        <ExpenseSummary selectedRange={'x'} count={5} height={250} width={600} />
                     </div>
                     <Account />
                 </div>

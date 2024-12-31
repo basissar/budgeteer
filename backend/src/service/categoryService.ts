@@ -1,5 +1,3 @@
-import { CATEGORY_REPOSITORY, USER_REPOSITORY, WALLET_SERVICE } from "../config/macros.ts";
-import { container } from "../utils/container.ts";
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { Category } from "../model/Category.ts";
@@ -44,6 +42,12 @@ export class CategoryService {
         return await this.categoryRepo.getAllForUser(userId);
     }
 
+    /**
+     * Retrieves all categories for user in specific wallet
+     * @param userId 
+     * @param walletId target wallet
+     * @returns 
+     */
     async getAllForUserInWallet(userId: string, walletId: string){
         try {
             const userExists = await this.userRepo.exists(userId);
@@ -58,7 +62,7 @@ export class CategoryService {
                 throw new ServiceError(`Wallet does not belong to user`);
             }
 
-            const categories = await this.categoryRepo.getAllforUserInWallet(userId, walletId);
+            const categories = await this.categoryRepo.getAllforUserInWallet(walletId);
             return categories;
         } catch (err) {
             throw new ServiceError(`Category service error: ${err.message}`);
