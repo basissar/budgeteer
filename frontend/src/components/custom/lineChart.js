@@ -1,8 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ApexCharts from "apexcharts";
 
 export default function LineChart({totalWallet, sums, currency, height, width}) {
+    const [showChart, setShowChart] = useState(true);
+
     useEffect(() => {
+        const allPositiveSumsZero = sums.every(sum => sum.positiveSum === 0);
+        const allNegativeSumsZero = sums.every(sum => sum.negativeSum === 0);
+
+        if (allPositiveSumsZero && allNegativeSumsZero) {
+            setShowChart(false);
+        } else {
+            setShowChart(true);
+        }
 
         const options = {
             series: [
@@ -121,7 +131,13 @@ export default function LineChart({totalWallet, sums, currency, height, width}) 
                 </dl>
             </div>
 
-            <div id="bar-chart"></div>
+            {showChart ? (
+                <div id="bar-chart"></div>
+            ) : (
+                <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                    <p>No expenses or incomes were recorded for the selected date range.</p>
+                </div>
+            )}
         </div>
 
     );

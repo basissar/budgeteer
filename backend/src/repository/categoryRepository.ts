@@ -1,18 +1,18 @@
 import { RepositoryError } from "../errors/RepositoryError.ts";
-import {Category} from "../model/Category.ts";
+import { Category } from "../model/Category.ts";
 import { BaseRepository } from "./baseRepository.ts";
 import { Op } from 'npm:sequelize';
 
 
 export class CategoryRepository implements BaseRepository<Category, number> {
-    
-    
+    //TODO remove userId from repository
+
     /**
      * Creates new category in database
      * Returns created category
      * @param category
      */
-    async save(category: Category):Promise<Category | null> {
+    async save(category: Category): Promise<Category | null> {
         try {
             const result = await category.save();
 
@@ -34,17 +34,17 @@ export class CategoryRepository implements BaseRepository<Category, number> {
     //returns affected rows
     async deleteById(id: number) {
         return await Category.destroy({
-            where:{id}
+            where: { id }
         });
     }
 
     async exists(id: number): Promise<boolean> {
-        const result = await Category.findOne({where: {id}});
+        const result = await Category.findOne({ where: { id } });
         return !!result;
     }
 
     async existsByName(name: string): Promise<boolean> {
-        const result = await Category.findOne({where: {name: name}});
+        const result = await Category.findOne({ where: { name: name } });
         return !!result;
     }
 
@@ -57,10 +57,10 @@ export class CategoryRepository implements BaseRepository<Category, number> {
     async getAllForUser(id: string): Promise<Category[] | null> {
         try {
             const categories = await Category.findAll({
-                where: { 
+                where: {
                     [Op.or]: [
-                        {userId: id},
-                        {userId: null}
+                        { userId: id },
+                        { userId: null }
                     ]
                 }
             });
@@ -85,23 +85,13 @@ export class CategoryRepository implements BaseRepository<Category, number> {
         }
     }
 
-    async getAllforUserInWallet(userId: string, walletId: string){
+    async getAllforUserInWallet(walletId: string) {
         try {
             const categories = await Category.findAll({
                 where: {
-                    [Op.and]: [
-                        {
-                            [Op.or]: [
-                                { userId: userId },
-                                { userId: null }
-                            ]
-                        },
-                        {
-                            [Op.or]: [
-                                { walletId: walletId },
-                                { walletId: null }
-                            ]
-                        }
+                    [Op.or]: [
+                        { walletId: walletId },
+                        { walletId: null }
                     ]
                 }
             });
@@ -109,8 +99,8 @@ export class CategoryRepository implements BaseRepository<Category, number> {
 
             return categories;
         } catch (err) {
-            throw new RepositoryError("Category repository error: " + err.message);
-        }
+    throw new RepositoryError("Category repository error: " + err.message);
+}
     }
 
 

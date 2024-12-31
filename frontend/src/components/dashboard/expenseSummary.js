@@ -5,8 +5,7 @@ import { useUserContext } from "../security/userProvider";
 import LineChart from "../custom/lineChart.js";
 import { Spinner } from "flowbite-react";
 
-
-export function ExpenseSummary({ months, height, width }) {
+export function ExpenseSummary({ selectedRange, height, width, count }) {
     const [userId, setUserId] = useState('');
     const [sums, setSums] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,35 +36,80 @@ export function ExpenseSummary({ months, height, width }) {
                 const promises = [];
                 const monthsArray = [];
 
-                for (let i = 0; i < months; i++) {
-                    const date = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() - i, 1));
-                    monthsArray.push(date);
-                    promises.push(axios.post(`${API_BASE_URL}/analytics/${userId}/${currentWalletId}/sumNegative`, { date: date.toISOString(), walletId: currentWalletId }, {
-                        withCredentials: true,
-                    }));
-                    promises.push(axios.post(`${API_BASE_URL}/analytics/${userId}/${currentWalletId}/sumPositive`, { date: date.toISOString(), walletId: currentWalletId }, {
-                        withCredentials: true,
-                    }));
+                if (selectedRange === 't') {
+                    const startDate = new Date();
+                    const endDate = new Date();
+                    monthsArray.push(currentDate);
+                    promises.push(fetchSumForPeriod(startDate, endDate, true));
+                    promises.push(fetchSumForPeriod(startDate, endDate, false));
+                } else if (selectedRange === 'w') {
+                    for (let i = 0; i < count; i++) {
+                        const date = new Date(currentDate);
+                        date.setDate(currentDate.getDate() - i);
+                        monthsArray.push(date);
+                        const startDate = new Date(date.setHours(0, 0, 0, 0));
+                        const endDate = new Date(date.setHours(23, 59, 59, 999));
+                        promises.push(fetchSumForPeriod(startDate, endDate, true));
+                        promises.push(fetchSumForPeriod(startDate, endDate, false));
+                    }
+                } else if (selectedRange === 'm') {
+                    monthsArray.push(currentDate);
+                    const startDate = new Date();
+                    const endDate = new Date();
+                    startDate.setMonth(startDate.getMonth() - 1);
+                    promises.push(fetchSumForPeriod(startDate, endDate, true));
+                    promises.push(fetchSumForPeriod(startDate, endDate, false));
+                } else if (selectedRange === 'x') {
+                    for (let i = 0; i < count; i++) {
+                        const date = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() - i));
+                        date.setMonth(date.getMonth() - i);
+                        monthsArray.push(date);
+                        const startDate = new Date(date.getFullYear(), date.getMonth() - i);
+                        const endDate = new Date(date.getFullYear(), date.getMonth() - i + 1);
+                        promises.push(fetchSumForPeriod(startDate, endDate, true));
+                        promises.push(fetchSumForPeriod(startDate, endDate, false));
+                    }
+                } else if (selectedRange === 'y') {
+                    monthsArray.push(currentDate.getFullYear());
+                    const startDate = new Date();
+                    const endDate = new Date();
+                    startDate.setFullYear(startDate.getFullYear() - 1);
+                    promises.push(fetchSumForPeriod(startDate, endDate, true));
+                    promises.push(fetchSumForPeriod(startDate, endDate, false));
                 }
 
                 const results = await Promise.all(promises);
-                const newSums = monthsArray.map((date, index) => {
-                    const negativeSum = Math.abs(results[index * 2].data.sum);
-                    const positiveSum = results[index * 2 + 1].data.sum;
-                    return {
-                        date: date.toLocaleString('default', { month: 'long', year: 'numeric' }),
-                        positiveSum,
-                        negativeSum
-                    };
-                });
 
-                const balanceResponse = await axios.get(`${API_BASE_URL}/analytics/${currentWalletId}`,
+                if (selectedRange === 'x' || selectedRange === 'w' || selectedRange === 'm') {
+                    const mappedSums = monthsArray.map((date, index) => ({
+                        date: selectedRange === 'w'
+                            ? date.toLocaleString('default', { weekday: 'short', month: 'short', day: 'numeric' })
+                            : selectedRange === 'm'
+                                ? date.toLocaleString('default', { month: 'short', year: 'numeric' })
+                                : date.toLocaleString('default', { month: 'short', year: 'numeric' }),
+                        positiveSum: results[index * 2]?.data.result,
+                        negativeSum: Math.abs(results[index * 2 + 1]?.data.result),
+                    }));
+
+                    setSums(mappedSums.reverse());
+                } else {
+                    const newSums = monthsArray.map((date, index) => {
+                        const positiveSum = results[index * 2].data.result;
+                        const negativeSum = Math.abs(results[index * 2 + 1].data.result);
+                        return {
+                            date: date.toLocaleString('default', { weekday: 'short', month: 'short', day: 'numeric' }),
+                            positiveSum,
+                            negativeSum
+                        };
+                    });
+                    setSums(newSums.reverse());
+                }
+
+                const balanceResponse = await axios.get(`${API_BASE_URL}/analytics/${currentWalletId}/balance`,
                     { withCredentials: true }
                 );
 
                 setWalletBallance(balanceResponse.data.sum);
-
-                setSums(newSums.reverse());
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -74,7 +118,7 @@ export function ExpenseSummary({ months, height, width }) {
         };
 
         fetchSums();
-    }, [months, currentWalletId, userId]);
+    }, [ currentWalletId, userId]);
 
     useEffect(() => {
         const handleChange = async () => {
@@ -91,7 +135,17 @@ export function ExpenseSummary({ months, height, width }) {
         setCurrentCurrency(selectedWallet.currency);
     };
 
-
+    const fetchSumForPeriod = async (startDate, endDate, condition) => {
+        return axios.get(`${API_BASE_URL}/analytics/${currentWalletId}/sumAction`, {
+            withCredentials: true,
+            params: {
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                sourceCategoryId: "null",
+                amountCondition: condition,
+            }
+        });
+    };
 
     if (loading) return (
         <div className="text-center">

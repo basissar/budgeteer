@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../utils/macros';
 import { useUserContext } from '../security/userProvider';
-import { Spinner, Dropdown, Datepicker, TextInput, Button } from 'flowbite-react';
-import Icon from '../custom/icon';
+import { Datepicker,  Button } from 'flowbite-react';
 import datePickerTheme from '../../themes/datePicker.json';
 import { ExpenseSummary } from '../dashboard/expenseSummary';
 import PieChart from '../custom/piechart';
 import CategorySumTable from '../custom/categorySumTable';
+import SummarySelect from '../custom/summarySelect';
 
 export default function Analytics() {
     const [userId, setUserId] = useState('');
@@ -28,9 +28,10 @@ export default function Analytics() {
     const [balances, setBalances] = useState({});
     const [categories, setCategories] = useState([]);
 
-    const [months, setMonths] = useState(1);
-
     const { user, currentWallet, wallets } = useUserContext();
+
+    const [selectedRange, setSelectedRange] = useState('t');
+    const [count, setCount] = useState(1);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -64,13 +65,13 @@ export default function Analytics() {
 
             setLoading(true);
             try {
-                const categoriesResponse = await axios.get(`${API_BASE_URL}/${user.id}/categories/${currentWalletId}`, {
+                const categoriesResponse = await axios.get(`${API_BASE_URL}/categories/${currentWalletId}`, {
                     withCredentials: true,
                 });
 
                 setCategories(categoriesResponse.data.categories);
 
-                const balanceResponse = await axios.get(`${API_BASE_URL}/analytics/${user.id}/${currentWalletId}`, {
+                const balanceResponse = await axios.get(`${API_BASE_URL}/analytics/${currentWalletId}/categories`, {
                     withCredentials: true,
                 });
 
@@ -99,10 +100,15 @@ export default function Analytics() {
             const start = startDate.toISOString();
             const end = endDate.toISOString();
 
-            const sumsResponse = await axios.get(`${API_BASE_URL}/analytics/${currentWallet.id}/${start}/${end}`,
+            const sumsResponse = await axios.get(`${API_BASE_URL}/analytics/${currentWallet.id}/sums`,
                 {
-                    withCredentials: true
-                });
+                    withCredentials: true,
+                    params: {
+                        startDate: start,
+                        endDate: end
+                    }
+                }
+            );
 
             setPositiveSumMap(sumsResponse.data.sumMaps.positiveSumMap);
             setNegativeSumMap(sumsResponse.data.sumMaps.negativeSumMap);
@@ -112,16 +118,32 @@ export default function Analytics() {
         }
     };
 
+    const handleSelectRange = (value) => {
+        setSelectedRange(value);
+        if (value === 'x') setCount(6);
+        else if (value === 'w') setCount(7);
+        else setCount(1);
+    };
+
+    useEffect(() => {
+    }, [selectedRange, count]);
+
+
     return (
         <div className='flex flex-col justify-center'>
             <div className='flex flex-row gap-2 mx-auto mt-[50px]'>
 
                 <div>
-                    <div className='flex flex-col items-center mr-[150px]'>
-                        <ExpenseSummary months={months} height={100 * months} width={600} />
-                        <div className="w-44 mt-[50px]">
-                            <label htmlFor="months">Months:</label>
-                            <TextInput class="focus:border-green-500 focus:ring-green-500 h-10" type='number' value={months} onChange={(e) => setMonths(e.target.value)} required />
+                    <div className='flex flex-col items-center mr-[150px] gap-2'>
+                        <ExpenseSummary
+                            key={`${selectedRange}-${count}`}
+                            selectedRange={selectedRange}
+                            count={count}
+                            height={100 * count}
+                            width={600}
+                        />
+                        <div>
+                            <SummarySelect onSelect={handleSelectRange} />
                         </div>
                     </div>
 
@@ -133,7 +155,7 @@ export default function Analytics() {
             </div>
 
             <h2>Custom Date Range Analytics</h2>
-            <div className='flex flex-row mb-[100px] mx-auto'>
+            <div className='flex flex-row mb-[100px] mt-[20px] mx-auto'>
                 <div className='flex flex-col mr-[150px]'>
 
                     <div className='flex flex-col gap-2'>
@@ -153,7 +175,7 @@ export default function Analytics() {
                     <Button class="self-center flex items-center justify-center text-white rounded-lg w-1/2 bg-dark-green" onClick={fetchSumsForDateRange}>Load data</Button>
                 </div>
 
-                <CategorySumTable negativeSumMap={negativeSumMap} positiveSumMap={positiveSumMap} categories={categories} currency={currentWalletCurrency}/>
+                <CategorySumTable negativeSumMap={negativeSumMap} categories={categories} currency={currentWalletCurrency} />
             </div>
 
         </div>

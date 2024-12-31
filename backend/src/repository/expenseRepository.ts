@@ -4,6 +4,7 @@ import { Expense } from "../model/Expense.ts";
 import { Wallet } from "../model/Wallet.ts";
 import { BaseRepository } from "./baseRepository.ts";
 import { Op } from 'npm:sequelize';
+import { SumSearchParameters } from "./sumSearchParams.ts";
 
 export class ExpenseRepository implements BaseRepository<Expense, number> {
 
@@ -27,8 +28,8 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
     async findById(id: number): Promise<Expense | null> {
         return await Expense.findByPk(id, {
             include: [
-                { model: Category, as: 'sourceCategory', attributes: ['id','name', 'color'] },
-                { model: Category, as: 'targetCategory', attributes: ['id','name', 'color'] }
+                { model: Category, as: 'sourceCategory', attributes: ['id', 'name', 'color'] },
+                { model: Category, as: 'targetCategory', attributes: ['id', 'name', 'color'] }
             ]
         });
     }
@@ -70,8 +71,8 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 walletId: id
             },
             include: [
-                { model: Category, as: 'sourceCategory', attributes: ['id','name', 'color'] },
-                { model: Category, as: 'targetCategory', attributes: ['id','name', 'color'] }
+                { model: Category, as: 'sourceCategory', attributes: ['id', 'name', 'color'] },
+                { model: Category, as: 'targetCategory', attributes: ['id', 'name', 'color'] }
             ],
             order: [['date', 'DESC']]
         })
@@ -209,158 +210,24 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         }
     }
 
-    async sumNegativeExpensesForMonth(userId: string, year: number, month: number, walletId: string) {
+    /**
+     * Retrieves sum based on search parameters
+     * @param params 
+     * @returns summed amount
+     */
+    async sumExpenses(params: SumSearchParameters): Promise<number> {
         try {
-            // const userWallets = await Wallet.findAll({
-            //     where: { userId: userId },
-            //     attributes: ['id']
-            // });
+            const whereClause = params.toWhereClause();
 
-            // const walletIds = userWallets.map(wallet => wallet.id);
-
-            const result = await Expense.sum('amount', {
-                where: {
-                    walletId: walletId,
-                    amount: {
-                        [Op.lt]: 0 // positive amounts
-                    },
-                    date: {
-                        [Op.between]: [new Date(year, month - 1, 1), new Date(year, month, 0)] // date range for the month
-                    },
-                    sourceCategoryId: null,
-                }
-            });
-
-            return result || 0;
-        } catch (error) {
-            throw new RepositoryError(`Expense repository error: ${error.message}`);
-        }
-    }
-
-    async sumPositiveExpensesForMonth(userId: string, year: number, month: number, walletId: string) {
-        try {
-            // const userWallets = await Wallet.findAll({
-            //     where: { userId: userId },
-            //     attributes: ['id']
-            // });
-
-            // const walletIds = userWallets.map(wallet => wallet.id);
-
-            const result = await Expense.sum('amount', {
-                where: {
-                    walletId: walletId,
-                    amount: {
-                        [Op.gt]: 0 // positive amounts
-                    },
-                    date: {
-                        [Op.between]: [new Date(year, month - 1, 1), new Date(year, month, 0)] // date range for the month
-                    },
-                    sourceCategoryId: null,
-                }
-            });
-
-            return result || 0;
-        } catch (error) {
-            throw new RepositoryError(`Expense repository error: ${error.message}`);
-        }
-    }
-
-    async sumPositiveExpensesForDateRange(walletId: string, startDate: Date, endDate: Date, targetCategoryId: number): Promise<number> {
-        try {
-            const result = await Expense.sum('amount', {
-                where: {
-                    walletId: walletId,
-                    amount: {
-                        [Op.gt] : 0
-                    },
-                    date: {
-                        [Op.between]: [startDate, endDate]
-                    },
-                    sourceCategoryId: null,
-                    targetCategoryId: targetCategoryId
-                }
-            });
+            const result = await Expense.sum('amount', {where: whereClause});
 
             return result || 0;
         } catch (err) {
-            throw new RepositoryError(`Expense repository error: ${err}`);
+            throw new RepositoryError(`Expense repository error: ${(err as Error).message}`);
         }
     }
 
-    async sumNegativeExpensesForDateRange(walletId: string, startDate:Date, endDate: Date, targetCategoryId: number){
-        try {
-            const result = await Expense.sum('amount', {
-                where: {
-                    walletId: walletId,
-                    amount: {
-                        [Op.lt] : 0
-                    },
-                    date: {
-                        [Op.between]: [startDate, endDate]
-                    },
-                    sourceCategoryId: null,
-                    targetCategoryId: targetCategoryId
-                }
-            });
-
-            return result || 0;
-        } catch (err) {
-            throw new RepositoryError(`Expense repository error: ${err}`);
-        }
-    }
-
-    async totalNegativeSumPerCategory(userId: string, startDate: Date, endDate: Date, targetCategoryId: number): Promise<number> {
-        try {
-            const userWallets = await Wallet.findAll({
-                where: { userId: userId },
-                attributes: ['id']
-            });
-
-            const walletIds = userWallets.map(wallet => wallet.id);
-
-            const result = await Expense.sum('amount', {
-                where: {
-                    walletId: {
-                        [Op.in]: walletIds
-                    },
-                    amount: {
-                        [Op.lt]: 0 // negative amounts
-                    },
-                    date: {
-                        [Op.between]: [startDate, endDate] // date range
-                    },
-                    targetCategoryId: targetCategoryId
-                }
-            });
-
-            return result || 0;
-        } catch (error) {
-            throw new RepositoryError(`Expense repository error: ${error.message}`);
-        }
-    }
-
-    async getCurrentWalletBalance(walletId: string, targetCategoryId: number) {
-        const targetCategorySum = await Expense.sum('amount', {
-            where: {
-                walletId: walletId,
-                targetCategoryId: targetCategoryId
-            }
-        });
-    
-        const positiveTargetCategorySum = targetCategorySum > 0 ? targetCategorySum : 0;
-    
-        const sourceCategorySum = await Expense.sum('amount', {
-            where: {
-                walletId: walletId,
-                sourceCategoryId: targetCategoryId
-            }
-        });
-    
-        const currentBalance = positiveTargetCategorySum - (sourceCategorySum || 0);
-        return currentBalance || 0;
-    }
-
-    async getBalanceTotal(walletId: string){
+    async getBalanceTotal(walletId: string) {
         const totalSum = await Expense.sum('amount', {
             where: {
                 walletId: walletId,

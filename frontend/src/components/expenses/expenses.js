@@ -53,7 +53,7 @@ export default function Expenses() {
             if (!user || !currentWalletId) return;
 
             try {
-                const response = await axios.get(`${API_BASE_URL}/${user.id}/categories/${currentWalletId}`, {
+                const response = await axios.get(`${API_BASE_URL}/categories/${currentWalletId}`, {
                     withCredentials: true,
                 });
                 setCategories(response.data.categories);
