@@ -108,7 +108,30 @@ export class CategoryService {
         }
 
         return await this.categoryRepo.deleteById(categoryId) != 0;
+    }
 
+    /**
+     * Updates category with provided information
+     * @param categoryId id of category to be updated
+     * @param userId id of user owning the wallet category is in - used for ownership check
+     * @param updates updated information for category
+     * @returns 
+     */
+    public async udpateCategory(categoryId: number, userId: string, updates: Partial<Category>) {
+        const foundCategory = await this.categoryRepo.findById(categoryId);
+
+        if (!foundCategory) {
+            throw new NotFoundError(`Category with id ${categoryId} not found.`);
+        }
+
+        //we cannot update default categories so it always has a walletId
+        const belongsToUser = await this.walletService.belongsToUser(userId, foundCategory.walletId!);
+
+        if (!belongsToUser) {
+            throw new UnauthorizedError(`Unauthorized access to category editaion.`);
+        }
+
+        return await this.categoryRepo.update(categoryId, updates);
     }
 
 }

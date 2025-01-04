@@ -22,6 +22,24 @@ export class CategoryRepository implements BaseRepository<Category, number> {
         }
     }
 
+    /**
+     * Updates category with provided information
+     * @param categoryId id of category to be updated
+     * @param updates updated information
+     * @returns 
+     */
+    public async update(categoryId: number, updates: Partial<Category>): Promise<Category | null>{
+        const category = await Category.findByPk(categoryId);
+
+        if (!category) {
+            return null;
+        }
+
+        Object.assign(category, updates);
+        await category.save();
+        return category;
+    }
+
     public async findAll(): Promise<Category[] | null> {
         return await Category.findAll();
     }
