@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../utils/macros";
-import { Button, Card, Spinner, Table } from "flowbite-react";
+import { Button, Card, Spinner, Modal } from "flowbite-react";
 import { useUserContext } from "../security/userProvider";
 import axios from "axios";
 import CategoryForm from "./categoryForm";
@@ -17,6 +17,8 @@ export default function WalletDetails() {
     const { user, error, setError, updateWallet } = useUserContext();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const [isEditing, setIsEditing] = useState(false);
     const [originalDetails, setOriginalDetails] = useState(null);
@@ -69,6 +71,14 @@ export default function WalletDetails() {
         setCustomCategories((prevCategories) => [...prevCategories, newCategory]);
     };
 
+    const handleCategoryEdited = (editedCategory) => {
+        setCustomCategories((prevCategories) =>
+            prevCategories.map((category) =>
+                category.id === editedCategory.id ? editedCategory : category
+            )
+        );
+    };
+
     const handleDeleteCategory = async (categoryId) => {
         try {
             const response = await axios.delete(`${API_BASE_URL}/categories/${categoryId}`,
@@ -88,7 +98,7 @@ export default function WalletDetails() {
 
 
     const handleSave = async () => {
-        if ( details.name !== originalDetails.name) {
+        if (details.name !== originalDetails.name) {
             try {
                 const response = await axios.put(`${API_BASE_URL}/wallets/${walletId}`,
                     { name: details.name },
@@ -196,9 +206,26 @@ export default function WalletDetails() {
                     </Card>
 
                     <div className="w-full flex flex-row items-center gap-10 p-2">
-                        <Button color="failure" className="w-1/2" onClick={handleDelete}>
-                            Delete wallet
-                        </Button>
+
+                        <Button color="failure" className="w-1/2" onClick={() => setDeleteModalOpen(true)}>Delete wallet</Button>
+
+                        <Modal show={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+                            <Modal.Header>Confirm Deletion</Modal.Header>
+                            <Modal.Body>
+                                <p className="text-gray-500">
+                                    Are you sure you want to delete this wallet? This action cannot be undone.
+                                </p>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button color="gray" onClick={() => setDeleteModalOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button color="failure" onClick={handleDelete}>
+                                    Confirm
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+
                         <Button
                             color={isEditing ? "success" : "light"}
                             className="w-1/2"
@@ -216,6 +243,7 @@ export default function WalletDetails() {
                                 defaultCategories={defaultCategories}
                                 customCategories={customCategories}
                                 handleDeleteCategory={handleDeleteCategory}
+                                handleUpdateCategory={handleCategoryEdited}
                             />
                         )}
                     </div>
@@ -229,7 +257,11 @@ export default function WalletDetails() {
                 </div>
             </div>
 
-            <CategoryForm walletId={walletId} isModalOpen={isModalOpen} closeModal={closeModal} setCustomCategories={handleCategoryCreated} />
+            <CategoryForm walletId={walletId} 
+            isModalOpen={isModalOpen} 
+            closeModal={closeModal} 
+            setCustomCategories={handleCategoryCreated} 
+            />
         </div>
 
     );

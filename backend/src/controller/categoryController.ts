@@ -1,10 +1,12 @@
 import { RouterContext } from "@oak/oak";
-import { BAD_REQUEST, INTERNAL_ERROR, NOT_FOUND, OK } from "../config/macros.ts";
+import { BAD_REQUEST, INTERNAL_ERROR, NOT_FOUND, OK, UNAUTHORIZED } from "../config/macros.ts";
 import { CategoryService } from "../service/categoryService.ts";
 import { UserService } from "../service/userService.ts";
 import { WalletService } from "../service/walletService.ts";
 import { Category } from "../model/Category.ts";
 import { CREATED } from "../config/macros.ts";
+import { NotFoundError } from "../errors/NotFoundError.ts";
+import { UnauthorizedError } from "../errors/UnauthorizedError.ts";
 
 export class CategoryController {
     public userService: UserService;
@@ -154,6 +156,62 @@ export class CategoryController {
             ctx.response.status = NOT_FOUND;
             ctx.response.body = {
                 message: `Category has not been found.`
+            }
+        }
+    }
+
+    /**
+     * Updates category
+     * @param ctx 
+     * @returns 
+     */
+    public async updateCategory(ctx: RouterContext<string>){
+        const { categoryId } = ctx.params;
+
+        if (Number(categoryId) >= 0 && Number(categoryId) <= 11) {
+            ctx.response.status = BAD_REQUEST;
+            ctx.response.body = {
+                message: "Cannot update default categories"
+            };
+            return;
+        }
+
+        const updates = await ctx.request.body.json();
+
+        const userId = await ctx.cookies.get("user_id");
+
+        if (!updates) {
+            ctx.response.status = BAD_REQUEST;
+            ctx.response.body = {
+                message: "No updates provided."
+            };
+            return;
+        }
+
+        try {
+            const updatedCategory = await this.categoryService.udpateCategory(Number(categoryId), userId!, updates);
+
+            if (!updatedCategory) {
+                ctx.response.status = BAD_REQUEST;
+                ctx.response.body = {message: "No category updated."};
+                return;
+            }
+
+            ctx.response.status = OK;
+            ctx.response.body = {
+                message: "Category updated successfully",
+                category: updatedCategory
+            }
+        } catch (error) {
+            if (error instanceof NotFoundError) {
+                ctx.response.status = NOT_FOUND;
+                ctx.response.body = {message: "Category with provided id was not found."}
+            } else if (error instanceof UnauthorizedError) {
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = {message: "Unauthorized edit."}
+            } else {
+                ctx.response.status = BAD_REQUEST;
+                ctx.response.body = {message: error}
             }
         }
     }

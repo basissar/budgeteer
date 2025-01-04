@@ -105,6 +105,8 @@ router.get("/budgeteer/categories", categoryController.getAllDefault.bind(catego
 
 router.delete("/budgeteer/categories/:categoryId", categoryController.deleteById.bind(categoryController));
 
+router.put("/budgeteer/categories/:categoryId", categoryController.updateCategory.bind(categoryController));
+
 //WALETS
 router.post("/budgeteer/:userId/wallets", walletController.createWallet.bind(walletController));
 
