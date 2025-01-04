@@ -5,14 +5,13 @@ import { Op } from 'npm:sequelize';
 
 
 export class CategoryRepository implements BaseRepository<Category, number> {
-    //TODO remove userId from repository
 
     /**
      * Creates new category in database
      * Returns created category
      * @param category
      */
-    async save(category: Category): Promise<Category | null> {
+    public async save(category: Category): Promise<Category | null> {
         try {
             const result = await category.save();
 
@@ -23,69 +22,46 @@ export class CategoryRepository implements BaseRepository<Category, number> {
         }
     }
 
-    async findAll(): Promise<Category[] | null> {
+    public async findAll(): Promise<Category[] | null> {
         return await Category.findAll();
     }
 
-    async findById(id: number) {
+    public async findById(id: number) {
         return await Category.findByPk(id);
     }
 
     //returns affected rows
-    async deleteById(id: number) {
+    public async deleteById(id: number) {
         return await Category.destroy({
             where: { id }
         });
     }
 
-    async exists(id: number): Promise<boolean> {
+    public async exists(id: number): Promise<boolean> {
         const result = await Category.findOne({ where: { id } });
         return !!result;
     }
 
-    async existsByName(name: string): Promise<boolean> {
+    public async existsByName(name: string): Promise<boolean> {
         const result = await Category.findOne({ where: { name: name } });
         return !!result;
     }
 
-
-    /**
-     * Returns all categories for user with given id; that is all default categories and
-     * user created categories.
-     * @param id identificator by which we query the categories
-     */
-    async getAllForUser(id: string): Promise<Category[] | null> {
+    public async getAllDefault(): Promise<Category[]> {
         try {
             const categories = await Category.findAll({
                 where: {
-                    [Op.or]: [
-                        { userId: id },
-                        { userId: null }
-                    ]
+                    walletId: null
                 }
             });
 
             return categories;
         } catch (err) {
-            throw new RepositoryError("Category repository error: " + err);
+            throw new RepositoryError("Category repository error: " + (err as Error).message);
         }
     }
 
-    async getAllDefault(): Promise<Category[]> {
-        try {
-            const categories = await Category.findAll({
-                where: {
-                    userId: null
-                }
-            });
-
-            return categories;
-        } catch (err) {
-            throw new RepositoryError("Category repository error: " + err);
-        }
-    }
-
-    async getAllforUserInWallet(walletId: string) {
+    public async getAllForWallet(walletId: string) {
         try {
             const categories = await Category.findAll({
                 where: {
@@ -95,12 +71,29 @@ export class CategoryRepository implements BaseRepository<Category, number> {
                     ]
                 }
             });
-                        
+
 
             return categories;
         } catch (err) {
-    throw new RepositoryError("Category repository error: " + err.message);
-}
+            throw new RepositoryError("Category repository error: " + (err as Error).message);
+        }
+    }
+
+    public async getCustomForWallet(walletId: string){
+        try {
+            const categories = await Category.findAll({
+                where: {
+                    [Op.or]: [
+                        { walletId: walletId }
+                    ]
+                }
+            });
+
+
+            return categories;
+        } catch (err) {
+            throw new RepositoryError("Category repository error: " + (err as Error).message);
+        }
     }
 
 

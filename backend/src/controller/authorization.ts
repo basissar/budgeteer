@@ -10,33 +10,43 @@ export class AuthorizationMiddleware {
 
         if (!token) {
             ctx.response.status = UNAUTHORIZED;
-            ctx.response.body = {message: 'Authorization token missing'};
+            ctx.response.body = { message: 'Authorization token missing' };
             return;
         }
 
-        const result = await verify(token, key);
+        try {
+            const result = await verify(token, key);
 
-        if (!result) {
-            ctx.response.status = UNAUTHORIZED;
-            ctx.response.body = {message: 'Invalid token or expired'};
-            return;
-        }
+            if (!result) {
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: 'Invalid token or expired' };
+                return;
+            }
 
-        const tokenId = (result as { payload: { id: string } }).payload.id;
+            const tokenId = (result as { payload: { id: string } }).payload.id;
 
-        const paramsId = ctx.params.userId;
+            const paramsId = ctx.params.userId;
 
-        if (paramsId != null || paramsId != undefined) {
-            if (Object.keys(paramsId).length !== 0) {
+            if (paramsId != null && paramsId !== undefined) {
+                if (Object.keys(paramsId).length !== 0) {
 
-                if (tokenId != paramsId) {
-                    ctx.response.status = FORBIDDEN;
-                    ctx.response.body = {message: 'You are not authorized to perform this action'};
-                    return;
+                    if (tokenId !== paramsId) {
+                        ctx.response.status = FORBIDDEN;
+                        ctx.response.body = { message: 'You are not authorized to perform this action' };
+                        return;
+                    }
                 }
             }
-        }
 
-        await next();
+            await next();
+        } catch (e) {
+            if ((e as Error).message.includes("signature does not match")) {
+                ctx.response.status = UNAUTHORIZED;
+                ctx.response.body = { message: "Invalid token signature" };
+            } else {
+                ctx.response.status = 500;
+                ctx.response.body = { message: `${e}` };
+            }
+        }
     }
 }

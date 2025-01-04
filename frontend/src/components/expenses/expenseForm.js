@@ -6,6 +6,7 @@ import { useUserContext } from "../security/userProvider";
 import { Datepicker, Button, TextInput, Select, Dropdown, DropdownItem } from "flowbite-react";
 import Icon from '../custom/icon.js';
 import datePickerTheme from '../../themes/datePicker.json';
+import Error from '../custom/error.js';
 
 const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categories }) => {
     const [newExpenseName, setNewExpenseName] = useState('');
@@ -30,7 +31,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
         }
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/${user.id}/wallets/${currentWalletId}/expenses`,
+            const response = await axios.post(`${API_BASE_URL}/wallets/${currentWalletId}/expenses`,
                 {
                     name: newExpenseName,
                     amount: newExpenseAmount,
@@ -71,7 +72,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
         const selectedCategory = categories.find((cat) => cat.id === selectedId);
         return (
             <div className="flex items-center gap-2 h-5">
-                <Icon id={selectedCategory.id} alt={selectedCategory.name} />
+                <Icon id={selectedCategory.iconId} alt={selectedCategory.name} color={selectedCategory.color}/>
                 <span>{selectedCategory.name}</span>
             </div>
         );
@@ -111,7 +112,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
                                         onClick={() => setNewExpenseTarget(category.id)}
                                     >
                                         <div className="flex items-center gap-2">
-                                            <Icon id={category.id} alt={category.name} />
+                                            <Icon id={category.iconId} alt={category.name} color={category.color} />
                                             <span>{category.name}</span>
                                         </div>
                                     </Dropdown.Item>
@@ -142,7 +143,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
                                         onClick={() => setNewExpenseSource(category.id)}
                                     >
                                         <div className="flex items-center gap-2">
-                                            <Icon id={category.id} alt={category.name} />
+                                            <Icon id={category.iconId} alt={category.name} color={category.color}/>
                                             <span>{category.name}</span>
                                         </div>
                                     </Dropdown.Item>
@@ -167,7 +168,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
 
 
                 </div>
-                {errorMessage && <p>${errorMessage}</p>}
+                {errorMessage && <Error message={errorMessage} type={'error'}/>}
             </form>
 
             <CustomDialog

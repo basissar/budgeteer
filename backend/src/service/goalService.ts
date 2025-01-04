@@ -67,7 +67,7 @@ export class GoalService {
 
     async findByWallet(walletId: string, userId: string){
         try {
-            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+            const foundWallet = await this.walletService.getWallet(walletId, userId);
 
             if (!foundWallet) {
                 return null;

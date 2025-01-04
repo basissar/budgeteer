@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ApexCharts from "apexcharts";
-import infoIcon from '../../assets/info-icon.svg';
+import InfoIcon from '../../assets/info-icon.svg?react';
 import { Tooltip } from "flowbite-react";
 
 export default function PieChart({ balances, categories, currency }) {
@@ -78,7 +78,7 @@ export default function PieChart({ balances, categories, currency }) {
                 </div>
 
                 <Tooltip content="Piechart symbolizes amount of money currently saved in different categories." style="light">
-                    <img src={infoIcon} alt="Info icon" />
+                    <InfoIcon/>
                 </Tooltip>
             </div>
 

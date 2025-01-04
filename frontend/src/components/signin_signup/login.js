@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Import axios for making HTTP requests
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/budget_logo.svg';
+import Logo from '../../assets/budget_logo.svg?react';
 import { useUserContext } from "../security/userProvider";
 import { useError } from '../../utils/errorContext';
-import {Button, TextInput} from 'flowbite-react';
+import { Button, TextInput } from 'flowbite-react';
+import Error from '../custom/error.js';
 
 export default function Login() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const { setErrorMessage, getErrorMessage, errorMessage } = useError(); 
+    const { setErrorMessage, getErrorMessage, errorMessage } = useError();
 
     const { login, error } = useUserContext();
 
     const handleLogin = async () => {
-        if (!username && !password){
+        if (!username && !password) {
             setErrorMessage(getErrorMessage('credentials.missing'));
             return
         } else if (!username) {
@@ -42,9 +43,9 @@ export default function Login() {
     };
 
     return (
-        <div>
+        <div className='flex flex-col items-center'>
             <div className="logo">
-                <img src={logo} alt="Logo" />
+                <Logo/>
             </div>
 
             <p className="levelup">Level up your money game!</p>
@@ -56,22 +57,26 @@ export default function Login() {
                 <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
                     <div>
                         <label htmlFor="username_login">Username:</label>
-                        <TextInput id='username_login' class="focus:border-green-500 focus:ring-green-500" type='text' value={username} onChange={handleInputChange(setUsername)} required/>
+                        <TextInput id='username_login' class="focus:border-green-500 focus:ring-green-500" type='text' value={username} onChange={handleInputChange(setUsername)} required />
                     </div>
                     <div>
                         <label htmlFor="password">Password:</label>
-                        <TextInput id='password' class="focus:border-green-500 focus:ring-green-500" type='password' value={password} onChange={handleInputChange(setPassword)} required/>
+                        <TextInput id='password' class="focus:border-green-500 focus:ring-green-500" type='password' value={password} onChange={handleInputChange(setPassword)} required />
                     </div>
-                    {errorMessage && <p className="error">{errorMessage}</p>}
-                    <Button class="self-center flex items-center justify-center text-white rounded-lg w-1/2" type='submit'>Login</Button>
-                    {/* <button class="middle" type="submit">Login</button> */}
+                    <Button class="self-center flex items-center justify-center text-white rounded-lg w-1/2 bg-dark-green" type='submit'>Login</Button>
                     <div className="redirect">
                         <p>Don't have an account yet?</p>
                         <a href="/register">Sign Up</a>
                     </div>
 
                 </form>
+
             </div>
+
+            <div className='max-w-sm'>
+                {error && <Error message={error} type={'error'} />}
+            </div>
+
         </div>
     );
 }

@@ -28,7 +28,7 @@ export class AnalyticsService {
      * @param endDate 
      */
     async getSumsForDateRangePerCategory(searchParameters: SumSearchParameters) {
-        const categories = await this.categoryRepository.getAllforUserInWallet(searchParameters.walletId!);
+        const categories = await this.categoryRepository.getAllForWallet(searchParameters.walletId!);
 
         const positiveSums = new Map();
         const negativeSums = new Map();
@@ -62,7 +62,7 @@ export class AnalyticsService {
      */
     async getCategoryBalances(walletId: string) {
         try {
-            const categories = await this.categoryRepository.getAllforUserInWallet(walletId);
+            const categories = await this.categoryRepository.getAllForWallet(walletId);
             const categoryIds = categories.map(category => category.id);
             const balanceMap = new Map<number, number>();
 

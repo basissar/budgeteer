@@ -104,7 +104,7 @@ export class ExpenseService {
             await this.achievementService.evaluateAchievement(account!.id, AchievementType.EXPENSE, [this.expenseRepository, countByCategory])
             return finalResponse;
         } catch (error) {
-            throw new ServiceError("Expense service error: " + error.stack);
+            throw new ServiceError("Expense service error: " + (error as Error).stack);
         }
     }
 
@@ -112,7 +112,7 @@ export class ExpenseService {
         try {
             return await this.expenseRepository.exists(id);
         } catch (error) {
-            throw new ServiceError("Expense service error: " + error.stack);
+            throw new ServiceError("Expense service error: " + (error as Error).stack);
         }
     }
 
@@ -120,26 +120,16 @@ export class ExpenseService {
         try {
             return await this.expenseRepository.findById(id);
         } catch (error) {
-            throw new ServiceError("Expense service error: " + error.stack);
+            throw new ServiceError("Expense service error: " + (error as Error).stack);
         }
     }
 
-    async findByWallet(walletId: string, userId: string) {
+    async findByWallet(walletId: string) {
         try {
-            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
-
-            if (!foundWallet) {
-                return null;
-            }
-
-            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                return null;
-            }
-
             const foundExpenses = await this.expenseRepository.findByWallet(walletId);
             return foundExpenses;
         } catch (error) {
-            throw new ServiceError("Expense service error: " + error.stack);
+            throw new ServiceError("Expense service error: " + (error as Error).stack);
         }
     }
 
@@ -149,19 +139,15 @@ export class ExpenseService {
 
             return foundExpenses;
         } catch (error) {
-            throw new ServiceError("Expense service error: " + error.stack)
+            throw new ServiceError("Expense service error: " + (error as Error).stack)
         }
     }
 
     async findBySource(walletId: string, userId: string, sourceCatId: number) {
         try {
-            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+            const foundWallet = await this.walletService.getWallet(walletId, userId);
 
             if (!foundWallet) {
-                return null;
-            }
-
-            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
                 return null;
             }
             
@@ -169,19 +155,15 @@ export class ExpenseService {
 
             return foundExpenses;
         } catch (err) {
-            throw new ServiceError(`Expense service error: ${err.message}`);
+            throw new ServiceError(`Expense service error: ${(err as Error).message}`);
         }
     }
 
     async findByTarget(walletId: string, userId: string, targetCat: number) {
         try {
-            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+            const foundWallet = await this.walletService.getWallet(walletId, userId);
 
             if (!foundWallet) {
-                return null;
-            }
-
-            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
                 return null;
             }
 
@@ -189,47 +171,31 @@ export class ExpenseService {
 
             return foundExpenses;
         } catch (error) {
-            throw new ServiceError(`Expense service error: ${error.message}`);
+            throw new ServiceError(`Expense service error: ${(error as Error).message}`);
         }
     }
 
     async findByMaxAmount(walletId: string, userId: string, maxAmount: number) {
         try {
-            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
-
-            if (!foundWallet) {
-                return null;
-            }
-
-            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                return null;
-            }
+            const foundWallet = await this.walletService.getWallet(walletId, userId);
 
             const foundExpenses = await this.expenseRepository.findByMaxAmount(walletId, maxAmount);
 
             return foundExpenses;
         } catch (error) {
-            throw new ServiceError(`Expense service error: ${error.message}`);
+            throw new ServiceError(`Expense service error: ${(error as Error).message}`);
         }
     }
 
     async findByMinAmount(walletId: string, userId: string, minAmount: number) {
         try {
-            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
-
-            if (!foundWallet) {
-                return null;
-            }
-
-            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
-                return null;
-            }
+            const foundWallet = await this.walletService.getWallet(walletId, userId);
 
             const foundExpenses = await this.expenseRepository.findByMinAmount(walletId, minAmount);
 
             return foundExpenses;
         } catch (error) {
-            throw new ServiceError(`Expense service error: ${error.message}`);
+            throw new ServiceError(`Expense service error: ${(error as Error).message}`);
         }
     }
 
@@ -259,19 +225,15 @@ export class ExpenseService {
 
             return deletedRows != 0;
         } catch (error) {
-            throw new ServiceError("Expense service error: " + error.message);
+            throw new ServiceError("Expense service error: " + (error as Error).message);
         }
     }
 
     async findByDate(userId: string, walletId: string, date: Date, categoryId: number) {
         try {
-            const foundWallet = await this.walletService.getWalletForUser(walletId, userId);
+            const foundWallet = await this.walletService.getWallet(walletId, userId);
 
             if (!foundWallet) {
-                return null;
-            }
-
-            if (foundWallet.id != walletId && foundWallet.userId !== userId) {
                 return null;
             }
 
@@ -279,7 +241,25 @@ export class ExpenseService {
 
             return foundExpenses;
         } catch (error) {
-            throw new ServiceError("Expense service error: " + error.message);
+            throw new ServiceError("Expense service error: " + (error as Error).message);
+        }
+    }
+
+    public async deleteAllInCategory(walletId: string, categoryId: number ){
+        const walletExists = await this.walletService.exists(walletId);
+
+        if (!walletExists) {
+            throw new NotFoundError(`Wallet with id ${walletId} does not exist.`);
+        }
+
+        try {
+            const deletedSource = await this.expenseRepository.deleteBySource(walletId, categoryId);
+            const deletedTarget = await this.expenseRepository.deleteByTarget(walletId, categoryId);
+
+            //TODO update budget money correctly
+
+        } catch(error) {
+            throw new ServiceError(`Expense service error: ${(error as Error).message}`);
         }
     }
 

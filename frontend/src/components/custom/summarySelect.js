@@ -7,7 +7,7 @@ const SummarySelect = ({ onSelect }) => {
     const options = [
         { label: 'Today', value: 't' },
         { label: 'Last Week', value: 'w' },
-        { label: 'Last Month', value: 'm' },
+        { label: 'This Month', value: 'm' },
         { label: 'Last 6 Months', value: 'x' },
         { label: 'This Year', value: 'y' },
     ];

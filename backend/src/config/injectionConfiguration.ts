@@ -33,6 +33,7 @@ import { container } from "../utils/container.ts";
 import { ACCOUNT_CONTROLLER, ACHIEVEMENT_CONTROLLER, ANALYTICS_CONTROLLER, ANALYTICS_SERVICE, AUTH_MW, AVATAR_SERVICE, BUDGET_CONTROLLER, CATEGORY_CONTROLLER, EXPENSE_CONTROLLER, GOAL_CONTROLLER, GOAL_SERVICE, ITEM_SERVICE, USER_CONTROLLER, WALLET_CONTROLLER } from "./macros.ts";
 import { USER_REPOSITORY, WALLET_REPOSITORY, EXPENSE_REPOSITORY, CATEGORY_REPOSITORY, BUDGET_REPOSITORY, ACCOUNT_REPOSITORY, ITEM_REPOSITORY, AVATAR_REPOSITORY, GOAL_REPOSITORY, ACHIEVEMENT_REPOSITORY, USER_SERVICE, WALLET_SERVICE, EXPENSE_SERVICE, BUDGET_SERVICE, ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, CATEGORY_SERVICE } from "./macros.ts";
 import { AvatarService } from "../service/avatarService.ts";
+import { ItemService } from "../service/itemService.ts";
 
 export function configureDI() {
     container.register(AUTH_MW, new AuthorizationMiddleware());
@@ -61,6 +62,11 @@ export function configureDI() {
     container.register(ACCOUNT_SERVICE, new AccountService(
         container.resolve(ACCOUNT_REPOSITORY)
     ));
+
+    container.register(ITEM_SERVICE, new ItemService(
+        container.resolve(ITEM_REPOSITORY),
+        container.resolve(ACCOUNT_SERVICE)
+    ))
 
     container.register(ACHIEVEMENT_SERVICE, new AchievementService(
         container.resolve(ACHIEVEMENT_REPOSITORY)
@@ -93,6 +99,7 @@ export function configureDI() {
         container.resolve(CATEGORY_REPOSITORY),
         container.resolve(USER_REPOSITORY),
         container.resolve(WALLET_SERVICE),
+        container.resolve(EXPENSE_SERVICE)
     ));
 
     container.register(GOAL_REPOSITORY, new GoalService(

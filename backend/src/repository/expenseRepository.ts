@@ -13,7 +13,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
             const result = await expense.save();
             return result;
         } catch (error) {
-            throw new RepositoryError(`Expense repository error: ${error.message}`);
+            throw new RepositoryError(`Expense repository error: ${(error as Error).message}`);
         }
     }
 
@@ -21,15 +21,15 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         try {
             return await Expense.findAll();
         } catch (error) {
-            throw new RepositoryError(error.stack);
+            throw new RepositoryError((error as Error).message);
         }
     }
 
     async findById(id: number): Promise<Expense | null> {
         return await Expense.findByPk(id, {
             include: [
-                { model: Category, as: 'sourceCategory', attributes: ['id', 'name', 'color'] },
-                { model: Category, as: 'targetCategory', attributes: ['id', 'name', 'color'] }
+                { model: Category, as: 'sourceCategory', attributes: ['id', 'name', 'color', 'iconId'] },
+                { model: Category, as: 'targetCategory', attributes: ['id', 'name', 'color', 'iconId'] }
             ]
         });
     }
@@ -40,15 +40,15 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         });
     }
 
-    async deleteBySource(catId: number): Promise<number> {
+    async deleteBySource(walletId: string, catId: number): Promise<number> {
         return await Expense.destroy({
-            where: { sourceCategoryId: catId }
+            where: { sourceCategoryId: catId, walletId: walletId}
         })
     }
 
-    async deleteByTarget(catId: number): Promise<number> {
+    async deleteByTarget(walletId: string, catId: number): Promise<number> {
         return await Expense.destroy({
-            where: { targetCategoryId: catId }
+            where: { targetCategoryId: catId, walletId: walletId}
         });
     }
 
@@ -71,14 +71,14 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 walletId: id
             },
             include: [
-                { model: Category, as: 'sourceCategory', attributes: ['id', 'name', 'color'] },
-                { model: Category, as: 'targetCategory', attributes: ['id', 'name', 'color'] }
+                { model: Category, as: 'sourceCategory', attributes: ['id', 'name', 'color', 'iconId'] },
+                { model: Category, as: 'targetCategory', attributes: ['id', 'name', 'color', 'iconId'] }
             ],
             order: [['date', 'DESC']]
         })
     }
 
-    async findByUser(userId: string): Promise<Expense[] | null> {
+    public async findByUser(userId: string): Promise<Expense[] | null> {
         try {
             const userWallets = await Wallet.findAll({
                 where: { userId: userId }
@@ -99,11 +99,11 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 order: [['date', 'DESC']]
             });
         } catch (error) {
-            throw new RepositoryError(error.stack);
+            throw new RepositoryError((error as Error).message);
         }
     }
 
-    async getCountByCategoryForUser(userId: string, categoryId: number) {
+    public async getCountByCategoryForUser(userId: string, categoryId: number) {
         try {
             //Retrieve the user's wallets
             const userWallets = await Wallet.findAll({
@@ -126,11 +126,11 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
 
             return count;
         } catch (error) {
-            throw new RepositoryError(error.stack);
+            throw new RepositoryError((error as Error).message);
         }
     }
 
-    async findBySource(walletId: string, source: number): Promise<Expense[] | null> {
+    public async findBySource(walletId: string, source: number): Promise<Expense[] | null> {
         return await Expense.findAll({
             where: {
                 walletId: walletId,
@@ -139,7 +139,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         })
     }
 
-    async findByTarget(walletId: string, target: number): Promise<Expense[] | null> {
+    public async findByTarget(walletId: string, target: number): Promise<Expense[] | null> {
         return await Expense.findAll({
             where: {
                 walletId: walletId,
@@ -148,7 +148,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         })
     }
 
-    async findByMaxAmount(walletId: string, max: number): Promise<Expense[] | null> {
+    public async findByMaxAmount(walletId: string, max: number): Promise<Expense[] | null> {
         try {
             return await Expense.findAll({
                 where: {
@@ -159,11 +159,11 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 }
             });
         } catch (error) {
-            throw new RepositoryError(error.stack);
+            throw new RepositoryError((error as Error).message);
         }
     }
 
-    async findByMinAmount(walletId: string, min: number): Promise<Expense[] | null> {
+    public async findByMinAmount(walletId: string, min: number): Promise<Expense[] | null> {
         try {
             return await Expense.findAll({
                 where: {
@@ -174,11 +174,11 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                 }
             });
         } catch (error) {
-            throw new RepositoryError(error.stack);
+            throw new RepositoryError((error as Error).message);
         }
     }
 
-    async findByDate(walletId: string, date: Date, category: number) {
+    public async findByDate(walletId: string, date: Date, category: number) {
         try {
             return await Expense.findAll({
                 attributes: ['name', 'amount', 'targetCategoryId'],
@@ -188,12 +188,12 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                     targetCategoryId: category
                 }
             });
-        } catch (err) {
-            throw new RepositoryError(err.stack);
+        } catch (error) {
+            throw new RepositoryError((error as Error).message);
         }
     }
 
-    async findByDateRangeWithCategory(walletId: string, startDay: Date, endDay: Date, category: number) {
+    public async findByDateRangeWithCategory(walletId: string, startDay: Date, endDay: Date, category: number) {
         try {
             return await Expense.findAll({
                 attributes: ['name', 'amount', 'targetCategoryId'],
@@ -205,8 +205,8 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
                     targetCategoryId: category
                 }
             });
-        } catch (err) {
-            throw new RepositoryError(err.stack);
+        } catch (error) {
+            throw new RepositoryError((error as Error).message);
         }
     }
 
@@ -215,7 +215,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
      * @param params 
      * @returns summed amount
      */
-    async sumExpenses(params: SumSearchParameters): Promise<number> {
+    public async sumExpenses(params: SumSearchParameters): Promise<number> {
         try {
             const whereClause = params.toWhereClause();
 
@@ -227,7 +227,7 @@ export class ExpenseRepository implements BaseRepository<Expense, number> {
         }
     }
 
-    async getBalanceTotal(walletId: string) {
+    public async getBalanceTotal(walletId: string) {
         const totalSum = await Expense.sum('amount', {
             where: {
                 walletId: walletId,

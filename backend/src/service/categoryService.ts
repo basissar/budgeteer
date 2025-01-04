@@ -1,8 +1,10 @@
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
+import { UnauthorizedError } from "../errors/UnauthorizedError.ts";
 import { Category } from "../model/Category.ts";
 import { CategoryRepository } from "../repository/categoryRepository.ts";
 import { UserRepository } from "../repository/userRepository.ts";
+import { ExpenseService } from "./expenseService.ts";
 import { WalletService } from "./walletService.ts";
 
 export class CategoryService {
@@ -13,83 +15,100 @@ export class CategoryService {
 
     private walletService: WalletService;
 
-    constructor(categoryRepository: CategoryRepository, userRepository: UserRepository, walletService: WalletService){
+    private expenseService: ExpenseService;
+
+    constructor(categoryRepository: CategoryRepository, userRepository: UserRepository, walletService: WalletService, expenseService: ExpenseService) {
         this.categoryRepo = categoryRepository;
         this.userRepo = userRepository;
         this.walletService = walletService;
+        this.expenseService = expenseService;
     }
 
-    async createCategory(category: Category): Promise<Category | null> {
+    public async createCategory(category: Category): Promise<Category | null> {
         //no need for existence check as we allow multiple cats with same name
         return await this.categoryRepo.save(category);
     }
 
-    async getAllCategories(): Promise<Category[]> {
-        try {
-            return await this.categoryRepo.getAllDefault();
-        } catch (e){
-            throw new ServiceError("Category service error: " + e.message);
-        }
-    }
-
-    async getAllForUser(userId: string): Promise<Category[] | null> {
-        const userExists = await this.userRepo.existsById(userId);
-
-        if (!userExists){
-            return null;
-        }
-
-        return await this.categoryRepo.getAllForUser(userId);
-    }
-
     /**
      * Retrieves all categories for user in specific wallet
-     * @param userId 
      * @param walletId target wallet
      * @returns 
      */
-    async getAllForUserInWallet(userId: string, walletId: string){
+    public async getAllForWallet(walletId: string) {
+        const walletExists = await this.walletService.exists(walletId);
+        if (!walletExists) {
+            throw new ServiceError(`Wallet does not exist.`);
+        }
+
         try {
-            const userExists = await this.userRepo.exists(userId);
-
-            if (!userExists) {
-                throw new NotFoundError(`User ${userId} does not exist`);
-            }
-
-            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
-
-            if(!belongsToUser) {
-                throw new ServiceError(`Wallet does not belong to user`);
-            }
-
-            const categories = await this.categoryRepo.getAllforUserInWallet(walletId);
-            return categories;
+            return await this.categoryRepo.getAllForWallet(walletId);
         } catch (err) {
-            throw new ServiceError(`Category service error: ${err.message}`);
+            throw new ServiceError(`Error retrieving categories for wallet ${err}`);
         }
     }
 
-    async deleteCategoryForUser(categoryId: number, userId: string): Promise<boolean> {
-        try {
-            const userExists = await this.userRepo.exists(userId);
+    /**
+     * Retrieves custom categories only for wallet
+     * @param walletId wanted wallet id
+     * @returns 
+     */
+    public async getCustomForWallet(walletId: string) {
+        const walletExists = await this.walletService.exists(walletId);
 
-            if(!userExists) {
-                throw new NotFoundError(`User ${userId} does not exist`);
-            }
-    
-            const category = await this.categoryRepo.findById(categoryId);
-            if(!category) {
-                throw new NotFoundError(`Category with ${categoryId} does not exist`);
-            }
-    
-            if (category.userId !== userId && category.userId !== null) {
-                throw new Error('Category does not belong to the user.');
-            }
-    
-            return await this.categoryRepo.deleteById(categoryId) != 0;
-        } catch (err){
-            throw new ServiceError(`Category service error: error deleting category ${err.message}`); 
+        if (!walletExists) {
+            throw new ServiceError(`Wallet does not exist.`);
         }
+
+        try {
+            return await this.categoryRepo.getCustomForWallet(walletId);
+        } catch (err) {
+            throw new ServiceError(`Error retrieving categories for wallet ${err}`);
+        }
+    }
+
+    /**
+     * Retrieves all default categories
+     */
+    public async getAllDefault() {
+        try {
+            const defaultCategories = await this.categoryRepo.getAllDefault();
+
+            if (defaultCategories.length == 0) {
+                throw new ServiceError(`No default categories retrieved`);
+            }
+
+            return defaultCategories;
+        } catch (error) {
+            throw new ServiceError(`Category service error: ${(error as Error).message}`);
+        }
+
+    }
+
+    /**
+     * Deletes a category
+     * @param categoryId of category to be deleted
+     * @returns 
+     */
+    public async deleteCategory(categoryId: number): Promise<boolean> {
+        if (categoryId >= 0 && categoryId <= 11) {
+            //trying to delete a default category is not allowed
+            throw new UnauthorizedError(`Deleting a default category (id: ${categoryId}) is not allowed.`);
+        }
+
+        const category = await this.categoryRepo.findById(categoryId);
+
+        if (!category) {
+            throw new NotFoundError(`Category with ${categoryId} does not exist`);
+        }
+
+        try {
+            await this.expenseService.deleteAllInCategory(category.walletId!, category.id);
+        } catch (error) {
+            throw new ServiceError(`Category service error: ${(error as Error).message}`);
+        }
+
+        return await this.categoryRepo.deleteById(categoryId) != 0;
+
     }
 
 }

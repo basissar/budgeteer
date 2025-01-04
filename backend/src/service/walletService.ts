@@ -5,6 +5,10 @@ import { NotFoundError } from "../errors/NotFoundError.ts";
 import { ServiceError } from "../errors/ServiceError.ts";
 import { Expense } from "../model/Expense.ts";
 import { ExpenseRepository } from "../repository/expenseRepository.ts";
+import { Category } from "../model/Category.ts";
+import { Op } from "npm:sequelize";
+import { WalletDetailsTO } from "../model/WalletDetailsTo.ts";
+import { UnauthorizedError } from "../errors/UnauthorizedError.ts";
 
 export class WalletService {
 
@@ -20,11 +24,17 @@ export class WalletService {
         this.expenseRepository = expenseRepository;
     }
 
-    async createWallet(wallet: Wallet, initialAmount: number): Promise<Wallet | null> {
+    /**
+     * Creates wallet with initial amount
+     * @param wallet object containing name and currency
+     * @param initialAmount amount of money first put into wallet
+     * @returns 
+     */
+    public async createWallet(wallet: Wallet, initialAmount: number): Promise<Wallet | null> {
         try {
             const createdWallet = await this.walletRepository.save(wallet);
 
-            if (createdWallet == null){
+            if (createdWallet == null) {
                 throw new ServiceError(`Wallet creation failed`);
             }
 
@@ -42,15 +52,20 @@ export class WalletService {
                 throw new Error("Failed to create initial expense");
             }
 
-            const toReturn = await this.walletRepository.getAfterCreate(wallet.id);
+            const toReturn = await this.walletRepository.findById(wallet.id);
 
             return toReturn;
         } catch (error) {
-            throw new ServiceError(`Wallet service error: error creating wallet: ${error.message}`);
+            throw new ServiceError(`Wallet service error: error creating wallet: ${(error as Error).message}`);
         }
     }
 
-    async getAllWalletsForUser(id: string): Promise<Wallet[] | null> {
+    /**
+     * Retrieves all wallets for user
+     * @param id user id
+     * @returns 
+     */
+    public async getAllWalletsForUser(id: string): Promise<Wallet[] | null> {
         const userExists = await this.userRepository.exists(id);
 
         if (!userExists) {
@@ -60,36 +75,68 @@ export class WalletService {
         return await this.walletRepository.getAllForUser(id);
     }
 
-    async getWallet(walletId: string): Promise<Wallet | null> {
-        return await this.walletRepository.findById(walletId);
-    }
+    /**
+     * Retrieves wallet for user
+     * @param walletId wanted wallet
+     * @param userId user id for ownership check
+     * @returns 
+     */
+    public async getWallet(walletId: string, userId: string) {
+        const belongsToUser = await this.belongsToUser(userId, walletId);
 
-    async getWalletForUser(walletId: string, userId: string) {
-        const userExists = await this.userRepository.exists(userId);
-
-        if (!userExists) {
-            return null;
+        if (!belongsToUser){
+            throw new UnauthorizedError(`Wallet does not belong to user with id ${userId}`)
         }
+
 
         const foundWallet = await this.walletRepository.findById(walletId);
         if (!foundWallet) {
             return null;
         }
 
-        return foundWallet;
+        const walletCategories = await Category.findAll({
+            where: {
+                [Op.or]: [
+                    { walletId: walletId },
+                    { walletId: null }
+                ]
+            }
+        });
+
+        const walletBalance = await this.expenseRepository.getBalanceTotal(walletId);
+
+        const walletDetailsTO = new WalletDetailsTO();
+        walletDetailsTO.walletId = foundWallet.id;
+        walletDetailsTO.name = foundWallet.name;
+        walletDetailsTO.amount = walletBalance;
+        walletDetailsTO.currency = foundWallet.currency;
+        walletDetailsTO.categories = walletCategories;
+
+        return walletDetailsTO;
     }
 
-    async exists(walletId: string): Promise<boolean> {
+    /**
+     * Checks existence of wallet
+     * @param walletId 
+     * @returns 
+     */
+    public async exists(walletId: string): Promise<boolean> {
         try {
             return await this.walletRepository.exists(walletId);
         } catch (err) {
-            throw new ServiceError("Wallet service error: " + err.message);
+            throw new ServiceError("Wallet service error: " + (err as Error).message);
         }
     }
 
-    async belongsToUser(userId: string, walletId: string): Promise<boolean> {
+    /**
+     * Ownership check for wallet
+     * @param userId id of user supposedly owning the wallet
+     * @param walletId id of wallet for ownership check
+     * @returns 
+     */
+    public async belongsToUser(userId: string, walletId: string): Promise<boolean> {
         try {
-            const foundWallet = await this.getWallet(walletId);
+            const foundWallet = await this.walletRepository.findById(walletId);
 
             if (foundWallet == null) {
                 return false;
@@ -101,16 +148,16 @@ export class WalletService {
 
             return true;
         } catch (error) {
-            throw new ServiceError("Wallet Service error: " + error.message);
+            throw new ServiceError("Wallet Service error: " + (error as Error).message);
         }
     }
 
-    async deleteWalletForUser(userId: string, walletId: string): Promise<boolean> {
-        const userExists = await this.userRepository.existsById(userId);
-
-        if (!userExists) {
-            return false;
-        }
+    /**
+     * Deletes wallet with provided id
+     * @param walletId id of wallet to be deleted
+     * @returns 
+     */
+    public async deleteWallet(walletId: string): Promise<boolean> {
 
         const foundWallet = await this.walletRepository.findById(walletId);
 
@@ -121,31 +168,25 @@ export class WalletService {
         return await this.walletRepository.deleteById(walletId) != 0;
     }
 
-    async getCurrentAmount(walletId: string) {
-        try {
-            const foundWallet = await this.walletRepository.findById(walletId);
+    /**
+     * Updates wallet with provided information
+     * @param userId used for update authorization
+     * @param walletId id of wallet we want to update
+     * @param updates object with wanted updates
+     * @returns 
+     */
+    public async updateWallet(userId: string, walletId: string, updates: Partial<Wallet>): Promise<Wallet | null> {
+        const wallet = await this.walletRepository.findById(walletId);
 
-            if (!foundWallet) {
-                throw new NotFoundError("Wallet with identifier: " + walletId + " does not exist");
-            }
-
-            const foundExpenses = await this.expenseRepository.findByWallet(walletId);
-
-            if (foundExpenses == null || foundExpenses.length == 0) {
-                return 0;
-            } else {
-                const currentAmount = foundExpenses
-                    .filter(exp => exp.sourceCategoryId === null)
-                    .reduce((total, exp) => total + exp.amount, 0);
-
-                return currentAmount;
-            }
-
-        } catch (err) {
-            throw new ServiceError(`Wallet service error: ${err.message}`);
+        if (!wallet) {
+            throw new NotFoundError(`Wallet with id ${walletId} does not exist.`);
         }
+
+        if (wallet.userId !== userId) {
+            throw new ServiceError(`Unauthorized to update wallet.`);
+        }
+
+        return await this.walletRepository.update(walletId, updates);
     }
-
-
 
 }

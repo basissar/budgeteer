@@ -12,7 +12,7 @@ export class WalletRepository implements BaseRepository<Wallet, string> {
 
             return result;
         } catch (error){
-            throw new RepositoryError(`Wallet repository error: ${error.message}`);
+            throw new RepositoryError(`Wallet repository error: ${(error as Error).message}`);
         }
     }
 
@@ -20,7 +20,7 @@ export class WalletRepository implements BaseRepository<Wallet, string> {
         try{
             return await Wallet.findAll();
         } catch (err) {
-            throw new RepositoryError(`Wallet repository error: ${err.message}`);
+            throw new RepositoryError(`Wallet repository error: ${(err as Error).message}`);
         }
     }
 
@@ -61,5 +61,21 @@ export class WalletRepository implements BaseRepository<Wallet, string> {
             where: { id: id},
             include: Expense
         });
+    }
+
+    async update(walletId: string, updates: Partial<Wallet>): Promise<Wallet | null> {
+        try {
+            const wallet = await Wallet.findByPk(walletId);
+    
+            if (!wallet) {
+                return null;
+            }
+    
+            Object.assign(wallet, updates);
+            await wallet.save();
+            return wallet;
+        } catch (error) {
+            throw new RepositoryError(`Wallet repository error: ${(error as Error).message}`);
+        }
     }
 }
