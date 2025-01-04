@@ -93,33 +93,38 @@ router.get("/budgeteer/users/:username", userController.getUserByUsername.bind(u
 
 router.delete("/budgeteer/users", userController.deleteUser.bind(userController));
 
-// router.get("/userinfo", userController.getUserInfo.bind(userController));
+//CATEGORIES
 
-// router.post("/budgeteer/categories", createCategory);
+router.post("/budgeteer/categories/:walletId", categoryController.createCategory.bind(categoryController));
 
-// router.get("/budgeteer/categories", getAllCategories);
+router.get("/budgeteer/categories/:walletId", categoryController.getAllByWallet.bind(categoryController));
 
-// router.get("/budgeteer/categories/:id", getAllCategoriesForUser);
+router.get("/budgeteer/categories/:walletId/custom", categoryController.getCustomByWallet.bind(categoryController));
+
+router.get("/budgeteer/categories", categoryController.getAllDefault.bind(categoryController));
+
+router.delete("/budgeteer/categories/:categoryId", categoryController.deleteById.bind(categoryController));
 
 //WALETS
 router.post("/budgeteer/:userId/wallets", walletController.createWallet.bind(walletController));
 
 router.get("/budgeteer/:userId/wallets", walletController.getAllWalletsForUser.bind(walletController));
 
-router.get("/budgeteer/:userId/wallets/:walletId", walletController.getWalletForUser.bind(walletController));
+router.get("/budgeteer/wallets/:walletId", walletController.getWallet.bind(walletController));
 
 router.delete("/budgeteer/:userId/wallets/:walletId", walletController.deleteWalletForUser.bind(walletController));
 
-//EXPENSES
-router.post("/budgeteer/:userId/wallets/:walletId/expenses", expenseController.createExpense.bind(expenseController));
+router.put("/budgeteer/wallets/:walletId", walletController.updateWallet.bind(walletController));
 
-router.get("/budgeteer/:userId/wallets/:walletId/expenses", expenseController.getExpensesForWallet.bind(expenseController));
+//EXPENSES
+router.post("/budgeteer/wallets/:walletId/expenses", expenseController.createExpense.bind(expenseController));
+
+router.get("/budgeteer/wallets/:walletId/expenses", expenseController.getExpensesForWallet.bind(expenseController));
 
 router.get("/budgeteer/:userId/expenses", expenseController.getAllForUser.bind(expenseController));
 
 router.delete("/budgeteer/:userId/expenses/:expenseId", expenseController.deleteExpense.bind(expenseController));
 
-router.get("/budgeteer/categories/:walletId", categoryController.getAllByWallet.bind(categoryController));
 
 //GOALS
 router.post("/budgeteer/:userId/goals/:walletId", savingsController.createGoal.bind(savingsController));

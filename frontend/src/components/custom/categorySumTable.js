@@ -7,7 +7,7 @@ const CategorySumTable = ({ negativeSumMap, categories, currency }) => {
 
         return (
             <div className="flex flex-row items-center gap-2 justify-center">
-                <Icon id={foundCategory.id} alt={foundCategory.name} />
+                <Icon id={foundCategory.iconId} alt={foundCategory.name} color={foundCategory.color}/>
                 <span className="font-semibold">{sum}</span>
                 <span className="font-semibold">{currency}</span>
             </div>

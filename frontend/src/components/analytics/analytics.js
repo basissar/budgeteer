@@ -97,6 +97,9 @@ export default function Analytics() {
 
     const fetchSumsForDateRange = async () => {
         try {
+            startDate.setHours(0,0,0,0);
+            endDate.setHours(23,59,59);
+
             const start = startDate.toISOString();
             const end = endDate.toISOString();
 
@@ -172,7 +175,7 @@ export default function Analytics() {
                         </div>
                     </div>
 
-                    <Button class="self-center flex items-center justify-center text-white rounded-lg w-1/2 bg-dark-green" onClick={fetchSumsForDateRange}>Load data</Button>
+                    <Button className="self-center flex items-center justify-center text-white rounded-lg w-1/2 bg-dark-green" onClick={fetchSumsForDateRange}>Load data</Button>
                 </div>
 
                 <CategorySumTable negativeSumMap={negativeSumMap} categories={categories} currency={currentWalletCurrency} />

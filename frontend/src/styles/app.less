@@ -71,18 +71,17 @@ input, label {
     display: flex;
 }
 
-button[type="submit"] {
+button[type="submit"]:not(:disabled) {
     background-color: @submit-color;
+}
+
+button[type="submit"]:not(:disabled):hover {
+    background-color: @submit-color-hover !important;
 }
 
 // button[type="submit"] span {
 //     font-size: 1.15rem;
 // }
-
-button[type="submit"]:hover {
-    background-color: @submit-color-hover;
-
-}
 
 //Login page
 
@@ -169,6 +168,10 @@ button[type="submit"]:hover {
 }
 
 .bg-dark-green:hover {
+    background-color: @dark-green-hover !important;
+}
+
+.bg-dark-green-disabled {
     background-color: @dark-green-hover;
 }
 
@@ -194,14 +197,9 @@ th {
     border-bottom: 2px solid black;
 }
 
-td {
-    border-bottom: 2px solid darkgray;
-}
-
 td img {
     padding-right: 10px;
     padding-left: 10px;
-    cursor: pointer;
 }
 
 
@@ -290,4 +288,10 @@ td img {
     align-items: center;
     gap: 5px;
     font-size: 18px;
+}
+
+//colors
+
+.bg-light-green {
+    background-color: @card-light-green;
 }

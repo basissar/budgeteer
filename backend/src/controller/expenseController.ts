@@ -1,12 +1,10 @@
 import { RouterContext } from "@oak/oak";
-import { CREATED, INTERNAL_ERROR, WALLET_SERVICE, EXPENSE_SERVICE, USER_SERVICE, OK, NOT_FOUND } from "../config/macros.ts";
-import { container } from "../utils/container.ts";
+import { CREATED, OK, NOT_FOUND } from "../config/macros.ts";
 import { Expense } from "../model/Expense.ts";
 import { ExpenseService } from "../service/expenseService.ts";
 import { WalletService } from "../service/walletService.ts";
 import { UserService } from '../service/userService.ts';
 import { BAD_REQUEST } from '../config/macros.ts';
-import { UNAUTHORIZED } from '../config/macros.ts';
 
 export class ExpenseController {
     public expenseService: ExpenseService;
@@ -24,11 +22,11 @@ export class ExpenseController {
     async createExpense(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body.json();
 
-        const { userId } = ctx.params;
+        const userId = await ctx.cookies.get("user_id");
 
         const newExpense = new Expense(requestBody);
 
-        const serviceResponse = await this.expenseService.createExpense(newExpense, userId);
+        const serviceResponse = await this.expenseService.createExpense(newExpense, userId!);
 
         ctx.response.status = CREATED;
         ctx.response.body = {
@@ -39,9 +37,9 @@ export class ExpenseController {
     }
 
     async getExpensesForWallet(ctx: RouterContext<string>) {
-        const { userId, walletId } = ctx.params;
+        const { walletId } = ctx.params;
 
-        const expenses = await this.expenseService.findByWallet(walletId, userId);
+        const expenses = await this.expenseService.findByWallet(walletId);
 
         ctx.response.status = OK;
         ctx.response.body = {

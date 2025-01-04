@@ -1,12 +1,12 @@
 import { Table } from "flowbite-react";
 import Icon from "../custom/icon";
-import deleteIcon from "../../assets/delete.svg";
-import editIcon from "../../assets/edit.svg";
+import DeleteIcon from "../../assets/delete.svg?react";
+import EditIcon from "../../assets/edit.svg?react";
 
 
 const ExpenseTable = ({ expenses, currency, handleEditExpense, handleDeleteExpense }) => {
     return (
-        <Table hoverable={expenses.length > 0}>
+        <Table striped hoverable={expenses.length > 0}>
             <Table.Head>
                 <Table.HeadCell>Date</Table.HeadCell>
                 <Table.HeadCell>Expense Name</Table.HeadCell>
@@ -40,7 +40,7 @@ const ExpenseTable = ({ expenses, currency, handleEditExpense, handleDeleteExpen
                                         >
                                             {expense.sourceCategory.name}
                                         </div>
-                                        <Icon id={expense.sourceCategory.id} />
+                                        <Icon id={expense.sourceCategory.iconId} color={expense.sourceCategory.color} />
                                     </div>
                                 )}
                             </Table.Cell>
@@ -57,7 +57,7 @@ const ExpenseTable = ({ expenses, currency, handleEditExpense, handleDeleteExpen
                                         >
                                             {expense.targetCategory.name}
                                         </div>
-                                        <Icon id={expense.targetCategory.id} />
+                                        <Icon id={expense.targetCategory.iconId} color={expense.targetCategory.color} />
                                     </div>
                                 )}
                             </Table.Cell>
@@ -66,18 +66,11 @@ const ExpenseTable = ({ expenses, currency, handleEditExpense, handleDeleteExpen
                             </Table.Cell>
                             <Table.Cell>
                                 <div className="flex flex-row items-center">
-                                    <img
-                                        src={editIcon}
-                                        alt="Edit"
-                                        className="edit-icon"
-                                        onClick={() => handleEditExpense(expense.id)}
-                                    />
-                                    <img
-                                        src={deleteIcon}
-                                        alt="Delete"
+                                    <EditIcon className="edit-icon"
+                                        onClick={() => handleEditExpense(expense.id)} />
+                                    <DeleteIcon 
                                         className="delete-icon"
-                                        onClick={() => handleDeleteExpense(expense.id)}
-                                    />
+                                        onClick={() => handleDeleteExpense(expense.id)}/>
                                 </div>
                             </Table.Cell>
                         </Table.Row>

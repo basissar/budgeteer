@@ -1,7 +1,5 @@
-//todo
-
 import { RouterContext } from "@oak/oak";
-import { BAD_REQUEST, CATEGORY_SERVICE, INTERNAL_ERROR, OK, UNAUTHORIZED, WALLET_SERVICE } from "../config/macros.ts";
+import { BAD_REQUEST, INTERNAL_ERROR, NOT_FOUND, OK } from "../config/macros.ts";
 import { CategoryService } from "../service/categoryService.ts";
 import { UserService } from "../service/userService.ts";
 import { WalletService } from "../service/walletService.ts";
@@ -15,7 +13,7 @@ export class CategoryController {
 
     public walletService: WalletService;
 
-    constructor(userService: UserService, categoryService: CategoryService, walletService: WalletService){
+    constructor(userService: UserService, categoryService: CategoryService, walletService: WalletService) {
         this.userService = userService;
         this.categoryService = categoryService;
         this.walletService = walletService;
@@ -26,31 +24,15 @@ export class CategoryController {
      * @param ctx 
      * @returns 
      */
-    async createCategory(ctx: RouterContext<string>){
+    public async createCategory(ctx: RouterContext<string>) {
         try {
-            const { userId: receivedUserId, walletId: receivedWalletId } = ctx.params;
+            const { walletId } = ctx.params;
 
-            const userExists = await this.userService.exists(receivedUserId);
-
-            if (!userExists) {
-                ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: "Cannot create category for nonexisting user"};
-                return;
-            }
-
-            const walletExists = await this.walletService.exists(receivedWalletId);
+            const walletExists = await this.walletService.exists(walletId);
 
             if (!walletExists) {
                 ctx.response.status = BAD_REQUEST;
-                ctx.response.body = { message: `Wallet with id: ${receivedWalletId} does not exist` };
-                return;
-            }
-
-            const belongsToUser = await this.walletService.belongsToUser(receivedUserId, receivedWalletId);
-
-            if (!belongsToUser) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: `User with id: ${receivedUserId} is not authorized to access wallet with id: ${receivedWalletId}`};
+                ctx.response.body = { message: `Wallet with id: ${walletId} does not exist` };
                 return;
             }
 
@@ -60,7 +42,7 @@ export class CategoryController {
 
             const createdCategory = await this.categoryService.createCategory(toCreate);
 
-            if (createdCategory == null){
+            if (createdCategory == null) {
                 //todo
             }
 
@@ -71,7 +53,7 @@ export class CategoryController {
             }
         } catch (err) {
             ctx.response.status = INTERNAL_ERROR,
-            ctx.response.body = {message: (err as Error).message};
+                ctx.response.body = { message: (err as Error).message };
         }
     }
 
@@ -80,19 +62,17 @@ export class CategoryController {
      * @param ctx 
      * @returns 
      */
-    async getAllByWallet(ctx: RouterContext<string>) {
+    public async getAllByWallet(ctx: RouterContext<string>) {
         try {
-            const {walletId} = ctx.params;
+            const { walletId } = ctx.params;
 
-            const userId = await ctx.cookies.get("user_id");
+            const categories = await this.categoryService.getAllForWallet(walletId);
 
-            const categories = await this.categoryService.getAllForUserInWallet(userId!, walletId);
-
-            if(categories.length == 0){
+            if (categories.length == 0) {
                 //default categories are expected at least
                 //it is never empty
                 ctx.response.status = INTERNAL_ERROR;
-                ctx.response.body = { mesage: "No categories retrieved, error... somewhere"};
+                ctx.response.body = { mesage: "No categories retrieved, error... somewhere" };
                 return;
             }
 
@@ -104,6 +84,77 @@ export class CategoryController {
         } catch (err) {
             ctx.response.status = INTERNAL_ERROR;
             ctx.response.body = { mesage: (err as Error).message };
+        }
+    }
+
+    /**
+     * Retrieves all default categories
+     * @param ctx 
+     */
+    public async getAllDefault(ctx: RouterContext<string>) {
+        try {
+            const categories = await this.categoryService.getAllDefault();
+
+            ctx.response.status = OK;
+            ctx.response.body = {
+                message: "Default categories retrieved successfully",
+                categories: categories
+            }
+        } catch (error) {
+            ctx.response.status = INTERNAL_ERROR;
+            ctx.response.body = { message: (error as Error).message };
+        }
+    }
+
+    /**
+     * Retrieves custom categories for wallet
+     * @param ctx 
+     */
+    public async getCustomByWallet(ctx: RouterContext<string>) {
+        try {
+            const { walletId } = ctx.params;
+
+            const categories = await this.categoryService.getCustomForWallet(walletId);
+
+            if (categories == null || categories.length == 0) {
+                ctx.response.status = OK;
+                ctx.response.body = {
+                    message: "No custom categories in wallet.",
+                    categories: categories
+                }
+                return;
+            }
+
+            ctx.response.status = OK;
+            ctx.response.body = {
+                message: "Custom categories retrieved successfully",
+                categories: categories
+            }
+        } catch (error) {
+            ctx.response.status = INTERNAL_ERROR;
+            ctx.response.body = { message: (error as Error).message };
+        }
+    }
+
+    /**
+     * Deletes category
+     * @param ctx 
+     */
+    public async deleteById(ctx: RouterContext<string>) {
+        const { categoryId } = ctx.params;
+
+        const deleted = await this.categoryService.deleteCategory(Number(categoryId));
+
+        if (deleted) {
+            ctx.response.status = OK;
+            ctx.response.body = {
+                message: `Category with deleted successfully.`
+            }
+        } else {
+            ctx.response.status = NOT_FOUND;
+            ctx.response.body = {
+                message: `Category has not been found.`
+            }
         }
     }
 }

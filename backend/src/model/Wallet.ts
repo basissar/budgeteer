@@ -36,9 +36,11 @@ export class Wallet extends Model{
     {onDelete: 'CASCADE'})
     public expenses?: Expense[];
 
-    @HasMany(() => Budget)
+    @HasMany(() => Budget,
+    {onDelete: 'CASCADE'})
     public budgets?: Budget[];
 
-    @HasMany(() => Goal)
+    @HasMany(() => Goal,
+    {onDelete: 'CASCADE'})
     public goals?: Goal[];
 }

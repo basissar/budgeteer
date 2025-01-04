@@ -38,7 +38,11 @@ export function ExpenseSummary({ selectedRange, height, width, count }) {
 
                 if (selectedRange === 't') {
                     const startDate = new Date();
+                    startDate.setHours(0,0,0,0);
+
                     const endDate = new Date();
+                    endDate.setHours(23,59,59);
+
                     monthsArray.push(currentDate);
                     promises.push(fetchSumForPeriod(startDate, endDate, true));
                     promises.push(fetchSumForPeriod(startDate, endDate, false));
@@ -54,26 +58,40 @@ export function ExpenseSummary({ selectedRange, height, width, count }) {
                     }
                 } else if (selectedRange === 'm') {
                     monthsArray.push(currentDate);
+
                     const startDate = new Date();
                     const endDate = new Date();
-                    startDate.setMonth(startDate.getMonth() - 1);
+
+                    startDate.setDate(1);
+
                     promises.push(fetchSumForPeriod(startDate, endDate, true));
                     promises.push(fetchSumForPeriod(startDate, endDate, false));
                 } else if (selectedRange === 'x') {
                     for (let i = 0; i < count; i++) {
-                        const date = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() - i));
-                        date.setMonth(date.getMonth() - i);
-                        monthsArray.push(date);
-                        const startDate = new Date(date.getFullYear(), date.getMonth() - i);
-                        const endDate = new Date(date.getFullYear(), date.getMonth() - i + 1);
+                        const currentMonth = new Date();
+                        monthsArray.push(currentMonth);
+
+                        currentMonth.setMonth(currentMonth.getMonth() - (count - 1) + i);
+                        currentMonth.setDate(1);
+
+                        const startDate = new Date(currentMonth);
+
+                        const endDate = new Date(currentMonth);
+                        endDate.setMonth(endDate.getMonth() + 1);
+                        endDate.setDate(0);
+
                         promises.push(fetchSumForPeriod(startDate, endDate, true));
                         promises.push(fetchSumForPeriod(startDate, endDate, false));
                     }
                 } else if (selectedRange === 'y') {
                     monthsArray.push(currentDate.getFullYear());
+
                     const startDate = new Date();
                     const endDate = new Date();
-                    startDate.setFullYear(startDate.getFullYear() - 1);
+
+                    startDate.setMonth(0);
+                    startDate.setDate(1);
+
                     promises.push(fetchSumForPeriod(startDate, endDate, true));
                     promises.push(fetchSumForPeriod(startDate, endDate, false));
                 }
@@ -118,7 +136,7 @@ export function ExpenseSummary({ selectedRange, height, width, count }) {
         };
 
         fetchSums();
-    }, [ currentWalletId, userId]);
+    }, [currentWalletId, userId]);
 
     useEffect(() => {
         const handleChange = async () => {

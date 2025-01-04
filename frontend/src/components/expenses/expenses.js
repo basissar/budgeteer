@@ -35,7 +35,7 @@ export default function Expenses() {
             setUserId(user.id);
 
             try {
-                const expensesResponse = await axios.get(`${API_BASE_URL}/${user.id}/wallets/${currentWalletId}/expenses`, {
+                const expensesResponse = await axios.get(`${API_BASE_URL}/wallets/${currentWalletId}/expenses`, {
                     withCredentials: true,
                 });
                 setExpenses(expensesResponse.data.expenses);
@@ -97,8 +97,6 @@ export default function Expenses() {
                 withCredentials: true,
             });
 
-            console.log(response);
-
             setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== expenseId));
         } catch (error) {
             setErrorMessage(`An error occurred while deleting an expense`);
@@ -150,7 +148,7 @@ export default function Expenses() {
         const selectedCategory = categories.find((cat) => cat.id === selectedId);
         return (
             <div className="flex items-center gap-2 h-5">
-                <Icon id={selectedCategory.id} alt={selectedCategory.name} />
+                <Icon id={selectedCategory.iconId} alt={selectedCategory.name} color={selectedCategory.color}/>
                 <span>{selectedCategory.name}</span>
             </div>
         );
@@ -205,7 +203,7 @@ export default function Expenses() {
                                     onClick={() => handleCategoryFilterChange({ target: { value: category.id } })}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <Icon id={category.id} alt={category.name} />
+                                        <Icon id={category.iconId} alt={category.name} color={category.color}/>
                                         <span>{category.name}</span>
                                     </div>
                                 </Dropdown.Item>

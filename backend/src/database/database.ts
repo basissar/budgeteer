@@ -43,7 +43,7 @@ export const umzug = new Umzug({
 async function runMigrations() {
     try {
         console.log(GREEN, "Running migrations", RESET_COLOR);
-        const migrations = await umzug.pending();  // Get the list of pending migrations
+        const migrations = await umzug.pending();
         if (migrations.length === 0) {
             console.log(GREEN, "No new migrations to apply.", RESET_COLOR);
         } else {
@@ -55,13 +55,19 @@ async function runMigrations() {
     } catch (error) {
         console.error(RED, "Error applying migrations:", error, RESET_COLOR);
 
-        // Rollback all migrations in case of an error
+        // Rollback only the last applied migration (most recent)
         try {
-            console.log(YELLOW, "Rolling back migrations...", RESET_COLOR);
-            await umzug.down();
-            console.log(GREEN, "Migrations rolled back successfully.", RESET_COLOR);
+            console.log(YELLOW, "Rolling back the last migration...", RESET_COLOR);
+            const executedMigrations = await umzug.executed();
+            if (executedMigrations.length > 0) {
+                const lastMigration = executedMigrations[executedMigrations.length - 1].name;
+                await umzug.down({ to: lastMigration });
+                console.log(GREEN, `Rolled back migration: ${lastMigration}`, RESET_COLOR);
+            } else {
+                console.log(YELLOW, "No migrations to rollback.", RESET_COLOR);
+            }
         } catch (rollbackError) {
-            console.error(RED, "Error rolling back migrations:", rollbackError, RESET_COLOR);
+            console.error(RED, "Error during rollback:", rollbackError, RESET_COLOR);
         }
     }
 }

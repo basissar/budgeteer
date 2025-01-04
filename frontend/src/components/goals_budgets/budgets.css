@@ -73,15 +73,15 @@
 
 table {
     /* width: 100%; */
-    width: 800px;
-    border-collapse: collapse;
+    /* width: 800px; */
+    /* border-collapse: collapse; */
 }
 
-.budget-table th, td {
+/* .budget-table th, td {
     padding: 12px;
     border-bottom: 1px solid #ddd;
     text-align: left;
-}
+} */
 
 #progress {
     display: flex;
