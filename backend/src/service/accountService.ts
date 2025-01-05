@@ -31,8 +31,7 @@ export class AccountService {
       [EventType.REACH_GOAL]: 100,
       [EventType.CREATE_BUDGET]: 20,
       [EventType.WITHIN_BUDGET]: 80,
-      [EventType.LEVEL_UP]: 20 //TODO add credit reward based on the reached level
-      ,
+      [EventType.LEVEL_UP]: 20,
       [EventType.ACHIEVEMENT]: 0
     }
 
@@ -40,8 +39,14 @@ export class AccountService {
         this.accountRepository = accountRepository;
     }
 
-
-    async handleEvent(event: EventType, userId: string, achievement?: Achievement): Promise<EventResult | null> {
+    /**
+     * Handles rewarding event. How much experience points and credits user received
+     * @param event type of event
+     * @param userId 
+     * @param achievement additional possible achievement
+     * @returns 
+     */
+    public async handleEvent(event: EventType, userId: string, achievement?: Achievement): Promise<EventResult | null> {
         try {
             let earnedCredits = 0;
             let earnedXP = 0;
@@ -92,7 +97,13 @@ export class AccountService {
         }
     }
 
-    async createAccount(userId: string, avatarId: number) {
+    /**
+     * Creates account for user
+     * @param userId user id
+     * @param avatarId selected avatar
+     * @returns 
+     */
+    public async createAccount(userId: string, avatarId: number) {
         try {
             const newAccount = new Account({
                 experience: 0,
@@ -108,7 +119,12 @@ export class AccountService {
         }
     }
 
-    async updateAccount(account: Account){
+    /**
+     * Updates account information
+     * @param account 
+     * @returns 
+     */
+    public async updateAccount(account: Account){
         try {
             return await this.accountRepository.save(account);
         } catch (err) {
@@ -116,15 +132,12 @@ export class AccountService {
         }
     }
 
-    async findById(accountId: string) {
-        try {
-            return await this.accountRepository.findById(accountId);
-        } catch (err) {
-            throw new ServiceError(`Account service error: ${err}`);
-        }
-    }
-
-    async findByUser(userId: string) {
+    /**
+     * Retrieves account by user id
+     * @param userId 
+     * @returns 
+     */
+    public async findByUser(userId: string) {
         try {
             const account = await this.accountRepository.findByUser(userId);
             const neededXP = this.totalXPForLevel(account!.level + 1);
@@ -141,7 +154,12 @@ export class AccountService {
         }
     }
 
-    async findByUserNoItem(userId: string) {
+    /**
+     * Retrieves user object without items
+     * @param userId 
+     * @returns 
+     */
+    public async findByUserNoItem(userId: string) {
         try {
             return await this.accountRepository.findByUserNoItem(userId);
         } catch (err) {
@@ -149,7 +167,12 @@ export class AccountService {
         }
     }
 
-    async getOwnedForUser(accountId: string) {
+    /**
+     * Retrieves items owned by account
+     * @param accountId 
+     * @returns 
+     */
+    public async getOwnedForUser(accountId: string) {
         try {
             return await this.accountRepository.getItemsOwnedForAccount(accountId);
         } catch (err) {
@@ -157,7 +180,12 @@ export class AccountService {
         }
     }
 
-    async getIdForUser(userId: string){
+    /**
+     * Retrieves account id for user
+     * @param userId 
+     * @returns 
+     */
+    public async getIdForUser(userId: string){
         return await this.accountRepository.getAccountIdForUser(userId);
     }
 
@@ -199,10 +227,20 @@ export class AccountService {
         return totalXP;
     }
 
+    /**
+     * Returns experience points received
+     * @param eventType 
+     * @returns 
+     */
     private rewardXPForEvent(eventType: EventType): number {
         return this.eventXPRewards[eventType] || 0; 
     }
 
+    /**
+     * Returns credits received
+     * @param eventType 
+     * @returns 
+     */
     private rewardCreditsForEvent(eventType: EventType): number {
         return this.eventCreditRewards[eventType] || 0;
     }

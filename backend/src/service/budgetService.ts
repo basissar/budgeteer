@@ -248,9 +248,11 @@ export class BudgetService {
                 throw new NotFoundError(`Budget ${budgetId} not found`);
             }
 
-            foundBudget.set({
-                currentAmount: 0,
-            });
+            // foundBudget.set({
+            //     currentAmount: 0,
+            // });
+
+            foundBudget.currentAmount = 0;
 
             const savedBudget = await this.budgetRepository.save(foundBudget);
 
