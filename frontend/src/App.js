@@ -22,6 +22,7 @@ import PrivateRoute from "./components/security/privateRoute";
 import { UserAccountOverview } from "./components/account/userAccountOverview";
 import { ErrorProvider } from './utils/errorContext.js';
 import WalletDetails from './components/wallet/walletDetails.js';
+import GoalDetails from './components/goals_budgets/goalDetails.js';
 function App() {
 	return (
 
@@ -49,6 +50,8 @@ function App() {
 							<Route path="/expenses" element={<PrivateRoute><Expenses /></PrivateRoute>}>
 							</Route>
 							<Route path="/budgets_and_goals" element={<PrivateRoute><BudgetGoalOverview /></PrivateRoute>}>
+							</Route>
+							<Route path='/goals/:goalId' element={<PrivateRoute><GoalDetails/></PrivateRoute>}>
 							</Route>
 							<Route path='/analytics' element={<PrivateRoute><Analytics /></PrivateRoute>}>
 							</Route>

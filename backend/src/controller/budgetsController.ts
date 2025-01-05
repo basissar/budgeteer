@@ -1,5 +1,5 @@
 import { RouterContext } from "@oak/oak";
-import { BUDGET_SERVICE, CREATED, EXPENSE_SERVICE, NO_CONTENT, INTERNAL_ERROR, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE, NOT_FOUND } from "../config/macros.ts";
+import { BUDGET_SERVICE, CREATED, EXPENSE_SERVICE, NO_CONTENT, INTERNAL_ERROR, OK, UNAUTHORIZED, USER_SERVICE, WALLET_SERVICE, NOT_FOUND, BAD_REQUEST } from "../config/macros.ts";
 import { container } from "../utils/container.ts";
 import { BudgetService } from "../service/budgetService.ts";
 import { ExpenseService } from "../service/expenseService.ts";
@@ -16,21 +16,25 @@ export class BudgetController {
 
     public expenseService: ExpenseService;
 
-    constructor(budgetService: BudgetService, userService: UserService, walletService: WalletService, expenseService: ExpenseService){
+    constructor(budgetService: BudgetService, userService: UserService, walletService: WalletService, expenseService: ExpenseService) {
         this.budgetService = budgetService;
         this.userService = userService;
         this.walletService = walletService;
         this.expenseService = expenseService;
     }
 
+    /**
+     * Creates budget
+     * @param ctx 
+     */
+    public async createBudget(ctx: RouterContext<string>) {
+        const requestBody = await ctx.request.body.json();
 
-    async createBudget(ctx: RouterContext<string>) {
-            const requestBody = await ctx.request.body.json();
+        const { userId } = ctx.params;
 
-            const { userId } = ctx.params;
+        const newBudget = new Budget(requestBody);
 
-            const newBudget = new Budget(requestBody);
-
+        try {
             const serviceResponse = await this.budgetService.createBudget(userId, newBudget);
 
             ctx.response.status = CREATED;
@@ -39,40 +43,58 @@ export class BudgetController {
                 budget: serviceResponse?.budget,
                 eventResult: serviceResponse?.eventResult
             }
+        } catch (error) {
+            if (error instanceof Error) {
+                ctx.response.status = BAD_REQUEST;
+                ctx.response.body = {
+                    message: error.message
+                }
+            }
+        }
+
     }
 
-    async getBudgetsForWallet(ctx: RouterContext<string>) {
-            const { userId, walletId } = ctx.params;
+    /**
+     * Retrieves budgets for specific wallet
+     * @param ctx 
+     * @returns 
+     */
+    public async getBudgetsForWallet(ctx: RouterContext<string>) {
+        const { userId, walletId } = ctx.params;
 
-            const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
+        const belongsToUser = await this.walletService.belongsToUser(userId, walletId);
 
-            if (!belongsToUser) {
-                ctx.response.status = UNAUTHORIZED;
-                ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
-                return;
-            }
+        if (!belongsToUser) {
+            ctx.response.status = UNAUTHORIZED;
+            ctx.response.body = { message: `User with id: ${userId} is not authorized to access wallet with id: ${walletId}` };
+            return;
+        }
 
-            const budgets = await this.budgetService.findByWallet(walletId);
+        const budgets = await this.budgetService.findByWallet(walletId);
 
+        ctx.response.status = OK;
+        ctx.response.body = {
+            message: "Budgets retrieved successfully",
+            budgets: budgets,
+        }
+    }
+
+    /**
+     * Deletes budget
+     * @param ctx 
+     */
+    public async deleteBudget(ctx: RouterContext<string>) {
+        const { userId, walletId, budgetId } = ctx.params;
+
+        const deleted = await this.budgetService.deleteBudget(Number(budgetId));
+
+        if (deleted) {
             ctx.response.status = OK;
-            ctx.response.body = {
-                message: "Budgets retrieved successfully",
-                budgets: budgets,
-            }
-    }
-
-    async deleteBudget(ctx: RouterContext<string>){
-            const { userId, walletId, budgetId} = ctx.params;
-
-            const deleted = await this.budgetService.deleteBudget(Number(budgetId));
-
-            if (deleted) {
-                ctx.response.status = OK;
-                ctx.response.body = { message: 'Budget deleted'};
-            } else {
-                ctx.response.status = NOT_FOUND;
-                ctx.response.body = { message: 'No budget was deleted'};
-            }
+            ctx.response.body = { message: 'Budget deleted' };
+        } else {
+            ctx.response.status = NOT_FOUND;
+            ctx.response.body = { message: 'No budget was deleted' };
+        }
     }
 
     // async updateBudget(ctx: RouterContext<string>){
@@ -93,13 +115,13 @@ export class BudgetController {
 
     //         if (passedBody.amountOnly == true){
     //             const overLimit = await this.budgetService.updateMoney(,passedBody.amount)
-                
+
     //             //todo implement over limit handling of budgets
 
     //             /*
     //             This whole clause might be useless because only time I update budget is when adding expenses
     //             */
-            
+
     //         }
 
 

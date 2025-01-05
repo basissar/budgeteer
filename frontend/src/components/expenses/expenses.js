@@ -2,14 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import ExpenseForm from './expenseForm.js';
 
-import { API_BASE_URL, INFO } from '../../utils/macros.js';
+import { API_BASE_URL } from '../../utils/macros.js';
 import { useUserContext } from "../security/userProvider";
 import Icon from '../custom/icon.js';
 import { Dropdown, Radio, Label, Table } from 'flowbite-react';
 import UpArrow from '../custom/UpArrow.jsx';
 import DownArrow from '../custom/DownArrow.jsx';
 import ExpenseTable from './expenseTable.js';
-import WalletSelect from '../custom/walletSelect.js';
 
 export default function Expenses() {
     const [currentWalletId, setCurrentWalletId] = useState('');

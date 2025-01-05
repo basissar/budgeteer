@@ -1,5 +1,4 @@
 import { Column, ForeignKey, Model, Table, BelongsTo, DataType } from "npm:sequelize-typescript";
-import {Recurrence} from "./Recurrence.ts";
 import {Category} from "./Category.ts";
 import { Wallet } from "./Wallet.ts";
 
@@ -26,7 +25,6 @@ export class Budget extends Model {
         type: DataType.UUID
     })
     declare walletId: string;
-    // public wallet?: Wallet;
 
     @Column({allowNull: false})
     declare name: string;

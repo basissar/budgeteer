@@ -12,7 +12,7 @@ export class GoalCompletionStrategy implements AchievementStrategy {
     }
     
     /**
-     * 
+     * Checks if user is legitible for achievement
      * @param accountId 
      * @param type 
      * @param data data[1] is a count of completed goals
@@ -20,7 +20,7 @@ export class GoalCompletionStrategy implements AchievementStrategy {
     async checkAndReward(accountId: string, type:AchievementType, data: any[]): Promise<void> {
         const achievements = await this.achievementService.findByType(type);
 
-        const completedGoals = data[0];
+        const completedGoals = data[1];
 
         for(const achievement of achievements){
             if (achievement.targetCount == completedGoals){

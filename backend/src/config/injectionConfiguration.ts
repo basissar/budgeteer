@@ -102,7 +102,7 @@ export function configureDI() {
         container.resolve(EXPENSE_SERVICE)
     ));
 
-    container.register(GOAL_REPOSITORY, new GoalService(
+    container.register(GOAL_SERVICE, new GoalService(
         container.resolve(GOAL_REPOSITORY),
         container.resolve(WALLET_SERVICE),
         container.resolve(ACCOUNT_SERVICE),

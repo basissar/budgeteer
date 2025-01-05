@@ -20,7 +20,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
 
     const [responseMessage, setResponseMessage] = useState('');
 
-    const { user } = useUserContext();
+    const { user, showModal} = useUserContext();
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
@@ -46,12 +46,14 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
 
             setResponseMessage(response.data.message);
 
-            // Show the dialog
-            setShowDialog(true);
+            const modalContent = {
+                eventResult: response.data.eventResult,
+                title: response.data.message
+            }
+
+            showModal(modalContent);
 
             setEventResult(response.data.eventResult);
-
-            // alert(response.data.eventResult);
 
             setExpenses([...expenses, response.data.expense]);
 
@@ -59,7 +61,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
             setNewExpenseAmount('');
             setNewExpenseSource(null);
             setNewExpenseTarget('');
-            setNewExpenseDate('');
+            setNewExpenseDate(new Date());
 
         } catch (error) {
             setErrorMessage(`An error occurred while creating expense`);
@@ -170,14 +172,6 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
                 </div>
                 {errorMessage && <Error message={errorMessage} type={'error'}/>}
             </form>
-
-            <CustomDialog
-                show={showDialog}
-                onClose={() => setShowDialog(false)}
-                message={responseMessage}
-                earnedCredits={eventResult ? eventResult.earnedCredits : 0}
-                earnedXP={eventResult ? eventResult.earnedXP : 0}
-            />
         </div>
     );
 }

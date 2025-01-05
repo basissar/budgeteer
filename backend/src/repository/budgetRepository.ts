@@ -26,7 +26,7 @@ export class BudgetRepository implements BaseRepository<Budget, number> {
                 id: id
             },
             include: [
-                {model: Category, as: 'category', attributes: ['name','color']}
+                {model: Category, as: 'category', attributes:['id', 'name', 'color', 'iconId']},
             ]
         });
     }
@@ -48,7 +48,7 @@ export class BudgetRepository implements BaseRepository<Budget, number> {
                 walletId: walletId
             },
             include: [
-                {model: Category, as: 'category', attributes:['name','color']}
+                {model: Category, as: 'category', attributes:['id', 'name', 'color', 'iconId']},
             ]
         })
     }
@@ -60,7 +60,7 @@ export class BudgetRepository implements BaseRepository<Budget, number> {
                 categoryId: categoryId
             },
             include: [
-                {model: Category, as: 'category', attributes:['name','color']}
+                {model: Category, as: 'category', attributes:['id', 'name', 'color', 'iconId']},
             ]
         });
     }

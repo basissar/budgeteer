@@ -1,5 +1,3 @@
-import { ACCOUNT_SERVICE, BUDGET_REPOSITORY, EXPENSE_REPOSITORY, USER_REPOSITORY, WALLET_REPOSITORY } from "../config/macros.ts";
-import { container } from "../utils/container.ts";
 import { BudgetRepository } from "../repository/budgetRepository.ts";
 import { Budget } from "../model/Budget.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
@@ -12,6 +10,7 @@ import { DateTime } from "https://cdn.skypack.dev/luxon";
 import { Expense } from "../model/Expense.ts";
 import { AccountService } from "./accountService.ts";
 import { EventType } from "../model/EventType.ts";
+import { ValidationError } from "../errors/ValidationError.ts";
 
 export class BudgetService {
     public budgetRepository: BudgetRepository;
@@ -36,7 +35,17 @@ export class BudgetService {
             this.accountService = accountService;
     }
 
-    async createBudget(userId: string, budget: Budget) {
+    /**
+     * Creates a budget
+     * @param userId used for retrieval of user's timezone for update check
+     * @param budget to create
+     * @returns 
+     */
+    public async createBudget(userId: string, budget: Budget) {
+        if (budget.limit <= 0 ) {
+            throw new ValidationError(`Budget limit cannot be negative values including zero`);
+        }
+
         try {
             const exists = await this.budgetRepository.exists(budget.id);
 
@@ -93,11 +102,16 @@ export class BudgetService {
                 return finalResponse;
             }
         } catch (error) {
-            throw new ServiceError(`Budget service error: ${error.message}`);
+            throw new ServiceError(`Budget service error: ${(error as Error).message}`);
         }
     }
 
-    async updateBudget(budget: Budget) {
+    /**
+     * Updates budget
+     * @param budget to be updated
+     * @returns 
+     */
+    public async updateBudget(budget: Budget) {
         try {
             const exists = await this.budgetRepository.exists(budget.id);
 
@@ -107,11 +121,16 @@ export class BudgetService {
 
             return await this.budgetRepository.save(budget);
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`);
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`);
         }
     }
 
-    async findByWallet(walletId: string) {
+    /**
+     * Retrieves budgets for specific wallet
+     * @param walletId wallet id
+     * @returns 
+     */
+    public async findByWallet(walletId: string) {
         try {
             const foundWallet = await this.walletRepository.findById(walletId);
 
@@ -123,11 +142,17 @@ export class BudgetService {
 
             return foundBudgets;
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`);
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`);
         }
     }
 
-    async findByWalletAndCategory(walletId: string, categoryId: number) {
+    /**
+     * Retrieves budgets by wallet and category
+     * @param walletId wanted wallet
+     * @param categoryId wanted category
+     * @returns 
+     */
+    public async findByWalletAndCategory(walletId: string, categoryId: number) {
         try {
             const foundWallet = await this.walletRepository.findById(walletId);
 
@@ -139,11 +164,16 @@ export class BudgetService {
 
             return foundBudgets;
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`);
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`);
         }
     }
 
-    async deleteBudget(budgetId: number) {
+    /**
+     * Deletes budget
+     * @param budgetId to be deleted 
+     * @returns 
+     */
+    public async deleteBudget(budgetId: number) {
         try {
             const foundBudget = await this.budgetRepository.exists(budgetId);
 
@@ -155,7 +185,7 @@ export class BudgetService {
 
             return deletedRows != 0;
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`)
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`)
         }
     }
 
@@ -186,21 +216,31 @@ export class BudgetService {
             }
 
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`);
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`);
         }
     }
 
-    async findById(id: number) {
+    /**
+     * Finds budget by id
+     * @param id of wanted budget
+     * @returns 
+     */
+    public async findById(id: number) {
         try {
             const result = await this.budgetRepository.findById(id);
 
             return result;
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`);
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`);
         }
     }
 
-    async resetBudget(budgetId: number) {
+    /**
+     * Resets budget
+     * @param budgetId budget to be reset 
+     * @returns 
+     */
+    public async resetBudget(budgetId: number) {
         try {
             const foundBudget = await this.budgetRepository.findById(budgetId);
 
@@ -221,11 +261,16 @@ export class BudgetService {
             }
 
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`);
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`);
         }
     }
 
-    async checkBudgetLimit(budgetId: number){
+    /**
+     * Checks whether budget is over limit
+     * @param budgetId 
+     * @returns 
+     */
+    public async checkBudgetLimit(budgetId: number){
         try {
             const foundBudget = await this.budgetRepository.findById(budgetId);
 
@@ -241,11 +286,15 @@ export class BudgetService {
 
             return overLimit;
         } catch (error) {
-            throw new ServiceError(`Budget service error: ${error.message}`);
+            throw new ServiceError(`Budget service error: ${(error as Error).message}`);
         }
     }
 
-    async resetAllInWallet(walletId: string) {
+    /**
+     * Resets all budgets in wallet
+     * @param walletId 
+     */
+    public async resetAllInWallet(walletId: string) {
         try {
             const foundBudgets = await this.budgetRepository.findByWallet(walletId);
 
@@ -256,7 +305,7 @@ export class BudgetService {
             }
 
         } catch (err) {
-            throw new ServiceError(`Budget service error: ${err.message}`);
+            throw new ServiceError(`Budget service error: ${(err as Error).message}`);
         }
     }
 
