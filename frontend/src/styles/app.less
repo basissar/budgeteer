@@ -295,3 +295,31 @@ td img {
 .bg-light-green {
     background-color: @card-light-green;
 }
+
+.bg-light-green-hoverable {
+    background-color: @light-green-hoverable;
+}
+
+.bg-light-green-hoverable:hover {
+    background-color: @light-green-hoverable-hover !important;
+}
+
+//progress bar
+
+.progress-bar {
+    width: 100%;  
+    max-width: 600px; 
+    background-color: #e0e0df;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar-fill {
+    height: 10px;
+    text-align: center;
+    line-height: 20px; 
+    color: white;
+    border-radius: 15px;
+    transition: width 0.5s ease-in-out;
+}

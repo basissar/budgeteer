@@ -1,5 +1,5 @@
 import React from 'react';
-import icon from "../../assets/credit.svg";
+import Credits from "../../assets/credit.svg?react";
 
 export default function CustomDialog ({ show, onClose, message, earnedCredits, earnedXP }) {
     if (!show) {
@@ -13,7 +13,8 @@ export default function CustomDialog ({ show, onClose, message, earnedCredits, e
                     <p>{message}</p>
                     <div className="reward-info">
                         <div className="credit-info">
-                            <img src={icon} alt="Credits" /> 
+                            {/* <img src={icon} alt="Credits" />  */}
+                            <Credits/>
                             <span>+ {earnedCredits}</span>
                         </div>
                         <div className="xp-info">

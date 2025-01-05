@@ -38,7 +38,7 @@ const budgetController = container.resolve(BUDGET_CONTROLLER);
 
 const accountController = container.resolve(ACCOUNT_CONTROLLER);
 
-const savingsController = container.resolve(GOAL_CONTROLLER);
+const goalController = container.resolve(GOAL_CONTROLLER);
 
 const analyticsController = container.resolve(ANALYTICS_CONTROLLER);
 
@@ -129,14 +129,17 @@ router.delete("/budgeteer/:userId/expenses/:expenseId", expenseController.delete
 
 
 //GOALS
-router.post("/budgeteer/:userId/goals/:walletId", savingsController.createGoal.bind(savingsController));
+router.post("/budgeteer/goals", goalController.createGoal.bind(goalController));
 
-//TODO might be PUT instead
-router.post("/budgeteer/:userId/goals/:walletId/:goalId", savingsController.updateMoney.bind(savingsController));
+router.delete("/budgeteer/goals/:goalId", goalController.deleteGoal.bind(goalController));
 
-router.delete("/budgeteer/:userId/goals/:goalId", savingsController.deleteGoal.bind(savingsController));
+router.get("/budgeteer/goals/:walletId", goalController.getGoalsForWallet.bind(goalController));
 
-router.get("/budgeteer/:userId/goals/:walletId", savingsController.getGoalsForWallet.bind(savingsController));
+router.put("/budgeteer/goals/:goalId", goalController.updateGoal.bind(goalController));
+
+router.put("/budgeteer/goals/money/:goalId", goalController.updateMoney.bind(goalController));
+
+router.get("/budgeteer/goals/:goalId", goalController.getGoal.bind(goalController));
 
 
 //BUDGETS

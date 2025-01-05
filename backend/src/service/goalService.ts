@@ -1,4 +1,4 @@
-import { ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, WALLET_SERVICE } from "../config/macros.ts";
+import { ACCOUNT_SERVICE, ACHIEVEMENT_SERVICE, GREEN, RED, RESET_COLOR, WALLET_SERVICE } from "../config/macros.ts";
 import { GoalRepository } from "../repository/goalRepository.ts";
 import { container } from "../utils/container.ts";
 import { DuplicateError } from "../errors/DuplicateError.ts";
@@ -10,6 +10,16 @@ import { AccountService } from "./accountService.ts";
 import { EventType } from "../model/EventType.ts";
 import { AchievementService } from "./achievementService.ts";
 import { AchievementType } from "../model/AchievementType.ts";
+import { ValidationError } from "../errors/ValidationError.ts";
+import { EventResult } from "../model/EventResult.ts";
+import { UnauthorizedError } from "../errors/UnauthorizedError.ts";
+
+interface GoalResponse {
+    eventResult?: EventResult | null;
+    goal: Goal;
+    completeMessage?: string;
+    additionalMessage?: string;
+}
 
 export class GoalService {
     private goalRepository: GoalRepository;
@@ -24,7 +34,7 @@ export class GoalService {
         walletService: WalletService,
         accountService: AccountService,
         achievementService: AchievementService
-    ){
+    ) {
         this.goalRepository = goalRepository;
         this.walletService = walletService;
         this.accountService = accountService;
@@ -32,7 +42,17 @@ export class GoalService {
     }
 
 
-    async createGoal(goal: Goal, userId: string){
+    /**
+     * Creates a new goal
+     * @param goal to create
+     * @param userId 
+     * @returns 
+     */
+    public async createGoal(goal: Goal, userId: string) {
+        if (goal.targetAmount <= 0 || goal.currentAmount < 0) {
+            throw new ValidationError(`Goal amounts cannot be in negative values`);
+        }
+
         try {
             const exists = await this.goalRepository.exists(goal.id);
 
@@ -53,19 +73,46 @@ export class GoalService {
 
             return finalResponse;
         } catch (error) {
-            throw new ServiceError(`Savings service error: ${error.message}`);
+            throw new ServiceError(`Savings service error: ${(error as Error).message}`);
         }
     }
 
-    async findById(id: number){
+    /**
+     * Retrieves goal by selected id
+     * @param id goal id we want to retrieve
+     * @param userId id of user for ownership chesk
+     */
+    public async getGoal(id: number, userId: string) {
+        let foundGoal;
+
         try {
-            return await this.goalRepository.findById(id);
+            foundGoal = await this.goalRepository.findById(id);
+
+            console.log(foundGoal);
         } catch (error) {
-            throw new ServiceError(`Savings service error: ${error.message}`);
+            throw new ServiceError(`Savings service error: ${(error as Error).message}`);
         }
+
+        if (!foundGoal) {
+            throw new NotFoundError(`Goal with provided id not found.`);
+        }
+
+        const belongsToUser = await this.walletService.belongsToUser(userId, foundGoal?.walletId);
+
+        if (!belongsToUser) {
+            throw new UnauthorizedError(`Unauthorized access to goal retrieval`);
+        }
+
+        return foundGoal;
     }
 
-    async findByWallet(walletId: string, userId: string){
+    /**
+     * Retrieves all goals for specific wallet
+     * @param walletId id of said wallet
+     * @param userId used for ownership check
+     * @returns 
+     */
+    public async findByWallet(walletId: string, userId: string) {
         try {
             const foundWallet = await this.walletService.getWallet(walletId, userId);
 
@@ -73,14 +120,12 @@ export class GoalService {
                 return null;
             }
 
-            if (foundWallet.id != walletId && foundWallet.userId != userId){
-                return null;
-            }
+            const belongsToUser = await this.walletService.belongsToUser(userId, foundWallet.walletId)
 
             const foundGoals = await this.goalRepository.findByWallet(walletId);
             return foundGoals;
         } catch (error) {
-            throw new ServiceError(`Savings Service error: ${error.message}`);
+            throw new ServiceError(`Savings Service error: ${(error as Error).message}`);
         }
     }
 
@@ -90,53 +135,78 @@ export class GoalService {
      * @param amount amount of added money
      * @returns 
      */
-    async updateMoney(goalId: number, amount: number, userId: string){
+    async updateMoney(goalId: number, amount: number, userId: string): Promise<GoalResponse | Goal> {
+
         try {
             const foundGoal = await this.goalRepository.findById(goalId);
 
-            if (foundGoal == null){
+            if (foundGoal == null) {
                 throw new NotFoundError(`Goal with id ${goalId} was not found and cannto be updated`);
             }
 
-            foundGoal.set({
-                currentAmount: foundGoal.currentAmount + amount,
-            });
+            let amountToUpdate = foundGoal.currentAmount + amount;
 
-            const savedGoal = await this.goalRepository.save(foundGoal);
+            if (amountToUpdate < 0) {
+                amountToUpdate = 0;
+            }
 
-            if (savedGoal == null) {
+            const updatedGoalData: Partial<Goal> = {
+                currentAmount: amountToUpdate
+            };
+
+            const updatedGoal = await this.goalRepository.update(goalId, updatedGoalData);
+
+            if (updatedGoal == null) {
                 throw new ServiceError(`Savings Service error: error updating goal amount`);
             }
 
-            const newAmount = savedGoal.currentAmount;
-            const target = savedGoal.targetAmount;
+            const newAmount = updatedGoal.currentAmount;
+            const target = updatedGoal.targetAmount;
 
             const reachedTarget = newAmount >= target;
 
-            if (reachedTarget) {
+            if (reachedTarget && updatedGoal.completed) {
+                return {
+                    eventResult: null,
+                    goal: updatedGoal,
+                    additionalMessage: "No XP or credits will be awarded. You've already reached your target at one point. ",
+                };
+            }
+
+            //We are only handling the completion event the first time goal is completed
+            if (reachedTarget && !updatedGoal.completed) {
                 const eventResult = await this.accountService.handleEvent(EventType.REACH_GOAL, userId);
+
+                await this.completeGoal(updatedGoal.id, userId);
+
+                const completedGoal = await this.goalRepository.findById(updatedGoal.id);
 
                 const finalResponse = {
                     eventResult: eventResult,
-                    goal: savedGoal,
-                    completeMessage: "Mark the goal as completed?" 
-                    //TODO finish the return complete goal message
+                    goal: completedGoal!,
+                    completeMessage: "You completed your goal! You can still add money to save up more! Or deduct if something went south."
                 }
 
                 return finalResponse;
             } else {
-                return savedGoal;
+                return updatedGoal;
             }
 
         } catch (err) {
-            throw new ServiceError(`Savings service error: ${err.message}`);
+            throw new ServiceError(`Savings service error: ${(err as Error).message}`);
         }
     }
 
-    async completeGoal(goalId: number, userId: string) {
-        const foundGoal = await this.findById(goalId);
+    /**
+     * Sets the goal as completed and evaluates achievement
+     * @param goalId id of goal to be completed
+     * @param userId 
+     * @returns 
+     */
+    public async completeGoal(goalId: number, userId: string) {
+        const foundGoal = await this.goalRepository.findById(goalId);
 
-        if (foundGoal == null){
+        if (foundGoal == null) {
             return false;
         }
 
@@ -146,25 +216,45 @@ export class GoalService {
         const completed = await this.goalRepository.countCompleted(userId);
         const account = await this.accountService.getIdForUser(userId);
 
+        console.log(completed);
+
         await this.achievementService.evaluateAchievement(account?.id, AchievementType.GOAL, [this.goalRepository, completed]);
         return true;
     }
 
-    async updateGoal(goal: Goal){
-        try {
-            const exists = await this.goalRepository.exists(goal.id);
+    /**
+     * Updates goal with provided information
+     * @param userId used for update authorization
+     * @param goalId id of goal we want to update
+     * @param updates object with wanted updates
+     * @returns 
+     */
+    public async updateGoal(userId: string, goalId: number, updates: Partial<Goal>) {
+        const goal = await this.goalRepository.findById(goalId);
 
-            if (!exists) {
-                throw new NotFoundError(`Goal ${goal.id} not found`);
-            }
-
-            return await this.goalRepository.save(goal);
-        } catch (err) {
-            throw new ServiceError(`Savings service error: ${err.message}`);
+        if (!goal) {
+            throw new NotFoundError(`Wallet with id ${goal} does not exist.`);
         }
+
+        const belongsToUser = await this.walletService.belongsToUser(userId, goal.walletId)
+
+        if (!belongsToUser) {
+            throw new ServiceError(`Unauthorized to update goal.`);
+        }
+
+        if (updates.targetAmount! <= goal.targetAmount || updates.targetAmount === 0) {
+                throw new ValidationError(`New target amount must be higher than current target amount and 0.`);
+        }
+
+        return await this.goalRepository.update(goalId, updates);
     }
 
-    async deleteGoal(goalId: number){
+    /**
+     * Deletes goal
+     * @param goalId id of goal to be deleted 
+     * @returns 
+     */
+    public async deleteGoal(goalId: number) {
         try {
             const foundGoal = await this.goalRepository.exists(goalId);
 
@@ -175,7 +265,7 @@ export class GoalService {
             const deletedRows = await this.goalRepository.deleteById(goalId);
             return deletedRows != 0;
         } catch (error) {
-            throw new ServiceError(`Savings service error: ${error.message}`);
+            throw new ServiceError(`Savings service error: ${(error as Error).message}`);
         }
     }
 }

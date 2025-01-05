@@ -1,3 +1,4 @@
+import { Op } from "npm:sequelize";
 import { RepositoryError } from "../errors/RepositoryError.ts";
 import { Category } from "../model/Category.ts";
 import { Goal } from "../model/Goal.ts";
@@ -27,7 +28,7 @@ export class GoalRepository implements BaseRepository<Goal, number> {
                 id: id
             },
             include: [
-                {model: Category, as: 'category', attributes: ['name','color']}
+                {model: Category, as: 'category', attributes:['id', 'name', 'color', 'iconId']},
             ]
         });
     }
@@ -52,23 +53,48 @@ export class GoalRepository implements BaseRepository<Goal, number> {
                 walletId: walletId,
             },
             include: [
-                {model: Category, as: 'category', attributes:['name', 'color']},
+                {model: Category, as: 'category', attributes:['id', 'name', 'color', 'iconId']},
             ]
         });
     }
 
     async countCompleted(userId: string) {
+        const wallets = await Wallet.findAll({
+            where: { userId: userId }
+        });
+
+        if (!wallets.length) {
+            return 0; 
+        }
+
+        const walletIds = wallets.map(wallet => wallet.id);
+
         const completedGoals = await Goal.count({
-            where : {completed: true},
-            include: [
-                {
-                    model: Wallet,
-                    as: 'wallet',
-                    where: {userId: userId}
+            where: {
+                completed: true,
+                walletId: {
+                    [Op.in]: walletIds
                 }
-            ]
+            }
         });
 
         return completedGoals;
+    }
+
+    public async update(goalId: number, updates: Partial<Goal>): Promise<Goal | null> {
+        try {
+            const goal = await Goal.findByPk(goalId);
+
+            if (!goal){
+                return null;
+            }
+
+
+            Object.assign(goal, updates);
+            await goal.save();
+            return goal;
+        } catch (error) {
+            throw new RepositoryError(`Goal repository error: ${(error as Error).message}`);
+        }
     }
 }

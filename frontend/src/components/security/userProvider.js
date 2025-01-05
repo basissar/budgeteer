@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/macros";
 
-import { Alert } from "flowbite-react";
+import Credits from '../../assets/credit.svg?react';
+
+import { Alert, Modal, Button } from "flowbite-react";
 
 const UserContext = createContext();
 
@@ -15,7 +17,8 @@ export const UserProvider = ({ children }) => {
     const [wallets, setWallets] = useState([]);
     const [currentWallet, setCurrentWallet] = useState(null);
 
-    const [openModal, setOpenModal] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState(null);
 
     const navigate = useNavigate();
 
@@ -55,7 +58,7 @@ export const UserProvider = ({ children }) => {
                 wallet.id === updatedWallet.id ? updatedWallet : wallet
             )
         );
-    
+
         if (currentWallet?.id === updatedWallet.id) {
             setCurrentWallet(updatedWallet);
         }
@@ -107,9 +110,65 @@ export const UserProvider = ({ children }) => {
         setCurrentWallet(selectedWallet);
     };
 
+    const showModal = (content) => {
+        setModalContent(content);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setModalContent(null);
+        setError(null);
+    };
+
     return (
-        <UserContext.Provider value={{ user, setUser, equippedItems, updateEquippedItems, loading, login, error, setError, handleWalletChange, wallets, setWallets, currentWallet, updateWallet }}>
+        <UserContext.Provider value={{ user, setUser, equippedItems, updateEquippedItems, loading, login, error, setError, handleWalletChange, wallets, setWallets, currentWallet, updateWallet, showModal, closeModal }}>
             {children}
+            <Modal show={isModalOpen} size="sm" onClose={closeModal}>
+                <Modal.Header>{modalContent?.title || "Notification"}</Modal.Header>
+                <Modal.Body>
+                    {modalContent ? (
+                        <>
+                            <div className="flex flex-col gap-5">
+                                {modalContent.eventResult && (
+                                    <div className="flex flex-col gap-5">
+                                        <p>You received the following:</p>
+                                        <div className="flex flex-col gap-5">
+                                            <div className="flex flex-row items-center gap-5 text-green-900 text-xl font-semibold">
+                                                <span className="flex flex-row items-center gap-1">+ <Credits /> {modalContent.eventResult.earnedCredits} </span>
+                                                <span>+ XP {modalContent.eventResult.earnedXP} </span>
+                                            </div>
+
+                                            {modalContent.eventResult.leveledUp && (
+                                                <span className="flex flex-col">
+                                                    <p className="text-green-900 text-xl font-semibold">You leveled up!</p>
+                                                    <span className="flex flex-row items-center gap-2">New level: <p className="text-green-900 text-xl font-semibold">{modalContent.eventResult.newLevel}</p></span>
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+
+                                {/* Check if additionalMessage exists, and display it */}
+                                {modalContent.additionalMessage && (
+                                    <div>
+                                        {modalContent.additionalMessage}
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    ) : (
+                        "No content available."
+                    )}
+                </Modal.Body>
+
+                <Modal.Footer className="flex justify-center items-center">
+                    <Button onClick={closeModal} color="light">
+                        Okay!
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </UserContext.Provider>
     );
 }
