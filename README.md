@@ -1,6 +1,14 @@
 # Budgeteer Finance Tracker
 
-This is a repository for a Budgeteer Finance Tracker web application being developed for the B6BPROJ6 subject.
+This is a repository for a Budgeteer Finance Tracker web application.
+
+## Running the app
+Project is containerized. Upon cloning the repository simply run `docker-compose up`. If it is your first time, run the command with `--build` flag.
+Ports on which each of container is being run are specified in the [docker-compose.yml](https://github.com/basissar/budgeteer/blob/main/docker-compose.yml).
+
+By default backend is run on port 8000, frontend on 3000 and database on 5433. Be sure to free these ports.
+
+
 
 ## Features
 - Expense tracking:
@@ -22,12 +30,11 @@ This is a repository for a Budgeteer Finance Tracker web application being devel
   -  Budgeteer is a gamified finance tracker, meaning that user will be rewarded for using this app
   -  Exerience points and credits can be gained by logging expenses, staying within setup budget limits or adding money to their savings goals
   -  Users eventually levels up when enough experience is gained and obtains additional credits
-  -  User can choose from 3(tbd) avatars which he can later customize with obtained credits
+  -  User can choose from 2 avatars which he can later customize with obtained credits
 
  
 - Wallets:
-  -  User can create up to 3(tbd) wallets so that he can differentiate between his cash flow and bank account status
-  -  Amount within these wallets can be transfered form one to another into specific categories  
+  -  User can create up to 3 wallets so that he can differentiate between his cash flow and bank account status 
 
 ## Technologies 
 
