@@ -27,7 +27,7 @@ export default function Wallets() {
 
                 const newWalletBalances = new Map();
 
-                for (const w of walletResponse.data.wallets){
+                for (const w of walletResponse.data.wallets) {
                     const balanceResponse = await axios.get(`${API_BASE_URL}/analytics/${w.id}/balance`, {
                         withCredentials: true,
                     });
@@ -56,16 +56,18 @@ export default function Wallets() {
                 }
             );
 
+            console.log(response.data);
             const createdWallet = response.data.wallet;
 
             setNewWalletName('');
             setInitialAmount('');
 
-            setWallets(prevWallets => [...prevWallets, createdWallet]);
+            setWallets((prevWallets) => [...prevWallets, createdWallet]);
         } catch (err) {
             alert(err.message);
         }
-    }
+    };
+
 
     const cantCreate = () => {
         return wallets.length === 3;
@@ -121,15 +123,15 @@ export default function Wallets() {
 
                     <div className="w-full">
                         {cantCreate() ? (
-                            <Tooltip content="You cannot add more than 3 wallets" style="light" theme={{target: "w-full"}}>
-                                    <Button
-                                        disabled
-                                        className="w-full self-center flex items-center justify-center text-white rounded-lg bg-dark-green-disabled"
-                                        type="submit"
-                                        fullSized
-                                    >
-                                        Add Wallet
-                                    </Button>
+                            <Tooltip content="You cannot add more than 3 wallets" style="light" theme={{ target: "w-full" }}>
+                                <Button
+                                    disabled
+                                    className="w-full self-center flex items-center justify-center text-white rounded-lg bg-dark-green-disabled"
+                                    type="submit"
+                                    fullSized
+                                >
+                                    Add Wallet
+                                </Button>
                             </Tooltip>
                         ) : (
                             <Button

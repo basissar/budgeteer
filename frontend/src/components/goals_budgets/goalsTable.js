@@ -1,11 +1,7 @@
-import { Button, Modal, Table, TextInput, Dropdown, Tooltip } from 'flowbite-react';
+import { Table } from 'flowbite-react';
 import { ProgressBar } from '../custom/progressBar';
 import Icon from '../custom/icon';
 import categoryTheme from "../../themes/categoryTable.json";
-import { useState, useEffect} from 'react';
-import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { useUserContext } from '../security/userProvider';
-import Error from '../custom/error';
 import { useNavigate } from 'react-router-dom';
 
 const GoalsTable = ({ goals, currentWalletCurrency}) => {

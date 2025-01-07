@@ -37,14 +37,8 @@ export class Scheduler {
     }
 
     start(): void {
-        console.log(this.getTimeZonesForMidnight());
-        console.log(this.getTimezonesForHour(19, 0));
-        console.log(this.getTimeZonesForMidnightOnMonday());
-        console.log(this.getTimeZonesForMidnightOnFirstOfMonth);
-        console.log(this.getTimeZonesForMidnightOnFirstOfYear);
-
         console.log("Starting scheduler...");
-        this.hourlyCronInstance = new Cron("* * * * *", async () => {
+        this.hourlyCronInstance = new Cron("0 * * * *", async () => {
             await this.resetBudgets();
         });
     }

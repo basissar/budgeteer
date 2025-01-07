@@ -20,7 +20,7 @@ export class GoalCompletionStrategy implements AchievementStrategy {
     async checkAndReward(accountId: string, type:AchievementType, data: any[]): Promise<void> {
         const achievements = await this.achievementService.findByType(type);
 
-        const completedGoals = data[1];
+        const completedGoals = data[0];
 
         for(const achievement of achievements){
             if (achievement.targetCount == completedGoals){

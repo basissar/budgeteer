@@ -3,13 +3,18 @@ import axios from 'axios';
 import { API_BASE_URL } from '../../utils/macros';
 import './achievements.css';
 
-import star from '../../assets/star_icon.svg';
-import credit from "../../assets/credit.svg";
-import XP from "../../assets/XP.svg";
-import {useUserContext} from "../security/userProvider";
+import { Modal } from 'flowbite-react';
+
+import Star from '../../assets/star_icon.svg?react';
+import Credit from "../../assets/credit.svg?react";
+import XP from "../../assets/XP.svg?react";
+import { useUserContext } from "../security/userProvider";
 
 const Achievements = ({ userId }) => {
   const [userAchievements, setUserAchievements] = useState([]);
+
+  const [modalMessage, setModalMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { user } = useUserContext();
 
@@ -19,7 +24,6 @@ const Achievements = ({ userId }) => {
         const userAchievementsResponse = await axios.get(`${API_BASE_URL}/achievements/${user.id}`, {
           withCredentials: true
         });
-
 
         setUserAchievements(userAchievementsResponse.data.achievements);
       } catch (err) {
@@ -36,8 +40,9 @@ const Achievements = ({ userId }) => {
         withCredentials: true
       });
 
-      alert(response.data.message);
-      // Update the user achievements list
+      setModalMessage(response.data.message);
+      setIsModalOpen(true);
+
       setUserAchievements((prevAchievements) =>
         prevAchievements.map((achievement) =>
           achievement.achievementId === achievementId ? { ...achievement, claimed: true } : achievement
@@ -52,35 +57,53 @@ const Achievements = ({ userId }) => {
   return (
     <div className="achievements-container">
       <h2>User Achievements</h2>
-      <div className="achievements-list">
-        {userAchievements.map(({ achievement, achievementId, claimed }) => (
-          achievement ? (
-            <div key={achievementId} className="achievement-item">
-              <div className="achievement-header">
-                <img src={star} alt="Star" className="achievement-icon" />
-                <h3>{achievement.name}</h3>
+      {userAchievements.length === 0 ? (
+        <div className='flex flex-col items-center'>
+          <p>You don't have any achievements yet.</p>
+          <p>Create more expenses or add some money to your savings goals.</p>
+        </div>
+
+      ) : (
+        <div className="achievements-list">
+          {userAchievements.map(({ achievement, achievementId, claimed }) => (
+            achievement ? (
+              <div key={achievementId} className="achievement-item">
+                <div className="achievement-header">
+                  <Star />
+                  <h3>{achievement.name}</h3>
+                </div>
+                <p>{achievement.description}</p>
+                <p className="achievement-quote">"{achievement.quote}"</p>
+                <div className="achievement-rewards">
+                  <span className="achievement-credits">
+                    <Credit />
+                    + {achievement.gainedCredits}
+                  </span>
+                  <span className="achievement-xp">
+                    <XP />
+                    + {achievement.gainedXp}
+                  </span>
+                </div>
+                {claimed ? (
+                  <button className="claimed-button" disabled>Claimed</button>
+                ) : (
+                  <button className="claim-button" onClick={() => claimAchievement(achievementId)}>Claim</button>
+                )}
               </div>
-              <p>{achievement.description}</p>
-              <p className="achievement-quote">"{achievement.quote}"</p>
-              <div className="achievement-rewards">
-                <span className="achievement-credits">
-                  <img src={credit} alt="Coin" />
-                  + {achievement.gainedCredits}
-                </span>
-                <span className="achievement-xp">
-                  <img src={XP} alt="XP" />
-                  + {achievement.gainedXp}
-                </span>
-              </div>
-              {claimed ? (
-                <button className="claimed-button" disabled>Claimed</button>
-              ) : (
-                <button className="claim-button" onClick={() => claimAchievement(achievementId)}>Claim</button>
-              )}
-            </div>
-          ) : null
-        ))}
-      </div>
+            ) : null
+          ))}
+        </div>
+      )}
+
+      <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Modal.Header>Achievement</Modal.Header>
+        <Modal.Body>
+          <p>{modalMessage}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-primary" onClick={() => setIsModalOpen(false)}>Close</button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

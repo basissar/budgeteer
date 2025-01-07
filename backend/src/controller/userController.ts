@@ -23,7 +23,11 @@ export class UserController {
         this.userService = userService;
     }
 
-    async register(ctx: RouterContext<string>) {
+    /**
+     * Registers user
+     * @param ctx 
+     */
+    public async register(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body.json();
 
         const user = new User(requestBody);
@@ -53,7 +57,12 @@ export class UserController {
         }
     }
 
-    async login(ctx: RouterContext<string>) {
+    /**
+     * Logs user in
+     * @param ctx 
+     * @returns 
+     */
+    public async login(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body.json();
 
         const username = requestBody.username;
@@ -97,8 +106,14 @@ export class UserController {
         ctx.response.body = { message: "Login successful", username: result.user.username, id: result.user.id, email: result.user.email };
     }
 
-    logout(ctx: RouterContext<string>) {
+    /**
+     * Logs user out
+     * @param ctx 
+     * @returns 
+     */
+    public logout(ctx: RouterContext<string>) {
         ctx.cookies.delete("jwt_token");
+        ctx.cookies.delete("user_id");
 
         ctx.response.status = OK;
         ctx.response.body = { message: "Logout successful"};
@@ -138,7 +153,12 @@ export class UserController {
         ctx.response.body = { user: user };
     }
 
-    async createUser(ctx: RouterContext<string>) {
+    /**
+     * Creates user
+     * @param ctx 
+     * @returns 
+     */
+    public async createUser(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body.json();
 
         const passedUserName = requestBody.username;
@@ -157,7 +177,11 @@ export class UserController {
         ctx.response.body = { message: "User created", user: createdUser };
     }
 
-    async getAllUsers(ctx: RouterContext<string>) {
+    /**
+     * Returns all users
+     * @param ctx 
+     */
+    public async getAllUsers(ctx: RouterContext<string>) {
         const users = await this.userService.getAllUsers();
 
         ctx.response.status = OK;
@@ -168,7 +192,12 @@ export class UserController {
         }
     }
 
-    async getUserByUsername(ctx: RouterContext<string>) {
+    /**
+     * Returns user by username
+     * @param ctx 
+     * @returns 
+     */
+    public async getUserByUsername(ctx: RouterContext<string>) {
         const { username } = ctx.params;
 
         if (!username) {
@@ -187,13 +216,17 @@ export class UserController {
         }
     }
 
-    async deleteUser(ctx: RouterContext<string>) {
+    /**
+     * Deletes user
+     * @param ctx 
+     */
+    public async deleteUser(ctx: RouterContext<string>) {
         const id = await ctx.cookies.get("user_id");
 
-        const {userId} = ctx.params;
+        // const {userId} = ctx.params;
 
         // const deletedUser = await this.userService.deleteUser(id!);
-        const deletedUser = await this.userService.deleteUser(userId);
+        const deletedUser = await this.userService.deleteUser(id!);
 
         ctx.cookies.delete("jwt_token");
         ctx.cookies.delete("user_id");
@@ -207,7 +240,12 @@ export class UserController {
         }
     }
 
-    async updateUser(ctx: RouterContext<string>) {
+    /**
+     * Updates user
+     * @param ctx 
+     * @returns 
+     */
+    public async updateUser(ctx: RouterContext<string>) {
         const requestBody = await ctx.request.body.json();
 
         const {userId} = ctx.params;

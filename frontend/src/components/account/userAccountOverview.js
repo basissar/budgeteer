@@ -1,9 +1,10 @@
 import { useUserContext } from "../security/userProvider";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import {API_BASE_URL} from "../../utils/macros";
-import {useState} from "react";
-import {AvatarWindow} from "../avatarOverview/avatarWindow";
+import { API_BASE_URL } from "../../utils/macros";
+import { useState } from "react";
+import { AvatarWindow } from "../avatarOverview/avatarWindow";
+import { Button, TextInput } from "flowbite-react";
 
 export function UserAccountOverview() {
     const { user, setUser } = useUserContext();
@@ -13,11 +14,9 @@ export function UserAccountOverview() {
     const [email, setEmail] = useState(user?.email || "");
     const [username, setUsername] = useState(user?.username || "");
 
-    const endpoint = 'http://localhost:8000/budgeteer/user/logout'
-
     const handleLogout = async () => {
         try {
-            await axios.post(endpoint, {}, {withCredentials: true });
+            await axios.post(`${API_BASE_URL}/user/logout`, {}, { withCredentials: true });
 
             setUser(null);
 
@@ -32,7 +31,7 @@ export function UserAccountOverview() {
             const updateResponse = await axios.post(`${API_BASE_URL}/user/update`, {
                 username,
                 email,
-            }, {withCredentials: true });
+            }, { withCredentials: true });
 
             setUser((prevUser) => ({
                 ...prevUser,
@@ -68,20 +67,41 @@ export function UserAccountOverview() {
     return (
         <div>
             <h2>Account Overview</h2>
-            <AvatarWindow/>
-            <input type="email"
-                   value={email} // Controlled input for email
-                   onChange={(e) => setEmail(e.target.value)} // Update local state
-                   placeholder={user.email}/>
-            <input type="text"
-                   value={username} // Controlled input for username
-                   onChange={(e) => setUsername(e.target.value)} // Update local state
-                   placeholder={user.username}/>
-            <div> {user && user.username}</div>
-            <div> {user && user.email}</div>
-            <button onClick={handleLogout}>Logout</button>
-            <button onClick={handleEdit}>Edit Profile</button>
-            <button onClick={handleDelete}>Delete Profile</button>
+            <div className="flex flex-col justify-center items-center">
+                <AvatarWindow />
+                <div className="flex flex-col justify-center items-center">
+                    <div>
+                        <div>Current username: {user && user.username}</div>
+                        <div>Current email: {user && user.email}</div>
+                    </div>
+
+
+                    <div className="flex flex-row items-center gap-4 mt-5">
+                        <div className="flex flex-row items-center gap-2">
+                            New email:
+                            <div className="max-w-44">
+                                <TextInput type="email" placeholder={user.email} value={email} onChange={(e) => setEmail(e.target.value)} />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-row items-center gap-2">
+                            New username:
+                            <div className="max-w-44">
+                                <TextInput type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={user.username} />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div className="flex flex-row items-center gap-5 mt-10">
+                        <Button color="light" onClick={handleLogout}>Logout</Button>
+                        <Button color="light" onClick={handleEdit}>Save changes</Button>
+                        <Button color="failure" onClick={handleDelete}>Delete Profile</Button>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     )
 }

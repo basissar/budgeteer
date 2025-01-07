@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // Import axios for making HTTP requests
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../assets/budget_logo.svg?react';
 import { useUserContext } from "../security/userProvider";

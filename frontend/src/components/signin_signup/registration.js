@@ -6,6 +6,7 @@ import logo from '../../assets/budget_logo.svg';
 import { API_BASE_URL } from '../../utils/macros';
 import { useUserContext } from '../security/userProvider';
 import { TextInput, Button } from 'flowbite-react';
+import Logo from '../../assets/budget_logo.svg?react';
 
 export default function Register() {
 	const navigate = useNavigate();
@@ -66,7 +67,7 @@ export default function Register() {
 	return (
 		<div>
 			<div className="logo">
-				<img src={logo} alt="Logo" />
+				<Logo />
 			</div>
 
 			<p className="levelup">Level up your money game!</p>
@@ -78,15 +79,36 @@ export default function Register() {
 				<form onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
 					<div>
 						<label htmlFor="username">Username:</label>
-						<TextInput id='username' class="focus:border-green-500 focus:ring-green-500" type='text' value={username} onChange={(e) => setUsername(e.target.value)}/>
-					</div>
+						<TextInput
+							id='username'
+							class="focus:border-green-500 focus:ring-green-500"
+							type='text'
+							value={username}
+							onChange={(e) => {
+								const value = e.target.value;
+								if (/^[a-zA-Z0-9._-]*$/.test(value)) {
+									setUsername(value);
+								}
+							}}
+						/>					</div>
 					<div>
 						<label htmlFor="email">Email:</label>
-						<TextInput id='email' class="focus:border-green-500 focus:ring-green-500" placeholder='example@email.com' type='email' value={email} onChange={(e) => setEmail(e.target.value)}/>
-					</div>
+						<TextInput
+							id='email'
+							class="focus:border-green-500 focus:ring-green-500"
+							placeholder='example@email.com'
+							type='email'
+							value={email}
+							onChange={(e) => {
+								const value = e.target.value;
+								if (/^\S*$/.test(value)) {
+									setEmail(value);
+								}
+							}}
+						/>					</div>
 					<div>
 						<label htmlFor="password">Password:</label>
-						<TextInput id='password' class="focus:border-green-500 focus:ring-green-500" type='password' value={password} onChange={(e) => setPassword(e.target.value)}/>
+						<TextInput id='password' class="focus:border-green-500 focus:ring-green-500" type='password' value={password} onChange={(e) => setPassword(e.target.value)} />
 					</div>
 					{errorMessage && <p>{errorMessage}</p>}
 					<Button class="self-center flex items-center justify-center text-white rounded-lg w-1/2" type='submit'>Register</Button>
