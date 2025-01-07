@@ -6,7 +6,13 @@ This is a repository for a Budgeteer Finance Tracker web application.
 Project is containerized. Upon cloning the repository simply run `docker-compose up`. If it is your first time, run the command with `--build` flag.
 Ports on which each of container is being run are specified in the [docker-compose.yml](https://github.com/basissar/budgeteer/blob/main/docker-compose.yml).
 
-By default backend is run on port 8000, frontend on 3000 and database on 5433. Be sure to free these ports.
+By default backend is run on port 8000, frontend on 3000 and database on 5433. 
+
+For the purpose of testing log into the app with these credentials.
+
+username = admin
+
+password = password
 
 
 
