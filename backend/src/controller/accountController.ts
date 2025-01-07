@@ -21,7 +21,11 @@ export class AccountController {
         this.avatarService = avatarService;
     }
 
-    async createAccount(ctx: RouterContext<string>) {
+    /**
+     * Creates account
+     * @param ctx 
+     */
+    public async createAccount(ctx: RouterContext<string>) {
         const { userId } = ctx.params;
 
         const requestBody = await ctx.request.body.json();
@@ -37,7 +41,11 @@ export class AccountController {
         }
     }
 
-    async getAccount(ctx: RouterContext<string>) {
+    /**
+     * Retrieves account
+     * @param ctx 
+     */
+    public async getAccount(ctx: RouterContext<string>) {
         const { userId } = ctx.params;
 
         const serviceResponse = await this.accountService.findByUser(userId);
@@ -57,7 +65,12 @@ export class AccountController {
         }        
     }
 
-    async buyItem(ctx: RouterContext<string>) {
+    /**
+     * Buys item
+     * @param ctx 
+     * @returns 
+     */
+    public async buyItem(ctx: RouterContext<string>) {
 
         const {userId, itemId} = ctx.params;
 
@@ -82,7 +95,12 @@ export class AccountController {
         }
     }
 
-    async equipItem(ctx: RouterContext<string>){
+    /**
+     * Equipes item
+     * @param ctx 
+     * @returns 
+     */
+    public async equipItem(ctx: RouterContext<string>){
         const { userId, itemId } = ctx.params;
 
         const equippedItem = await this.itemService.equipItem(Number(itemId), userId);
@@ -102,7 +120,12 @@ export class AccountController {
         }
     }
 
-    async unequipItem(ctx: RouterContext<string>){
+    /**
+     * Uneqeuip item
+     * @param ctx 
+     * @returns 
+     */
+    public async unequipItem(ctx: RouterContext<string>){
         const { userId, itemId } = ctx.params;
 
         const unequippedItem = await this.itemService.unequipItem(Number(itemId), userId);
@@ -123,7 +146,11 @@ export class AccountController {
 
     }
 
-    async getAvatarItems(ctx: RouterContext<string>) {
+    /**
+     * Retrieves avatar items
+     * @param ctx 
+     */
+    public async getAvatarItems(ctx: RouterContext<string>) {
         const {avatarId} = ctx.params;
 
         const foundItems = await this.itemService.findByAvatar(Number(avatarId));
@@ -135,7 +162,11 @@ export class AccountController {
         }
     }
 
-    async getAllAvatars(ctx: RouterContext<string>) {
+    /**
+     * Retrieves all avatars
+     * @param ctx 
+     */
+    public async getAllAvatars(ctx: RouterContext<string>) {
         const avatars = await this.avatarService.getAllAvatars();
 
         ctx.response.status = OK;

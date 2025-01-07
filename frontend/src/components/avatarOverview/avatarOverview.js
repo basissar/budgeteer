@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Account } from "../account";
 import axios from "axios";
-import { INFO , API_BASE_URL} from "../../utils/macros";
+import { INFO, API_BASE_URL } from "../../utils/macros";
+import { Modal, Button } from "flowbite-react";  // Import Flowbite components
 
 import './avatarOverview.css';
 
@@ -13,7 +14,7 @@ import greenHat from '../../assets/items/green_hat.png';
 import purpleFly from '../../assets/items/purple_fly.png';
 import redHat from '../../assets/items/red_hat.png';
 import Achievements from "./achievements";
-import {useUserContext} from "../security/userProvider";
+import { useUserContext } from "../security/userProvider";
 
 const itemImages = {
     'blue_fly': blueFly,
@@ -24,13 +25,16 @@ const itemImages = {
     'purple_fly': purpleFly,
     'red_hat': redHat,
 };
-export function AvatarOverview(){
+
+export function AvatarOverview() {
     const [items, setItems] = useState([]);
     const [userId, setUserId] = useState('');
     const [avatarId, setAvatar] = useState(null);
     const [ownedItems, setOwnedItems] = useState([]);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
-    const { user, updateEquippedItems, equippedItems} = useUserContext();
+    const { user, updateEquippedItems, equippedItems } = useUserContext();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -75,18 +79,18 @@ export function AvatarOverview(){
                 withCredentials: true
             });
 
-            // Find the bought item
             const boughtItem = items.find(item => item.id === itemId);
 
-            // Update the state
             setItems(prevItems => prevItems.filter(item => item.id !== itemId));
             setOwnedItems(prevOwnedItems => [...prevOwnedItems, boughtItem]);
         } catch (err) {
             if (err.response && err.response.status === 409) {
-                alert("You do not have enough credits to buy this item");
+                setErrorMessage("You do not have enough credits to buy this item");
+                setShowErrorModal(true);
             } else {
                 console.error(err);
-                alert("An error occurred while buying the item");
+                setErrorMessage("An error occurred while buying the item");
+                setShowErrorModal(true);
             }
         }
     };
@@ -120,7 +124,7 @@ export function AvatarOverview(){
             alert("An error occurred while unequipping the item");
         }
     };
-    
+
     const getItemClass = (item) => {
         if (item.type === 'hat') {
             return 'item hat';
@@ -132,39 +136,44 @@ export function AvatarOverview(){
     };
 
     return (
-        <div className="container">
-            <div className="relative">
-                <div className="relative">
+        <div className="flex flex-col items-center mt-10">
+            <div className="flex flex-row items-center gap-4">
+                <div className="max-w-[300px]">
                     <Account />
                 </div>
                 <div>
-                    <Achievements userId={userId}/>
+                    <Achievements userId={userId} />
                 </div>
             </div>
             <div className="flex flex-col w-1/2 mr-[5%]">
-                <div className="mb-[20px]">
+                <div className="mb-[20px] flex flex-col items-center">
                     <h2>Owned Items</h2>
-                    <div className="flex flex-wrap gap-2.5">
-                        {ownedItems.map((item) => (
-                            <div key={item.id} className={getItemClass(item)}>
-                                <img src={itemImages[item.item_img]} alt={item.name} onError={(e) => { e.target.src = 'fallback_image_path' }} />
-                                <div className="item-details">
-                                    <h3>{item.name}</h3>
-                                    <p>Price: {item.price}</p>
-                                    <p>Rarity: {item.rarity}</p>
-                                    {equippedItems[item.type]?.id === item.id ? (
-                                        <button onClick={() => handleUnequipItem(item)}>Unequip</button>
-                                    ) : (
-                                        <button onClick={() => handleEquipItem(item)}>Equip</button>
-                                    )}
+                    {ownedItems.length === 0 ? (
+                        <p>You don't own any items yet</p>
+                    ) : (
+                        <div className="flex flex-row gap-4">
+                            {ownedItems.map((item) => (
+                                <div key={item.id} className={getItemClass(item)}>
+                                    <img src={itemImages[item.item_img]} alt={item.name} onError={(e) => { e.target.src = 'fallback_image_path' }} />
+                                    <div className="item-details">
+                                        <h3>{item.name}</h3>
+                                        <p>Price: {item.price}</p>
+                                        <p>Rarity: {item.rarity}</p>
+                                        {equippedItems[item.type]?.id === item.id ? (
+                                            <button onClick={() => handleUnequipItem(item)}>Unequip</button>
+                                        ) : (
+                                            <button onClick={() => handleEquipItem(item)}>Equip</button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-                <div className="item-section">
+
+                <div className="flex flex-col items-center gap-3">
                     <h2>Unlocked Items</h2>
-                    <div className="item-list">
+                    <div className="flex flex-row gap-4">
                         {items.map((item) => (
                             <div key={item.id} className={getItemClass(item)}>
                                 <img src={itemImages[item.item_img]} alt={item.name} onError={(e) => { e.target.src = 'fallback_image_path' }} />
@@ -179,7 +188,15 @@ export function AvatarOverview(){
                     </div>
                 </div>
             </div>
+
+            <Modal show={showErrorModal} onClose={() => setShowErrorModal(false)} size="sm">
+                <Modal.Body>
+                    <p>{errorMessage}</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button color='light' onClick={() => setShowErrorModal(false)}>Close</Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
-    
 }

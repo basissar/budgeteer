@@ -1,6 +1,6 @@
 import { RouterContext } from "@oak/oak";
 import { key } from "../utils/apiKey.ts";
-import { verify } from "https://deno.land/x/djwt@v2.4/mod.ts";
+import { verify } from "https://deno.land/x/djwt@v3.0.2/mod.ts";
 import { FORBIDDEN, UNAUTHORIZED } from '../config/macros.ts';
 
 export class AuthorizationMiddleware {

@@ -218,7 +218,7 @@ export class GoalService {
 
         console.log(completed);
 
-        await this.achievementService.evaluateAchievement(account?.id, AchievementType.GOAL, [this.goalRepository, completed]);
+        await this.achievementService.evaluateAchievement(account?.id, AchievementType.GOAL, [completed]);
         return true;
     }
 

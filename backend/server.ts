@@ -118,6 +118,8 @@ router.delete("/budgeteer/:userId/wallets/:walletId", walletController.deleteWal
 
 router.put("/budgeteer/wallets/:walletId", walletController.updateWallet.bind(walletController));
 
+router.get("/budgeteer/wallets/:walletId/goals", goalController.getGoalsForWallet.bind(goalController));
+
 //EXPENSES
 router.post("/budgeteer/wallets/:walletId/expenses", expenseController.createExpense.bind(expenseController));
 
@@ -133,7 +135,7 @@ router.post("/budgeteer/goals", goalController.createGoal.bind(goalController));
 
 router.delete("/budgeteer/goals/:goalId", goalController.deleteGoal.bind(goalController));
 
-router.get("/budgeteer/goals/:walletId", goalController.getGoalsForWallet.bind(goalController));
+// router.get("/budgeteer/goals/:walletId", goalController.getGoalsForWallet.bind(goalController));
 
 router.put("/budgeteer/goals/:goalId", goalController.updateGoal.bind(goalController));
 

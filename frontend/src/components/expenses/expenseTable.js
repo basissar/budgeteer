@@ -66,8 +66,8 @@ const ExpenseTable = ({ expenses, currency, handleEditExpense, handleDeleteExpen
                             </Table.Cell>
                             <Table.Cell>
                                 <div className="flex flex-row items-center">
-                                    <EditIcon className="edit-icon"
-                                        onClick={() => handleEditExpense(expense.id)} />
+                                    {/* <EditIcon className="edit-icon"
+                                        onClick={() => handleEditExpense(expense.id)} /> */}
                                     <DeleteIcon 
                                         className="delete-icon"
                                         onClick={() => handleDeleteExpense(expense.id)}/>

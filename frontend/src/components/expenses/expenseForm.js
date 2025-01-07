@@ -3,7 +3,7 @@ import axios from 'axios';
 import { API_BASE_URL, INFO } from '../../utils/macros.js';
 import CustomDialog from '../custom/customDialog.js'
 import { useUserContext } from "../security/userProvider";
-import { Datepicker, Button, TextInput, Select, Dropdown, DropdownItem } from "flowbite-react";
+import { Datepicker, Button, TextInput, Select, Dropdown, DropdownItem, Modal} from "flowbite-react";
 import Icon from '../custom/icon.js';
 import datePickerTheme from '../../themes/datePicker.json';
 import Error from '../custom/error.js';
@@ -19,14 +19,24 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
     const [showDialog, setShowDialog] = useState(false);
 
     const [responseMessage, setResponseMessage] = useState('');
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorModalContent, setErrorModalContent] = useState('');
 
-    const { user, showModal} = useUserContext();
+
+    const { user, showModal } = useUserContext();
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
+        setErrorMessage('');
+
         if (!newExpenseTarget) {
-            alert("Please select a target category");
+            setErrorMessage("Please select a target category");
+            setErrorModalContent({
+                title: 'Error',
+                message: 'Please select a target category before submitting the expense.'
+            });
+            setShowErrorModal(true);
             return;
         }
 
@@ -74,7 +84,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
         const selectedCategory = categories.find((cat) => cat.id === selectedId);
         return (
             <div className="flex items-center gap-2 h-5">
-                <Icon id={selectedCategory.iconId} alt={selectedCategory.name} color={selectedCategory.color}/>
+                <Icon id={selectedCategory.iconId} alt={selectedCategory.name} color={selectedCategory.color} />
                 <span>{selectedCategory.name}</span>
             </div>
         );
@@ -145,7 +155,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
                                         onClick={() => setNewExpenseSource(category.id)}
                                     >
                                         <div className="flex items-center gap-2">
-                                            <Icon id={category.iconId} alt={category.name} color={category.color}/>
+                                            <Icon id={category.iconId} alt={category.name} color={category.color} />
                                             <span>{category.name}</span>
                                         </div>
                                     </Dropdown.Item>
@@ -162,7 +172,7 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
                     <div>
                         <label htmlFor="date">Expense date:</label>
                         <Datepicker selected={newExpenseDate} onChange={(date) => setNewExpenseDate(date)} required
-                        theme={datePickerTheme}
+                            theme={datePickerTheme}
                         />
                     </div>
 
@@ -170,8 +180,18 @@ const ExpenseForm = ({ userId, currentWalletId, expenses, setExpenses, categorie
 
 
                 </div>
-                {errorMessage && <Error message={errorMessage} type={'error'}/>}
+                {errorMessage && <Error message={errorMessage} type={'error'} />}
             </form>
+
+            <Modal show={showErrorModal} onClose={() => setShowErrorModal(false)}>
+                <Modal.Header>{errorModalContent.title}</Modal.Header>
+                <Modal.Body>
+                    <p>{errorModalContent.message}</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={() => setShowErrorModal(false)}>Close</Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

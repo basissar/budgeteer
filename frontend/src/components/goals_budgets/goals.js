@@ -19,7 +19,7 @@ export default function Goals() {
     useEffect(() => {
         const fetchGoals = async () => {
             try {
-                const goalsResponse = await axios.get(`${API_BASE_URL}/goals/${currentWalletId}`, {
+                const goalsResponse = await axios.get(`${API_BASE_URL}/wallets/${currentWalletId}/goals`, {
                     withCredentials: true
                 });
                 setGoals(goalsResponse.data.goals);

@@ -41,14 +41,13 @@ export class AchievementService {
     }
 
     /**
-     * 
+     * Evaluates users achievement
      * @param accountId id of user account
      * @param type type of achievement for evaluation
      * @param data any data passed into the evalutaion 
-     * data[0] - repository
-     * data[1] - count of completed expenses/goals/budgets
+     * data[0] - count of completed expenses/goals/budgets
      */
-    async evaluateAchievement(accountId: string, type: AchievementType, data: any[]){
+    public async evaluateAchievement(accountId: string, type: AchievementType, data: any[]){
         switch(type){
             case AchievementType.GOAL: {
                 this.achievementContext.setStrategy(new GoalCompletionStrategy(this));
