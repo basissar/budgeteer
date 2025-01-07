@@ -21,10 +21,13 @@ const authorizationMiddleware = container.resolve(AUTH_MW);
 const server = new Application();
 const router = new Router();
 
+const frontendUrl = Deno.env.get('FRONTEND_URL') || 'http://localhost:3000';
+
 server.use(oakCors({
   credentials: true,
-  origin: /^.+localhost:(3000|4200|8080)$/
+  origin: frontendUrl
 }));
+
 
 const userController = container.resolve(USER_CONTROLLER);
 
